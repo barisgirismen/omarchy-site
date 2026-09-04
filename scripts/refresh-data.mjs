@@ -11,9 +11,10 @@
  * Run: node scripts/refresh-data.mjs   (npm run refresh-data)
  * CI runs it on a schedule and commits what changed.
  */
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import prettier from 'prettier'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = path.join(ROOT, 'src/data')
@@ -136,3 +137,87 @@ await writeFile(
   ),
 )
 console.log(`version.json: ${version}`)
+
+// ---------------------------------------------------------------- momentum
+// The repository's own numbers for the figures beside the news: stars,
+// forks, contributors and a year of weekly commits. The foundation and
+// download figures in the same file are quoted from the news posts they
+// link to and kept by hand, so only the github block is rewritten here.
+// GitHub computes the weekly stats on first request and answers 202 with
+// an empty body until they are ready, hence the retries.
+const MOMENTUM = path.join(OUT, 'momentum.json')
+const momentum = JSON.parse(await readFile(MOMENTUM, 'utf8'))
+const gh = (p, init) =>
+  fetch(`https://api.github.com/repos/omacom/omarchy${p}`, {
+    ...init,
+    headers: {
+      accept: 'application/vnd.github+json',
+      ...(process.env.GITHUB_TOKEN
+        ? { authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+        : {}),
+    },
+  })
+const repoRes = await gh('')
+if (!repoRes.ok) throw new Error(`repo → ${repoRes.status}`)
+const repo = await repoRes.json()
+// anon=1 counts the authors whose commits carry an email GitHub cannot
+// match to an account. They are contributors, and they are in the count the
+// repository's own page shows: without this the site said 444 where GitHub
+// said 510.
+const contributorsRes = await gh('/contributors?per_page=1&anon=1')
+const lastPage = /page=(\d+)>; rel="last"/.exec(
+  contributorsRes.headers.get('link') ?? '',
+)
+let weeks = []
+for (let attempt = 0; attempt < 5 && weeks.length === 0; attempt++) {
+  const res = await gh('/stats/commit_activity')
+  if (res.status === 200) weeks = (await res.json()).map((w) => w.total)
+  else await new Promise((r) => setTimeout(r, 3000))
+}
+if (weeks.length === 52 && lastPage) {
+  // Stars, forks and contributors only go up. A fall means the answer was
+  // odd rather than the project shrinking - a partial contributor list, a
+  // cached response - and the figures would go out on the site as fact. Say
+  // so loudly; the run still writes, because a real fall is possible and a
+  // refresh that refuses to write ages worse than one that warns.
+  const before = momentum.github
+  const now = {
+    stars: repo.stargazers_count,
+    forks: repo.forks_count,
+    contributors: Number(lastPage[1]),
+  }
+  for (const [key, value] of Object.entries(now)) {
+    if (value < before[key]) {
+      console.warn(
+        `momentum.json: ${key} fell from ${before[key]} to ${value} - check ` +
+          'the API answer before this is deployed',
+      )
+    }
+  }
+
+  momentum.checked = new Date().toISOString().slice(0, 10)
+  momentum.github = {
+    stars: repo.stargazers_count,
+    forks: repo.forks_count,
+    contributors: Number(lastPage[1]),
+    commitsYear: weeks.reduce((a, b) => a + b, 0),
+    weeks,
+  }
+  // Through prettier, so the committed file reads the way the repo's check
+  // wants it and a refresh never shows up as a formatting change.
+  await writeFile(
+    MOMENTUM,
+    await prettier.format(JSON.stringify(momentum), { parser: 'json' }),
+  )
+  console.log(
+    `momentum.json: ${momentum.github.stars} stars, ${momentum.github.commitsYear} commits`,
+  )
+} else {
+  // GitHub computes the weekly stats on demand and answers 202 until they
+  // are ready. Warn rather than log: the figures on the site are then as
+  // old as the last good run, and nothing else in the output says so.
+  console.warn(
+    'momentum.json: the commit stats never arrived, so the previous figures ' +
+      `stand (checked ${momentum.checked})`,
+  )
+}

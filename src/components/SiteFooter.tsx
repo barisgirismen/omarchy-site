@@ -2,7 +2,9 @@ import { Link } from '@tanstack/react-router'
 import { OmarchyWordmark } from '@/components/Brand'
 import { PixelBackdrop } from '@/components/HeroShader'
 import {
+  BasecampMark,
   CloudflareMark,
+  HeyMark,
   ThirtySevenSignalsMark,
 } from '@/components/PartnerLogos'
 import { OPEN_PICKER_EVENT } from '@/lib/theme'
@@ -57,7 +59,7 @@ const focusRing =
 
 const footerLink = `text-text-secondary transition-colors duration-150 ease-out hover:text-text ${focusRing}`
 
-const creditLink = `transition-[filter] duration-150 ease-out hover:brightness-125 ${focusRing}`
+const creditLink = `text-text-secondary transition-colors duration-150 ease-out hover:text-text ${focusRing}`
 
 export function SiteFooter() {
   return (
@@ -111,38 +113,33 @@ export function SiteFooter() {
 
             {/* Who is behind it and who carries it: attribution belongs with
                 the identity, not down in the fine print with the legal. */}
-            <div className="mt-5 flex flex-col gap-2 text-[13px] text-text-muted [text-wrap:pretty]">
+            <div className="mt-4 flex flex-col gap-4 text-[13px] text-text-muted [text-wrap:pretty]">
               <p data-quiet>
                 Incubated at{' '}
-                <a
-                  href="https://37signals.com"
-                  className={`inline-flex items-center gap-[3px] pl-px align-middle text-partner-37signals ${creditLink}`}
-                >
-                  <ThirtySevenSignalsMark className="size-4 shrink-0" />
+                {/* The link stays plain inline text, so its words sit on the
+                    paragraph's own baseline; an inline-flex box aligned to
+                    the middle of the line dropped them below it. The mark is
+                    an inline glyph beside them, nudged to sit on that same
+                    baseline. */}
+                <a href="https://37signals.com" className={creditLink}>
+                  <ThirtySevenSignalsMark className="mr-[3px] inline-block size-4 shrink-0 align-[-0.28em]" />
                   37signals
                 </a>
                 , makers of{' '}
-                <a
-                  href="https://basecamp.com"
-                  className={`text-partner-basecamp ${creditLink}`}
-                >
+                <a href="https://basecamp.com" className={creditLink}>
+                  <BasecampMark className="mr-[5px] inline-block h-4 w-auto align-[-0.28em]" />
                   Basecamp
                 </a>{' '}
                 and{' '}
-                <a
-                  href="https://hey.com"
-                  className={`text-partner-hey ${creditLink}`}
-                >
+                <a href="https://hey.com" className={creditLink}>
+                  <HeyMark className="mr-[5px] inline-block h-4 w-auto align-[-0.28em]" />
                   HEY
                 </a>
               </p>
               <p data-quiet>
                 Sponsored hosting by{' '}
-                <a
-                  href="https://cloudflare.com"
-                  className={`inline-flex items-center gap-[5px] pl-px align-middle text-partner-cloudflare ${creditLink}`}
-                >
-                  <CloudflareMark className="h-3 w-auto shrink-0" />
+                <a href="https://cloudflare.com" className={creditLink}>
+                  <CloudflareMark className="mr-[5px] inline-block h-3 w-auto shrink-0 align-[-0.15em]" />
                   Cloudflare
                 </a>
               </p>
