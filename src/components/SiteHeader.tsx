@@ -11,9 +11,8 @@ import {
 import { OmarchyMarkDrawn } from '@/components/Brand'
 import { Button } from '@/components/ui/button'
 import { useHashLink, useTopLink } from '@/lib/hash-scroll'
-import { OPEN_PICKER_EVENT, THEME_EVENT, groundOf } from '@/lib/theme'
+import { OPEN_PICKER_EVENT } from '@/lib/theme'
 import { OPEN_SEARCH_EVENT } from '@/lib/search'
-import { useIsNarrow } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -26,10 +25,10 @@ const navLinks = [
 /**
  * One header, always the same content: the glyph, the nav, GitHub, and
  * Install. The only thing scrolling changes is the surface, transparent
- * over the home hero and, past it, the colour of whatever section it is
- * sitting on, so nothing appears,
- * disappears, or moves as you cross the boundary. The name never renders
- * as text; the glyph is the identity.
+ * over the home hero and, past it, one translucent wash of the page's
+ * ground with a blur behind it, the same over every section, so nothing
+ * appears, disappears, moves or changes colour as you scroll. The name
+ * never renders as text; the glyph is the identity.
  */
 /**
  * Whether a hero still covers the bar. The bar and its blended ghost both read
@@ -187,7 +186,6 @@ function useNavSurface(
   /** The blended ghost is up behind the bar, so the real labels stand aside. */
   blended: boolean,
   bar: RefObject<HTMLElement | null>,
-  flat: boolean,
   /** Re-surveyed on arrival at a new page, whose sections are its own. */
   pathname: string,
 ) {
@@ -210,33 +208,17 @@ function useNavSurface(
       if (ghost) ghost.style.opacity = on ? '0' : '1'
     }
 
-    // A phone has no bar: no fill, nothing to fade in, the way it looks at the
-    // top of the page all the way down it. The controls carry their own ground
-    // instead, so there is something behind them and not behind the whole
-    // width of the screen.
-    if (flat) {
-      el.style.setProperty('--nav-surface', '0')
-      solid(!blended)
-      return
-    }
-
-    /**
-     * Where each of the page's grounds begins and ends, and what colour it is.
-     * The hero is left out: the blended ghost lives over it and the bar stays
-     * bare all the way down it.
-     */
-    type Ground = { top: number; bottom: number; colour: string }
-    let grounds: Ground[] = []
-    let height = 0
+    /** Where the hero ends, in page coordinates; the bar is bare above it. */
+    let heroBottom = 0
     /** The <main> the last survey read. The route changes before the DOM
      *  does, so the one mounted when this effect runs may be the outgoing
      *  page's; comparing identities is how the swap is noticed. */
     let surveyed: Element | null = null
     /** Whether the mounted page has a hero. Over a hero the bar goes bare
      *  and the blended ghost carries the labels; a page without one has no
-     *  such moment, and the bar always wears at least the page's own
-     *  ground - a bar that is transparent for the first few dozen pixels of
-     *  scroll reads as content sliding under a pane of nothing. */
+     *  such moment, and the bar wears its surface from the first pixel - a
+     *  bar that is transparent for the first few dozen pixels of scroll
+     *  reads as content sliding under a pane of nothing. */
     let heroUp = false
     // Asked, not waited for. Arriving on a page with the pointer already over
     // the bar - which is what clicking a link in it does - no pointerenter
@@ -255,68 +237,26 @@ function useNavSurface(
         sizes.disconnect()
         if (main) sizes.observe(main)
       }
-      heroUp = document.querySelector('[data-hero-sentinel]') !== null
-      height = el.getBoundingClientRect().height
-      // Sections, plus any band inside one that paints its own ground and
-      // marks itself as such - "See it in action" is a full-bleed strip of
-      // its own colour living inside the section above it, and to the bar it
-      // is a section like any other. In document order, so a nested one is
-      // always found after the section holding it.
-      const sections = document.querySelectorAll<HTMLElement>(
-        'main > section, main [data-ground]',
-      )
-      const nodes = sections.length
-        ? [...sections]
-        : [...document.querySelectorAll<HTMLElement>('main')]
-
-      const footer = document.querySelector<HTMLElement>('footer')
-      if (footer) nodes.push(footer)
-
-      grounds = nodes
-        .filter((node) => !node.hasAttribute('data-hero-sentinel'))
-        .map((node) => {
-          const box = node.getBoundingClientRect()
-          return {
-            top: box.top + window.scrollY,
-            bottom: box.bottom + window.scrollY,
-            colour: groundOf(node) ?? 'var(--color-bg)',
-          }
-        })
-      return grounds.length > 0
+      const hero = document.querySelector('[data-hero-sentinel]')
+      heroUp = hero !== null
+      heroBottom = hero
+        ? hero.getBoundingClientRect().bottom + window.scrollY
+        : 0
+      return main !== null
     }
 
     /**
-     * The bar carries a section's colour only while it is wholly inside that
-     * section: from the moment its own top edge meets the section's top, to
-     * the moment its bottom edge meets the section's bottom. Outside that -
-     * which is exactly while a boundary is crossing it - it carries nothing.
-     *
-     * Both switches happen at the instant the fill and the thing behind it are
-     * the same colour, so neither is visible. What you see instead is a bar
-     * that hides the page sliding under it, and lets a section edge pass
-     * through in the open.
-     *
-     * Cheap enough to run straight from the scroll event: it reads scrollY,
-     * which costs no layout, and compares it against numbers taken once.
+     * One surface everywhere: past the hero the bar wears a translucent wash
+     * of the page's ground with a blur behind it, and keeps it across every
+     * section, so the page slides under the bar without the bar changing
+     * colour. It is bare only while the hero is still under its top edge,
+     * where the blended ghost carries the labels. Cheap enough to run
+     * straight from the scroll event: it reads scrollY, which costs no
+     * layout, against an edge measured once.
      */
-    /** The innermost ground at a point down the page, or none. */
-    const groundAt = (y: number) => {
-      let found: Ground | null = null
-      for (const g of grounds) if (y >= g.top && y < g.bottom) found = g
-      return found
-    }
-
     const paint = () => {
-      const y = window.scrollY
-      // Whole rule, in one line: the bar is coloured when its top edge and
-      // its bottom edge are in the same ground, and bare when they are not.
-      const top = groundAt(y)
-      const here = top && top === groundAt(y + height) ? top : null
-      // Nothing to say while the sheet is down: the bar paints as the top of
-      // the sheet then, from a class, not from the page behind it.
-      if (here) el.style.setProperty('--nav-ground', here.colour)
-      else if (!heroUp) el.style.setProperty('--nav-ground', 'var(--color-bg)')
-      el.style.setProperty('--nav-surface', here || !heroUp ? '1' : '0')
+      const overHero = heroUp && window.scrollY < heroBottom
+      el.style.setProperty('--nav-surface', overHero ? '0' : '1')
       // The ghost holds the labels for as long as it is up, and hovering hands
       // them over early: it sits under the bar and cannot answer a pointer.
       solid(sheetOpen || !blended || hovering)
@@ -371,9 +311,6 @@ function useNavSurface(
     el.addEventListener('pointerleave', onLeave)
     window.addEventListener('scroll', paint, { passive: true })
     window.addEventListener('resize', relayout)
-    // Each ground's colour is read once and held, so a theme has to say when
-    // it has changed or the bar keeps the last one until the next scroll.
-    window.addEventListener(THEME_EVENT, relayout)
     return () => {
       cancelAnimationFrame(probe)
       window.clearTimeout(settle)
@@ -383,9 +320,8 @@ function useNavSurface(
       el.removeEventListener('pointerleave', onLeave)
       window.removeEventListener('scroll', paint)
       window.removeEventListener('resize', relayout)
-      window.removeEventListener(THEME_EVENT, relayout)
     }
-  }, [sheetOpen, blended, bar, flat, pathname])
+  }, [sheetOpen, blended, bar, pathname])
 }
 
 export function SiteHeader() {
@@ -396,12 +332,7 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const installLink = useHashLink('install')
   const homeLink = useTopLink()
-  const narrow = useIsNarrow()
   const transparent = heroInView
-  // Past the hero there is no blended ghost to carry the controls and no bar
-  // behind them, so on a phone they take the same ground a press gives them.
-  // With the sheet open the bar has a surface again and they do not need one.
-  const chip = narrow && !menuOpen && !transparent
 
   // Following a link or hitting Escape closes it; leaving it open across a
   // navigation would cover the page you just asked for.
@@ -430,8 +361,10 @@ export function SiteHeader() {
   // background until the observer noticed the hero and rebuilt the ramp, a
   // few frames later. An open sheet still gets its bar back - a menu hanging
   // off nothing, with the page running up between it and the logo, reads as a
-  // mistake.
-  useNavSurface(menuOpen, transparent, bar, narrow && !menuOpen, pathname)
+  // mistake. A phone gets the same bar as everything else: it used to go
+  // without one past the hero, with only the menu button carrying a ground,
+  // and the mark sat straight on whatever heading scrolled under it.
+  useNavSurface(menuOpen, transparent, bar, pathname)
 
   const glyph = (
     <Link
@@ -497,29 +430,32 @@ export function SiteHeader() {
         // With the sheet down, the bar is the top of the sheet and wears its
         // ground rather than the section's: taking a colour from the page
         // behind it would put a seam across the one surface being looked at.
-        className={cn(menuOpen && 'bg-bg/95 backdrop-blur-lg')}
+        className={cn(
+          'transition-[background-color,box-shadow] duration-150 ease-out',
+          menuOpen && 'bg-bg/95 backdrop-blur-lg',
+        )}
         style={{
           // On the bar rather than the header, so both the surface it paints
           // and the height the hooks measure include the strip above it.
           paddingTop: 'env(safe-area-inset-top)',
-          // The section's own colour, so the bar reads as the top of whatever
-          // is under it rather than as a panel over it, at 90% with the page
-          // blurred behind: enough to feel like glass, not enough for the
-          // copy scrolling under it to tint the fill.
+          // The page's ground at 90% with the page blurred behind it, and a
+          // hairline along the bottom edge: the same on every section, so
+          // nothing changes colour on the way down. --nav-surface takes all
+          // three away over the hero; the blur is scaled rather than
+          // switched, so at zero it is no filter at all.
           //
           // Mixed in sRGB, not oklch. Mixing a colour with `transparent` in a
           // polar space leaves the hue powerless, and a hue of none renders
-          // as 0, which is red: the bar turned maroon over every section
-          // whose ground took that path.
+          // as 0, which is red.
           backgroundColor: menuOpen
             ? undefined
-            : 'color-mix(in srgb, var(--nav-ground, var(--color-bg)) calc(var(--nav-surface, 0) * 90%), transparent)',
-          // The blur arrives with the fill and leaves with it. Over the hero
-          // the bar has no surface at all, and a blur there smeared the
-          // pixels behind letters that are meant to sit on them cleanly.
+            : 'color-mix(in srgb, var(--color-bg) calc(var(--nav-surface, 0) * 90%), transparent)',
           backdropFilter: menuOpen
             ? undefined
             : 'blur(calc(var(--nav-surface, 0) * 12px))',
+          boxShadow: menuOpen
+            ? undefined
+            : 'inset 0 -1px 0 color-mix(in srgb, var(--color-border-subtle) calc(var(--nav-surface, 0) * 100%), transparent)',
         }}
       >
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
@@ -559,10 +495,7 @@ export function SiteHeader() {
               variant="ghost"
               size="icon"
               data-nav-toggle
-              className={cn(
-                'relative size-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 sm:hidden',
-                chip && 'bg-surface-2',
-              )}
+              className="relative size-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 sm:hidden"
               aria-expanded={menuOpen}
               aria-controls="site-menu"
               aria-label={menuOpen ? 'Close menu' : 'Menu'}
@@ -576,13 +509,16 @@ export function SiteHeader() {
       {/* Tapping the page behind the sheet closes it. The header is an
           inline-size container, so it is the containing block for fixed
           children as well - bottom-0 would resolve to the bar's own 56px, and
-          the scrim is sized explicitly instead. */}
+          the scrim is sized explicitly instead. Dimmed and blurred the way
+          the search and the theme picker dim the page, so the three layers
+          open alike; a wash of the page's own colour barely registered on a
+          dark theme. */}
       {menuOpen ? (
         <div
           data-menu-scrim
           aria-hidden="true"
           onClick={() => setMenuOpen(false)}
-          className="absolute inset-x-0 top-(--nav-h) h-svh bg-bg/40 sm:hidden"
+          className="absolute inset-x-0 top-(--nav-h) h-svh bg-black/55 supports-backdrop-filter:backdrop-blur-xs sm:hidden"
         />
       ) : null}
 
