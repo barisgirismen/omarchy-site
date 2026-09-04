@@ -1,6 +1,8 @@
 export const wordmarkEtchPad = 2
 export const wordmarkPlateOnLight = 0.22
 export const wordmarkPlateOnDark = 0.78
+/** Grey halo around etched letters. The shader stays; flip `on` to bring it back. */
+export const wordmarkOutline: { on: boolean } = { on: false }
 
 const VERTEX = `
 attribute vec2 a_pos;
@@ -133,7 +135,7 @@ export function createWordmarkCompositor(
         source,
       )
       gl.uniform2f(uTexel, 1 / source.width, 1 / source.height)
-      gl.uniform1f(uPad, pad)
+      gl.uniform1f(uPad, wordmarkOutline.on ? pad : 0)
       gl.uniform1f(uPlate, plate)
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     },
