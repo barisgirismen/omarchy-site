@@ -144,8 +144,8 @@ export function TypewriterTail({
     // Measured against the real webfont, or the reservation is a fallback's.
     // document.fonts is absent in some embedded browsers, whatever lib.dom
     // claims, and this runs before anything is painted.
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (document.fonts?.ready) void document.fonts.ready.then(begin)
+    const fonts = (document as { fonts?: FontFaceSet }).fonts
+    if (fonts?.ready) void fonts.ready.then(begin)
     else begin()
 
     const relayout = () => {

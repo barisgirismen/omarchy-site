@@ -15,7 +15,7 @@
     "check": "vp check",
     "test": "vp test",
     "refresh-data": "node scripts/refresh-data.mjs",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "vp run build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "port": "python3 scripts/port_content.py",
     "assemble": "node scripts/assemble-static.mjs",

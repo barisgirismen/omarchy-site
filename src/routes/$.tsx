@@ -108,11 +108,9 @@ export const Route = createFileRoute('/$')({
       })
     }
     const page = await getPortedPage({ data: path })
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- eslint mis-narrows the server-fn return here; tsc sees PortedPage | null
     if (!page) throw notFound()
     if (path === 'security') {
       const credits = await getPortedPage({ data: 'security/credits' })
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- same server-fn mis-narrowing as above
       if (credits) {
         return {
           ...page,

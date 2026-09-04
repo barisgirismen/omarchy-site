@@ -8,13 +8,12 @@
  * pages, the teams, the theme gallery - is read at build time by
  * scripts/port_content.py instead, so it is never behind a deploy.
  *
- * Run: node scripts/refresh-data.mjs   (npm run refresh-data)
+ * Run: node scripts/refresh-data.mjs   (vp run refresh-data)
  * CI runs it on a schedule and commits what changed.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import prettier from 'prettier'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = path.join(ROOT, 'src/data')
@@ -203,12 +202,9 @@ if (weeks.length === 52 && lastPage) {
     commitsYear: weeks.reduce((a, b) => a + b, 0),
     weeks,
   }
-  // Through prettier, so the committed file reads the way the repo's check
-  // wants it and a refresh never shows up as a formatting change.
-  await writeFile(
-    MOMENTUM,
-    await prettier.format(JSON.stringify(momentum), { parser: 'json' }),
-  )
+  // Pretty-printed so the committed file stays readable and a refresh
+  // does not show up as a formatting change against a minified dump.
+  await writeFile(MOMENTUM, JSON.stringify(momentum, null, 2) + '\n')
   console.log(
     `momentum.json: ${momentum.github.stars} stars, ${momentum.github.commitsYear} commits`,
   )
