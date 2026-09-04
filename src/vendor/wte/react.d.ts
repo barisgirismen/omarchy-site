@@ -6,6 +6,9 @@ export type UseTextEffectOptions = {
   input: string
   wasmUrl?: string
   frameRate?: number
+  palette?: string
+  background?: string
+  backgroundPacked?: number
   onFinished?: () => void
 }
 

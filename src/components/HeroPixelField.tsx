@@ -232,7 +232,7 @@ type Props = {
    */
   onGlyphPress?: () => void
   /**
-   * Paint the glyph into the field. The homepage leaves this off: WTE
+   * Paint the glyph into the field. The homepage leaves this off: laseretch
    * draws OMARCHY in the slot above the canvas. Click and hover still use
    * the slot rect.
    */

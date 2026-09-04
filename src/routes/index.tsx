@@ -235,7 +235,7 @@ function Home() {
               as sitting low and crowd the copy below. */}
           <div className="flex-[2.1]" />
           {/* The slot the field measures its cell size from. The green mask
-              stays hidden unless the WTE catalog cannot run. */}
+              stays hidden unless laseretch cannot run. */}
           <div data-hero-wordmark className="relative w-[88%] max-w-4xl">
             <OmarchyWordmark
               className={

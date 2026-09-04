@@ -1,19 +1,14 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTextEffect } from '@/vendor/wte/react.js'
 import {
   WORDMARK_ART,
+  WORDMARK_EFFECT,
   WORDMARK_FALLBACK_MS,
   WORDMARK_FRAME_RATE,
   WORDMARK_WASM_URL,
 } from '@/data/wordmark-art'
-import { effectNames, pickRandomEffect } from '@/lib/wte-catalog'
-import { SITE_THEMES, THEME_EVENT, readTheme } from '@/lib/theme'
+import { themePaletteArg } from '@/lib/theme-palettes'
+import { DEFAULT_THEME, SITE_THEMES, THEME_EVENT, readTheme } from '@/lib/theme'
 import {
   createWordmarkCompositor,
   wordmarkEtchPad,
@@ -27,15 +22,27 @@ function plateForTheme(id: string) {
     : wordmarkPlateOnDark
 }
 
+type ThemeLook = {
+  plate: number
+  palette: string | undefined
+}
+
+function lookForTheme(id: string): ThemeLook {
+  return {
+    plate: plateForTheme(id),
+    palette: themePaletteArg(id),
+  }
+}
+
 type Props = {
   onFallback?: (show: boolean) => void
 }
 
 /**
- * Homepage OMARCHY, played with the Web Text Effects catalog. A random
- * effect starts once the engine is up; when it finishes, another one
- * that is not the same takes its place. The CSS mask wordmark stays
- * hidden unless this fails or the reader prefers less motion.
+ * Homepage OMARCHY, etched once with laseretch in the active theme's
+ * palette. The CSS mask stays hidden unless this fails or the reader
+ * prefers less motion; the canvas holds its last frame when the etch
+ * finishes, and a theme change plays it again in the new inks.
  */
 export function WteWordmark({ onFallback }: Props) {
   const [reduced, setReduced] = useState<boolean | null>(null)
@@ -54,78 +61,52 @@ export function WteWordmark({ onFallback }: Props) {
 function Player({ onFallback }: Props) {
   const sourceRef = useRef<HTMLCanvasElement>(null)
   const outputRef = useRef<HTMLCanvasElement>(null)
+  const etchedRef = useRef(false)
   const fallback = useRef(onFallback)
   fallback.current = onFallback
-  const [effect, setEffect] = useState('')
   const [showFallback, setShowFallback] = useState(false)
-  const [plate, setPlate] = useState(() =>
+  const [look, setLook] = useState(() =>
     typeof document === 'undefined'
-      ? wordmarkPlateOnDark
-      : plateForTheme(readTheme()),
+      ? lookForTheme(DEFAULT_THEME)
+      : lookForTheme(readTheme()),
   )
-
-  const namesRef = useRef<string[]>([])
-  const effectRef = useRef(effect)
-  const restartRef = useRef<() => void>(() => undefined)
-
-  const playNext = useCallback(() => {
-    const next = pickRandomEffect(namesRef.current, effectRef.current)
-    if (next === '') return
-    if (next === effectRef.current) {
-      restartRef.current()
-      return
-    }
-    setEffect(next)
+  const holdLastFrame = useCallback(() => {
+    etchedRef.current = true
   }, [])
 
-  const { ready, catalog, restart } = useTextEffect({
+  const { ready } = useTextEffect({
     canvas: sourceRef,
-    effect,
+    effect: WORDMARK_EFFECT,
     input: WORDMARK_ART,
     wasmUrl: WORDMARK_WASM_URL,
     frameRate: WORDMARK_FRAME_RATE,
-    onFinished: playNext,
+    palette: look.palette,
+    onFinished: holdLastFrame,
   })
-
-  useLayoutEffect(() => {
-    namesRef.current = effectNames(catalog)
-    effectRef.current = effect
-    restartRef.current = restart
-  }, [catalog, effect, restart])
-
-  useEffect(() => {
-    if (!ready || effect !== '') return
-    const names = effectNames(catalog)
-    if (names.length === 0) {
-      setShowFallback(true)
-      fallback.current?.(true)
-      return
-    }
-    setEffect(pickRandomEffect(names, ''))
-  }, [ready, catalog, effect])
 
   useEffect(() => {
     const onTheme = (event: Event) => {
       const id = (event as CustomEvent<string>).detail
-      if (typeof id === 'string') setPlate(plateForTheme(id))
+      if (typeof id !== 'string') return
+      etchedRef.current = false
+      setLook(lookForTheme(id))
     }
     window.addEventListener(THEME_EVENT, onTheme)
     return () => window.removeEventListener(THEME_EVENT, onTheme)
   }, [])
 
   useEffect(() => {
-    if (ready && effect !== '') {
+    if (ready) {
       setShowFallback(false)
       fallback.current?.(false)
       return
     }
-    if (ready) return
     const timer = window.setTimeout(() => {
       setShowFallback(true)
       fallback.current?.(true)
     }, WORDMARK_FALLBACK_MS)
     return () => window.clearTimeout(timer)
-  }, [ready, effect])
+  }, [ready])
 
   useEffect(() => {
     const source = sourceRef.current
@@ -140,8 +121,17 @@ function Player({ onFallback }: Props) {
     }
 
     let frame = 0
+    let settling = false
     const tick = () => {
-      compositor.draw(source, wordmarkEtchPad, plate)
+      compositor.draw(source, wordmarkEtchPad, look.plate)
+      if (etchedRef.current) {
+        if (settling) return
+        settling = true
+        frame = requestAnimationFrame(() => {
+          compositor.draw(source, wordmarkEtchPad, look.plate)
+        })
+        return
+      }
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
@@ -150,7 +140,7 @@ function Player({ onFallback }: Props) {
       cancelAnimationFrame(frame)
       compositor.destroy()
     }
-  }, [ready, plate])
+  }, [ready, look])
 
   if (showFallback) return null
 

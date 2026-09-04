@@ -2037,7 +2037,7 @@ h6 {
 
 /* The green mask is the fallback, not the first paint. Keep it for layout
    (visibility, not display) so the field still has a slot to measure.
-   It stays hidden unless the WTE catalog cannot run. */
+   It stays hidden unless laseretch cannot run. */
 .hero-wordmark-static {
   visibility: hidden;
 }
