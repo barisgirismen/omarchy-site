@@ -22,15 +22,16 @@ function plateForTheme(id: string) {
 }
 
 type Props = {
-  onReady?: () => void
+  onFallback?: () => void
 }
 
 /**
  * Homepage OMARCHY, etched once with Web Text Effects laseretch. The CSS
- * mask wordmark stays as the layout slot and the fallback; this canvas sits
- * on top and holds its last frame when the effect finishes.
+ * mask wordmark is hidden unless this fails or the reader prefers less
+ * motion; this canvas sits on top of that slot and holds its last frame
+ * when the effect finishes.
  */
-export function LaserEtchWordmark({ onReady }: Props) {
+export function LaserEtchWordmark({ onFallback }: Props) {
   const [reduced, setReduced] = useState<boolean | null>(null)
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -41,13 +42,15 @@ export function LaserEtchWordmark({ onReady }: Props) {
   }, [])
 
   if (reduced !== false) return null
-  return <Etch onReady={onReady} />
+  return <Etch onFallback={onFallback} />
 }
 
-function Etch({ onReady }: Props) {
+function Etch({ onFallback }: Props) {
   const sourceRef = useRef<HTMLCanvasElement>(null)
   const outputRef = useRef<HTMLCanvasElement>(null)
   const etchedRef = useRef(false)
+  const fallback = useRef(onFallback)
+  fallback.current = onFallback
   const [showFallback, setShowFallback] = useState(false)
   const [plate, setPlate] = useState(() =>
     typeof document === 'undefined'
@@ -77,15 +80,13 @@ function Etch({ onReady }: Props) {
   }, [])
 
   useEffect(() => {
-    if (ready) {
-      onReady?.()
-      return
-    }
+    if (ready) return
     const timer = window.setTimeout(() => {
       setShowFallback(true)
+      fallback.current?.()
     }, WORDMARK_FALLBACK_MS)
     return () => window.clearTimeout(timer)
-  }, [ready, onReady])
+  }, [ready])
 
   useEffect(() => {
     const source = sourceRef.current
@@ -94,7 +95,8 @@ function Etch({ onReady }: Props) {
 
     const compositor = createWordmarkCompositor(output)
     if (!compositor) {
-      source.classList.remove('opacity-0')
+      setShowFallback(true)
+      fallback.current?.()
       return
     }
 
@@ -120,7 +122,7 @@ function Etch({ onReady }: Props) {
     }
   }, [ready, plate])
 
-  if (showFallback && !ready) return null
+  if (showFallback) return null
 
   return (
     <>

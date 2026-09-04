@@ -168,7 +168,7 @@ function Home() {
   const [intro, setIntro] = useState(false)
   const installLink = useHashLink('install')
   const watchLink = useHashLink('watch')
-  const [etched, setEtched] = useState(false)
+  const [wordmarkFallback, setWordmarkFallback] = useState(false)
 
   // Intro stagger plays once per session; returning within the session
   // renders the resting state immediately.
@@ -259,17 +259,16 @@ function Home() {
               viewport's, the classic optical center. Dead center would read
               as sitting low and crowd the copy below. */}
           <div className="flex-[2.1]" />
-          {/* The slot the field measures its cell size from. Server-rendered
-              as the SVG mask so the wordmark is there before any script
-              runs, then laseretch takes over on the client. */}
+          {/* The slot the field measures its cell size from. The green mask
+              stays hidden unless laseretch cannot run. */}
           <div data-hero-wordmark className="relative w-[88%] max-w-4xl">
             <OmarchyWordmark
               className={
-                'w-full text-[color:var(--t-field-lit)]' +
-                (etched ? ' invisible' : '')
+                'hero-wordmark-static w-full text-[color:var(--t-field-lit)]' +
+                (wordmarkFallback ? ' hero-wordmark-static-on' : '')
               }
             />
-            <LaserEtchWordmark onReady={() => setEtched(true)} />
+            <LaserEtchWordmark onFallback={() => setWordmarkFallback(true)} />
           </div>
           <div className="flex-1" />
 

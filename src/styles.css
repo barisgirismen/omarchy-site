@@ -1366,3 +1366,17 @@ h6 {
     animation: none;
   }
 }
+
+/* The green mask is the fallback, not the first paint. Keep it for layout
+   (visibility, not display) so the field still has a slot to measure. */
+.hero-wordmark-static {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-wordmark-static {
+    visibility: visible;
+  }
+}
+.hero-wordmark-static-on {
+  visibility: visible;
+}
