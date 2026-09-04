@@ -397,31 +397,20 @@ export function ThemePicker() {
                 className="pointer-events-auto block w-full cursor-pointer [--card-dim:0.55] hover:[--card-dim:0.78]"
               >
                 {/* The parallelogram is the card's shape, not a shear of the
-                  screenshot. Three layers: the frame (an accent- or
-                  gray-filled parallelogram), an inner parallelogram that
-                  CROPS whatever is inside to the framed area, and the
-                  screenshot, which may slide sideways within that crop.
-                  Without the middle layer the slid image rode over the
-                  frame's padding and erased the border on that side. */}
+                  screenshot. Frame and image share the outer transform, so
+                  they travel as one piece when the deck steps. */}
                 <div
                   className={
                     'shadow-2xl ' + (depth === 0 ? 'bg-brand' : 'bg-zinc-500')
                   }
                   style={{ clipPath: PARALLELOGRAM }}
                 >
-                  {/* Dark matte behind the screenshot: sliding the image
-                    sideways uncovers part of the frame's interior, and
-                    without this the wrapper's border fill bled through as
-                    a wide wedge of the frame color. */}
                   <div
                     className="bg-black"
                     style={{
                       clipPath: parallelogramInset(depth === 0 ? '3px' : '1px'),
                     }}
                   >
-                    {/* Only a sliver of a neighbour shows, so its screenshot
-                      slides sideways inside the frame to present its middle
-                      in that sliver rather than a bare edge. */}
                     <img
                       src={`/assets/images/theme-previews/${theme.id}.png`}
                       alt={`${theme.name} theme preview`}
@@ -440,7 +429,7 @@ export function ThemePicker() {
                           img.src = `/assets/images/theme-previews/${theme.id}.png?retry`
                         }, 1000)
                       }}
-                      className="w-full select-none object-cover transition-[transform,filter] duration-300 ease-out"
+                      className="w-full select-none object-cover transition-[filter] duration-300 ease-out"
                       style={{
                         aspectRatio: portrait ? '4 / 5' : '1800 / 1012',
                         // The dim lives on the screenshot alone so the frame
@@ -451,13 +440,6 @@ export function ThemePicker() {
                           depth === 0
                             ? undefined
                             : 'brightness(var(--card-dim))',
-                        // The visible sliver sits at about 5% (left) or 95%
-                        // (right) of a neighbour's card; 42% lands just shy of
-                        // the screenshot's center, which reads best by eye.
-                        transform:
-                          offset === 0
-                            ? undefined
-                            : `translateX(${offset < 0 ? '-42%' : '42%'})`,
                       }}
                     />
                   </div>
