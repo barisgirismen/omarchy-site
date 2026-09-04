@@ -1,8 +1,17 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import type { FieldGlyph } from './HeroPixelField'
 import { cn } from '@/lib/utils'
 
-type Field = typeof import('./HeroPixelField').HeroPixelField
+type FieldProps = {
+  onPainted?: () => void
+  glyph?: FieldGlyph
+  onGlyphPress?: () => void
+  stampGlyph?: boolean
+  variant?: 'hero' | 'field'
+}
+
+type Field = (props: FieldProps) => ReactNode
 
 type Props = {
   onPainted?: () => void
@@ -10,6 +19,8 @@ type Props = {
   glyph?: FieldGlyph
   /** What a press on the word does. Defaults to the theme picker. */
   onGlyphPress?: () => void
+  /** Draw the glyph into the field. Home leaves this to laseretch. */
+  stampGlyph?: boolean
 }
 
 function usePixelField() {
@@ -27,16 +38,20 @@ function usePixelField() {
 }
 
 /**
- * The hero backdrop. Both the drifting pixel field and the wordmark are
- * painted by one canvas on a single shared grid, so they stay aligned at
- * every viewport size. No WebGPU, no second layer, no resampling: the
- * wordmark is drawn as the bitmap it already is.
+ * The hero backdrop. The drifting pixel field is painted on the same
+ * lattice the wordmark slot is measured from. The homepage etches OMARCHY
+ * with Web Text Effects instead of stamping the bitmap into this canvas.
  *
  * The canvas module is loaded on the client after first paint. It is large
  * and runs a rAF loop; shipping it with the shell made a reload wait on it
  * before CSS and type had settled.
  */
-export function HeroShader({ onPainted, glyph, onGlyphPress }: Props) {
+export function HeroShader({
+  onPainted,
+  glyph,
+  onGlyphPress,
+  stampGlyph,
+}: Props) {
   const Field = usePixelField()
   return (
     <div
@@ -48,6 +63,7 @@ export function HeroShader({ onPainted, glyph, onGlyphPress }: Props) {
           onPainted={onPainted}
           glyph={glyph}
           onGlyphPress={onGlyphPress}
+          stampGlyph={stampGlyph}
         />
       ) : null}
     </div>

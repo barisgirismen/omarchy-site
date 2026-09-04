@@ -14,6 +14,7 @@ import {
 import { OmarchyWordmark } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
+import { LaserEtchWordmark } from '@/components/LaserEtchWordmark'
 import { InstallCommand } from '@/components/InstallCommand'
 import { CardRail } from '@/components/CardRail'
 import { TypewriterTail } from '@/components/TypewriterTail'
@@ -167,7 +168,7 @@ function Home() {
   const [intro, setIntro] = useState(false)
   const installLink = useHashLink('install')
   const watchLink = useHashLink('watch')
-  const [painted, setPainted] = useState(false)
+  const [etched, setEtched] = useState(false)
 
   // Intro stagger plays once per session; returning within the session
   // renders the resting state immediately.
@@ -246,7 +247,7 @@ function Home() {
         }
         style={{ background: 'var(--t-field-bg)' }}
       >
-        <HeroShader onPainted={() => setPainted(true)} />
+        <HeroShader stampGlyph={false} />
 
         {/* The bar's labels, blended against the canvas. They have to live in
             here to reach it: the real header is sticky, and a sticky element
@@ -259,15 +260,17 @@ function Home() {
               as sitting low and crowd the copy below. */}
           <div className="flex-[2.1]" />
           {/* The slot the field measures its cell size from. Server-rendered
-              as the SVG so the wordmark is there before any script runs, then
-              handed over to the canvas once it has painted the same pixels. */}
-          <OmarchyWordmark
-            data-hero-wordmark
-            className={
-              'w-[88%] max-w-4xl text-[color:var(--t-field-lit)]' +
-              (painted ? ' invisible' : '')
-            }
-          />
+              as the SVG mask so the wordmark is there before any script
+              runs, then laseretch takes over on the client. */}
+          <div data-hero-wordmark className="relative w-[88%] max-w-4xl">
+            <OmarchyWordmark
+              className={
+                'w-full text-[color:var(--t-field-lit)]' +
+                (etched ? ' invisible' : '')
+              }
+            />
+            <LaserEtchWordmark onReady={() => setEtched(true)} />
+          </div>
           <div className="flex-1" />
 
           <div

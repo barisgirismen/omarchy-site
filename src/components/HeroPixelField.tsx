@@ -231,6 +231,12 @@ type Props = {
    * goes home. The hover glow and the pointer cursor come with it either way.
    */
   onGlyphPress?: () => void
+  /**
+   * Paint the glyph into the field. The homepage leaves this off: laseretch
+   * draws OMARCHY in the slot above the canvas. Click and hover still use
+   * the slot rect.
+   */
+  stampGlyph?: boolean
 }
 
 /**
@@ -246,6 +252,7 @@ export function HeroPixelField({
   variant = 'hero',
   glyph = WORDMARK_GLYPH,
   onGlyphPress,
+  stampGlyph = true,
 }: Props) {
   // The press handler is read from inside an effect that must outlive every
   // render, so it arrives by ref: putting it in the dependency list would
@@ -676,7 +683,7 @@ export function HeroPixelField({
       // fractional grid, so adjacent cells always meet exactly: no seams
       // inside letters, and the outer edge lands on the same pixels as the
       // SSR fallback the canvas replaces.
-      for (let row = 0; isHero && row < glyph.height; row++) {
+      for (let row = 0; isHero && stampGlyph && row < glyph.height; row++) {
         const bits = glyph.rows[row]
         const yTop = wmY + row * wmCH
         const y = Math.round(yTop)
@@ -965,7 +972,7 @@ export function HeroPixelField({
       window.removeEventListener('contextmenu', onPointerCancel)
       if (isHero) window.dispatchEvent(new CustomEvent(GRID_CLEAR_EVENT))
     }
-  }, [onPainted, isHero])
+  }, [onPainted, isHero, stampGlyph])
 
   return (
     <canvas
