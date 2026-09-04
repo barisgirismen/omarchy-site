@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import {
   BrushIcon,
   ChevronLeftIcon,
@@ -22,9 +21,9 @@ import { cn } from '@/lib/utils'
 /**
  * The Omarchy theme browser, for the website. Press T and the same UI
  * Omarchy shows appears: a row of theme previews with the current one front
- * and center, the theme's name under it, arrows to walk the list. Every step
- * applies immediately, so the page behind the picker is the live preview,
- * exactly like the desktop re-theming behind Omarchy's own picker.
+ * and center, the theme's name under it, arrows to walk the list. Walking
+ * the deck only moves the cards. The page theme changes when you take the
+ * front one.
  */
 /** Omarchy's card slant: a 2.5% lean, top edge shifted right of the bottom. */
 const PARALLELOGRAM = 'polygon(2.5% 0%, 100% 0%, 97.5% 100%, 0% 100%)'
@@ -123,12 +122,17 @@ export function ThemePicker() {
   indexRef.current = index
 
   const step = useCallback((delta: number) => {
-    const next =
-      (indexRef.current + delta + SITE_THEMES.length) % SITE_THEMES.length
-    switchTheme(SITE_THEMES[next].id, () => {
-      flushSync(() => setIndex(next))
-    })
+    setIndex((at) => (at + delta + SITE_THEMES.length) % SITE_THEMES.length)
   }, [])
+
+  const choose = useCallback(() => {
+    const next = SITE_THEMES[indexRef.current]
+    if (next.id === readTheme()) {
+      close()
+      return
+    }
+    switchTheme(next.id, () => close())
+  }, [close])
 
   // The entry point is T. Omarchy's own chord still works for anyone not on
   // Omarchy, but on Omarchy itself Hyprland binds it at the compositor and
@@ -243,14 +247,17 @@ export function ThemePicker() {
       } else if (event.key === 'ArrowRight' || event.key === 'Right') {
         event.preventDefault()
         step(1)
-      } else if (event.key === 'Escape' || event.key === 'Enter') {
+      } else if (event.key === 'Enter') {
+        event.preventDefault()
+        choose()
+      } else if (event.key === 'Escape') {
         event.preventDefault()
         close()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, step, close])
+  }, [open, step, close, choose])
 
   if (!open) {
     if (!hint) return null
@@ -323,11 +330,10 @@ export function ThemePicker() {
       }}
       className="fixed inset-0 z-(--z-modal) flex flex-col items-center justify-center outline-none"
     >
-      {/* Dimmer, not a curtain: the page behind is the live preview - and
-          it wears the same blur and fade the site's dialogs do, so opening
-          the picker feels like opening any other layer here. The blur is
-          slight on purpose: the page has to stay readable as a preview of
-          the theme being chosen. */}
+      {/* Dimmer, not a curtain: the page behind stays on the theme you
+          arrived with until you take one. It wears the same blur and fade
+          the site's dialogs do, so opening the picker feels like opening
+          any other layer here. */}
       <div
         aria-hidden="true"
         onClick={close}
@@ -375,7 +381,7 @@ export function ThemePicker() {
               }}
             >
               {/* The deck is a control, not a picture: a neighbour's visible
-                  sliver walks the deck to it, and the front card keeps the
+                  sliver walks the deck to it, and the front card takes that
                   theme and closes. The stack itself stays click-through so
                   the space around the cards still reaches the dimmer. The
                   arrows and Esc do all of this too, which is why these carry
@@ -385,11 +391,9 @@ export function ThemePicker() {
                 tabIndex={-1}
                 aria-hidden={offset !== 0}
                 aria-label={
-                  offset === 0
-                    ? `Keep ${theme.name}`
-                    : `Switch to ${theme.name}`
+                  offset === 0 ? `Use ${theme.name}` : `Show ${theme.name}`
                 }
-                onClick={() => (offset === 0 ? close() : step(offset))}
+                onClick={() => (offset === 0 ? choose() : step(offset))}
                 className="pointer-events-auto block w-full cursor-pointer [--card-dim:0.55] hover:[--card-dim:0.78]"
               >
                 {/* The parallelogram is the card's shape, not a shear of the
@@ -482,8 +486,8 @@ export function ThemePicker() {
       <button
         type="button"
         tabIndex={-1}
-        aria-label={`Keep ${SITE_THEMES[index].name}`}
-        onClick={close}
+        aria-label={`Use ${SITE_THEMES[index].name}`}
+        onClick={choose}
         className={cn(
           'relative mt-1.5 cursor-pointer px-4 py-3.5 text-center transition-[filter] duration-150 ease-out hover:brightness-125',
           closing ? `${exit} fade-out-0` : `${enter} fade-in-0 delay-40`,
