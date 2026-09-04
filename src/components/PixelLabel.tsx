@@ -60,7 +60,7 @@ type Props = {
 
 export function PixelLabel({ text, cell = 3, className }: Props) {
   const chars = text.toUpperCase().split('')
-  const rects: { x: number; y: number }[] = []
+  const rects: Array<{ x: number; y: number }> = []
   let x = 0
 
   for (const char of chars) {

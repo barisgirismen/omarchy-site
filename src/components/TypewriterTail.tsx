@@ -39,7 +39,11 @@ const HOLD_MS = 2100
 /** And it pauses where the phrases part company before typing on. */
 const TURN_MS = 420
 
-export function TypewriterTail({ phrases }: { phrases: readonly string[] }) {
+export function TypewriterTail({
+  phrases,
+}: {
+  phrases: ReadonlyArray<string>
+}) {
   const text = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {

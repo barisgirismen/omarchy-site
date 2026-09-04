@@ -51,7 +51,7 @@ export function VideoCarousel({
 }: {
   title: string
   description?: string
-  videos: readonly CarouselVideo[]
+  videos: ReadonlyArray<CarouselVideo>
   level?: 2 | 3
 }) {
   // Narrow screens get the plain YouTube embed. The badge is a desktop

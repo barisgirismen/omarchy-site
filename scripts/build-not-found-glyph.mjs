@@ -150,8 +150,11 @@ const CW = 51
 const CH = 50
 const rects = []
 for (let r = 0; r < H; r++) {
-  for (let c = 0; c < W; ) {
-    if (rows[r][c] !== '1') { c++; continue }
+  for (let c = 0; c < W;) {
+    if (rows[r][c] !== '1') {
+      c++
+      continue
+    }
     const start = c
     while (c < W && rows[r][c] === '1') c++
     rects.push(
@@ -185,4 +188,5 @@ ${rows.map((r) => `  '${r}',`).join('\n')}
 )
 
 console.log(`${W} x ${H} cells, ${rects.length} rects`)
-for (const r of rows) console.log('  ' + [...r].map((c) => (c === '1' ? '#' : '.')).join(''))
+for (const r of rows)
+  console.log('  ' + [...r].map((c) => (c === '1' ? '#' : '.')).join(''))

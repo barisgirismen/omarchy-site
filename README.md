@@ -23,8 +23,16 @@ order among the others:
 
 ```html
 <figure class="themes__theme">
-  <a href="https://github.com/you/your-theme"><img src="/assets/themes/your-theme.webp" alt="Your Theme theme" loading="lazy" decoding="async"></a>
-  <figcaption><a href="https://github.com/you/your-theme">Your Theme</a></figcaption>
+  <a href="https://github.com/you/your-theme"
+    ><img
+      src="/assets/themes/your-theme.webp"
+      alt="Your Theme theme"
+      loading="lazy"
+      decoding="async"
+  /></a>
+  <figcaption>
+    <a href="https://github.com/you/your-theme">Your Theme</a>
+  </figcaption>
 </figure>
 ```
 

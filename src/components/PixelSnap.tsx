@@ -39,9 +39,8 @@ export function PixelSnap() {
     try {
       const fonts = document.fonts
       const ready =
-        !fonts?.check ||
-        (fonts.check('16px "Geist Variable"') &&
-          fonts.check('16px "JetBrains Mono Variable"'))
+        fonts.check('16px "Geist Variable"') &&
+        fonts.check('16px "JetBrains Mono Variable"')
       if (!ready) return
       const slot = document.querySelector('[data-hero-wordmark]')
       if (!slot) return

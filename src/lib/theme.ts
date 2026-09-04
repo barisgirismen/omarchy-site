@@ -14,7 +14,7 @@ export type SiteTheme = {
   light?: true
 }
 
-export const SITE_THEMES: SiteTheme[] = [
+export const SITE_THEMES: Array<SiteTheme> = [
   { id: 'tokyo-night', name: 'Tokyo Night' },
   { id: 'catppuccin', name: 'Catppuccin' },
   { id: 'gruvbox', name: 'Gruvbox' },

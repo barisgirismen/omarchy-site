@@ -37,7 +37,13 @@ export type CatalogueEntry = {
 }
 
 export type PluginSort =
-  'stars' | 'recent' | 'updated' | 'name' | 'views' | 'copies' | 'hearts'
+  | 'stars'
+  | 'recent'
+  | 'updated'
+  | 'name'
+  | 'views'
+  | 'copies'
+  | 'hearts'
 
 export type PluginSource = 'community' | 'builtin'
 

@@ -165,7 +165,7 @@ export function ThemePicker() {
   // priority keeps the warm-up from competing with real content.
   useEffect(() => {
     let cancelled = false
-    const warmed: HTMLImageElement[] = []
+    const warmed: Array<HTMLImageElement> = []
     const warm = () => {
       if (cancelled) return
       for (const theme of SITE_THEMES) {
