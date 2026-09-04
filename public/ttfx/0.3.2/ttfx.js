@@ -48,13 +48,19 @@ export class Session {
      * @param {number} rows
      * @param {number | null | undefined} seed
      * @param {number} frame_rate
+     * @param {string | null} [palette]
+     * @param {string | null} [background]
      */
-    constructor(input, effect, columns, rows, seed, frame_rate) {
+    constructor(input, effect, columns, rows, seed, frame_rate, palette, background) {
         const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ptr1 = passStringToWasm0(effect, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.session_new(ptr0, len0, ptr1, len1, columns, rows, !isLikeNone(seed), isLikeNone(seed) ? 0 : seed, frame_rate);
+        var ptr2 = isLikeNone(palette) ? 0 : passStringToWasm0(palette, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len2 = WASM_VECTOR_LEN;
+        var ptr3 = isLikeNone(background) ? 0 : passStringToWasm0(background, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len3 = WASM_VECTOR_LEN;
+        const ret = wasm.session_new(ptr0, len0, ptr1, len1, columns, rows, !isLikeNone(seed), isLikeNone(seed) ? 0 : seed, frame_rate, ptr2, len2, ptr3, len3);
         if (ret[2]) {
             throw takeFromExternrefTable0(ret[1]);
         }

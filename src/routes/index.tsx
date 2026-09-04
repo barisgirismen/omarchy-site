@@ -14,7 +14,7 @@ import {
 import { OmarchyWordmark } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
-import { LaserEtchWordmark } from '@/components/LaserEtchWordmark'
+import { WteWordmark } from '@/components/WteWordmark'
 import { InstallCommand } from '@/components/InstallCommand'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
@@ -235,7 +235,7 @@ function Home() {
               as sitting low and crowd the copy below. */}
           <div className="flex-[2.1]" />
           {/* The slot the field measures its cell size from. The green mask
-              stays hidden unless laseretch cannot run. */}
+              stays hidden unless the WTE catalog cannot run. */}
           <div data-hero-wordmark className="relative w-[88%] max-w-4xl">
             <OmarchyWordmark
               className={
@@ -243,7 +243,7 @@ function Home() {
                 (wordmarkFallback ? ' hero-wordmark-static-on' : '')
               }
             />
-            <LaserEtchWordmark onFallback={() => setWordmarkFallback(true)} />
+            <WteWordmark onFallback={setWordmarkFallback} />
           </div>
           <div className="flex-1" />
 

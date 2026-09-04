@@ -19,7 +19,7 @@ type Props = {
   glyph?: FieldGlyph
   /** What a press on the word does. Defaults to the theme picker. */
   onGlyphPress?: () => void
-  /** Draw the glyph into the field. Home leaves this to laseretch. */
+  /** Draw the glyph into the field. Home leaves this to Web Text Effects. */
   stampGlyph?: boolean
 }
 
@@ -39,7 +39,7 @@ function usePixelField() {
 
 /**
  * The hero backdrop. The drifting pixel field is painted on the same
- * lattice the wordmark slot is measured from. The homepage etches OMARCHY
+ * lattice the wordmark slot is measured from. The homepage plays OMARCHY
  * with Web Text Effects instead of stamping the bitmap into this canvas.
  *
  * The canvas module is loaded on the client after first paint. It is large

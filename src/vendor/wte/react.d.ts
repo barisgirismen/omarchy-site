@@ -9,9 +9,14 @@ export type UseTextEffectOptions = {
   onFinished?: () => void
 }
 
+export type EffectInfo = {
+  name: string
+  about: string
+}
+
 export type UseTextEffectResult = {
   ready: boolean
-  catalog: unknown[]
+  catalog: EffectInfo[]
   effect: string
   restart: () => void
 }
