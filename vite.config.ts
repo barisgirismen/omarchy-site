@@ -1,7 +1,7 @@
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { defineConfig } from 'vite'
-import type { Plugin } from 'vite'
+import { defineConfig, lazyPlugins } from 'vite-plus'
+import type { Plugin } from 'vite-plus'
 import { isPassthrough } from './scripts/site-passthrough.mjs'
 import { devtools } from '@tanstack/devtools-vite'
 
@@ -107,13 +107,93 @@ function pluginPages() {
   return plugins.map((p) => ({ path: `/plugins/${p.id}/` }))
 }
 
+const ignoreGenerated = [
+  'src/vendor/**',
+  'src/data/*.json',
+  'src/routeTree.gen.ts',
+  'public/**',
+  'assets/**',
+  'manual/**',
+  'news/**',
+  'content/**',
+  'templates/**',
+]
+
 const config = defineConfig({
+  lint: {
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
+    ignorePatterns: ignoreGenerated,
+    rules: {
+      'vite-plus/prefer-vite-plus-imports': 'error',
+    },
+    overrides: [
+      {
+        files: ['src/**'],
+        plugins: ['react'],
+      },
+    ],
+    jsPlugins: [
+      {
+        name: 'vite-plus',
+        specifier: 'vite-plus/oxlint-plugin',
+      },
+    ],
+  },
+  fmt: {
+    semi: false,
+    singleQuote: true,
+    trailingComma: 'all',
+    printWidth: 80,
+    sortPackageJson: false,
+    ignorePatterns: [
+      'package-lock.json',
+      'pnpm-lock.yaml',
+      'yarn.lock',
+      'src/vendor',
+      'src/data/*.json',
+      'src/routeTree.gen.ts',
+      'assets/**',
+      'manual/**',
+      'news/**',
+      'content/**',
+      'templates/**',
+      'public/**',
+      'brand/**',
+      'air/**',
+      'discord/**',
+      'foundation/**',
+      'meetups/**',
+      'omakub/**',
+      'patrons/**',
+      'potato/**',
+      'screensaver/**',
+      'security/**',
+      'server/**',
+      'sponsorships/**',
+      'teams/**',
+      'themes/**',
+      'workstations/**',
+      '404.html',
+      'index.html',
+    ],
+  },
+  test: {
+    exclude: ['assets/**', 'node_modules/**', 'dist/**'],
+    server: {
+      deps: {
+        inline: ['vite-plus'],
+      },
+    },
+  },
   // Bound to every interface, not just loopback: this is checked on a phone
   // on the same network as often as it is in a desktop browser, and passing
   // --host through whatever happens to launch vite proved unreliable.
-  server: { host: true },
+  server: { host: true, port: 3113 },
   resolve: { tsconfigPaths: true },
-  plugins: [
+  plugins: lazyPlugins(() => [
     ignoreLegacySiteCss(),
     siteFiles(),
     devtools(),
@@ -201,7 +281,7 @@ const config = defineConfig({
       ],
     }),
     viteReact(),
-  ],
+  ]),
 })
 
 export default config

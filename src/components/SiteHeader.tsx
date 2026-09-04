@@ -220,7 +220,7 @@ function useNavSurface(
      * bare all the way down it.
      */
     type Ground = { top: number; bottom: number; colour: string }
-    let grounds: Ground[] = []
+    let grounds: Array<Ground> = []
     let height = 0
     /** The <main> the last survey read. The route changes before the DOM
      *  does, so the one mounted when this effect runs may be the outgoing

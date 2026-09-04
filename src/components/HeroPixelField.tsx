@@ -14,7 +14,7 @@ import {
  * many cells wide and tall it is.
  */
 export type FieldGlyph = {
-  rows: readonly string[]
+  rows: ReadonlyArray<string>
   width: number
   height: number
 }
@@ -335,7 +335,7 @@ export function HeroPixelField({
           ...document.querySelectorAll<HTMLElement>('header a, header button'),
           ...[
             ...document.querySelectorAll<HTMLElement>('[data-hero-quiet]'),
-          ].flatMap((el) => [...el.children] as HTMLElement[]),
+          ].flatMap((el) => [...el.children] as Array<HTMLElement>),
         ]
       : [...host.parentElement!.querySelectorAll<HTMLElement>('[data-quiet]')]
 
@@ -347,7 +347,7 @@ export function HeroPixelField({
     let visible = true
     let strength = 0
     let targetStrength = 0
-    let pings: Ping[] = []
+    let pings: Array<Ping> = []
     let holding: { x: number; y: number; start: number } | null = null
     // The wordmark doubles as the theme button: hovering any of its lit
     // pixels raises the whole logo to the hover tint, and a click opens
@@ -535,12 +535,12 @@ export function HeroPixelField({
       const reach = CURSOR_CELLS * wmCW * (0.45 + 0.55 * strength)
 
       // Resolve each live click stamp once per frame, not once per cell.
-      const stamps: {
+      const stamps: Array<{
         x: number
         y: number
         cellPx: number
         amp: number
-      }[] = []
+      }> = []
       if (pings.length > 0) {
         pings = pings.filter((ping) => (time - ping.born) / 1000 < ping.life)
         for (const ping of pings) {
@@ -775,7 +775,7 @@ export function HeroPixelField({
      * to the next.
      */
     const nearestTo = (
-      list: HTMLElement[],
+      list: Array<HTMLElement>,
       clientX: number,
       clientY: number,
     ) => {

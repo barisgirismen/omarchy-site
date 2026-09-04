@@ -151,8 +151,8 @@ const HEADING = /<h([23])[^>]*\sid="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/gi
  * nine-thousand-word chapter around it, and every ported heading carries an
  * id, so each section can be linked to directly.
  */
-function manualSections(chapter: ManualChapter): SearchEntry[] {
-  const out: SearchEntry[] = []
+function manualSections(chapter: ManualChapter): Array<SearchEntry> {
+  const out: Array<SearchEntry> = []
   const html = chapter.html
   let cursor = 0
   let heading: string | null = null
@@ -194,9 +194,10 @@ function owner(repo: string) {
 
 /** The parts of the index that come from the bundled snapshots, split
  *  around where the news goes so the order of kinds stays as it was. */
-let fixed: { manual: SearchEntry[]; rest: SearchEntry[] } | null = null
+let fixed: { manual: Array<SearchEntry>; rest: Array<SearchEntry> } | null =
+  null
 
-function newsEntries(posts: Array<NewsPost>): SearchEntry[] {
+function newsEntries(posts: Array<NewsPost>): Array<SearchEntry> {
   return posts.map((post) => ({
     kind: 'news',
     slug: post.slug,
@@ -232,12 +233,12 @@ export const getSearchIndex = createServerFn({ method: 'GET' })
       import('../data/themes.json'),
     ])
 
-    const manualPart: SearchEntry[] = []
+    const manualPart: Array<SearchEntry> = []
     for (const chapter of manual.default as Array<ManualChapter>) {
       manualPart.push(...manualSections(chapter))
     }
 
-    const built: SearchEntry[] = []
+    const built: Array<SearchEntry> = []
 
     const catalogue = (
       plugins.default as { plugins: Array<Record<string, unknown>> }
@@ -253,7 +254,7 @@ export const getSearchIndex = createServerFn({ method: 'GET' })
         text: [
           plugin.category,
           plugin.author,
-          ...((plugin.tags as string[] | undefined) ?? []),
+          ...((plugin.tags as Array<string> | undefined) ?? []),
         ]
           .filter(Boolean)
           .join(' '),

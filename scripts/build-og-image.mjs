@@ -26,8 +26,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const out = path.join(root, 'public/brand/omarchy-og.png')
-const CHROME =
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 const W = 1200
 const H = 630
@@ -74,7 +73,8 @@ const lit = (r, c) => r >= 0 && r < 19 && c >= 0 && c < 81 && ROWS[r][c] === '1'
 // Is any letter cell within `reach` cells of this one?
 const within = (r, c, reach) => {
   for (let dr = -reach; dr <= reach; dr++)
-    for (let dc = -reach; dc <= reach; dc++) if (lit(r + dr, c + dc)) return true
+    for (let dc = -reach; dc <= reach; dc++)
+      if (lit(r + dr, c + dc)) return true
   return false
 }
 
@@ -140,15 +140,19 @@ const tmp = path.join(root, 'node_modules/.cache-og.html')
 fs.mkdirSync(path.dirname(tmp), { recursive: true })
 fs.writeFileSync(tmp, html)
 
-execFileSync(CHROME, [
-  '--headless',
-  '--disable-gpu',
-  '--hide-scrollbars',
-  '--force-device-scale-factor=2',
-  `--window-size=${W},${H}`,
-  `--screenshot=${out}`,
-  `file://${tmp}`,
-], { stdio: 'pipe' })
+execFileSync(
+  CHROME,
+  [
+    '--headless',
+    '--disable-gpu',
+    '--hide-scrollbars',
+    '--force-device-scale-factor=2',
+    `--window-size=${W},${H}`,
+    `--screenshot=${out}`,
+    `file://${tmp}`,
+  ],
+  { stdio: 'pipe' },
+)
 
 // Chrome shot it at 2x; halve it so the file is a plain 1200x630.
 execFileSync('sips', ['-z', String(H), String(W), out], { stdio: 'pipe' })

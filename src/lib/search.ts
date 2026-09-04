@@ -34,14 +34,14 @@ function snippetAround(text: string, at: number, length: number) {
  * name, so a name match there is worth as much as a chapter title.
  */
 export function searchAll(
-  index: SearchEntry[],
+  index: Array<SearchEntry>,
   query: string,
   limit = 12,
-): SearchHit[] {
+): Array<SearchHit> {
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean)
   if (terms.length === 0) return []
 
-  const hits: SearchHit[] = []
+  const hits: Array<SearchHit> = []
   for (const entry of index) {
     const title = entry.title.toLowerCase()
     const heading = (

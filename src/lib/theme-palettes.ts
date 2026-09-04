@@ -2,7 +2,7 @@
  * Hex stops WTE feeds laseretch for each stock Omarchy theme. Same lists
  * the player at wte.csfh.dev uses, so the etch wears the theme's own inks.
  */
-const THEME_PALETTES: Record<string, readonly string[]> = {
+const THEME_PALETTES: Record<string, ReadonlyArray<string>> = {
   catppuccin: [
     '#89b4fa',
     '#94e2d5',

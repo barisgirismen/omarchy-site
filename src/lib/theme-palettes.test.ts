@@ -1,11 +1,10 @@
-import assert from 'node:assert/strict'
-import test from 'node:test'
-import { themePaletteArg } from './theme-palettes.ts'
+import { expect, test } from 'vite-plus/test'
+import { themePaletteArg } from './theme-palettes'
 import {
   WORDMARK_EFFECT,
   WORDMARK_FRAME_RATE,
   WORDMARK_WASM_URL,
-} from '../data/wordmark-art.ts'
+} from '../data/wordmark-art'
 
 const SITE_THEME_IDS = [
   'catppuccin',
@@ -33,23 +32,23 @@ const SITE_THEME_IDS = [
 ]
 
 test('the homepage mark is laseretch from the single-effect wasm', () => {
-  assert.equal(WORDMARK_EFFECT, 'laseretch')
-  assert.equal(WORDMARK_WASM_URL, '/ttfx/effects/laseretch.wasm')
-  assert.equal(WORDMARK_FRAME_RATE, 240)
+  expect(WORDMARK_EFFECT).toBe('laseretch')
+  expect(WORDMARK_WASM_URL).toBe('/ttfx/effects/laseretch.wasm')
+  expect(WORDMARK_FRAME_RATE).toBe(240)
 })
 
 test('tokyo-night palette is the WTE comma-separated hex list', () => {
   const palette = themePaletteArg('tokyo-night')
-  assert.ok(palette)
-  assert.ok(palette.startsWith('#7aa2f7'))
-  assert.ok(palette.includes('#9ece6a'))
+  expect(palette).toBeTruthy()
+  expect(palette?.startsWith('#7aa2f7')).toBe(true)
+  expect(palette).toContain('#9ece6a')
 })
 
 test('every site theme has a palette, unknowns have none', () => {
   for (const id of SITE_THEME_IDS) {
     const palette = themePaletteArg(id)
-    assert.ok(palette, id)
-    assert.ok(palette.includes('#'), id)
+    expect(palette, id).toBeTruthy()
+    expect(palette, id).toContain('#')
   }
-  assert.equal(themePaletteArg('not-a-theme'), undefined)
+  expect(themePaletteArg('not-a-theme')).toBeUndefined()
 })

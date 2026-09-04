@@ -35,8 +35,8 @@ export function SearchPalette() {
 
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const [index, setIndex] = useState<SearchEntry[] | null>(null)
-  const [hits, setHits] = useState<SearchHit[]>([])
+  const [index, setIndex] = useState<Array<SearchEntry> | null>(null)
+  const [hits, setHits] = useState<Array<SearchHit>>([])
   const [active, setActive] = useState(0)
 
   const show = useCallback(() => {
