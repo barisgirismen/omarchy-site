@@ -5,7 +5,6 @@ import { seo } from '@/lib/seo'
 export const Route = createFileRoute('/plugins/publish')({
   loader: async () => {
     const page = await getPluginPage({ data: 'publish' })
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- eslint mis-narrows the server-fn return; tsc sees the nullable type
     if (!page) throw notFound()
     return page
   },
