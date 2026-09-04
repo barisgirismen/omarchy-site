@@ -12,6 +12,7 @@ import { DEFAULT_THEME, SITE_THEMES, THEME_EVENT, readTheme } from '@/lib/theme'
 import {
   createWordmarkCompositor,
   wordmarkEtchPad,
+  wordmarkOutline,
   wordmarkPlateOnDark,
   wordmarkPlateOnLight,
 } from '@/components/wordmark-composite'
@@ -122,13 +123,14 @@ function Player({ onFallback }: Props) {
 
     let frame = 0
     let settling = false
+    const pad = wordmarkOutline.on ? wordmarkEtchPad : 0
     const tick = () => {
-      compositor.draw(source, wordmarkEtchPad, look.plate)
+      compositor.draw(source, pad, look.plate)
       if (etchedRef.current) {
         if (settling) return
         settling = true
         frame = requestAnimationFrame(() => {
-          compositor.draw(source, wordmarkEtchPad, look.plate)
+          compositor.draw(source, pad, look.plate)
         })
         return
       }
@@ -156,8 +158,8 @@ function Player({ onFallback }: Props) {
         aria-hidden
         className={
           ready
-            ? 'pointer-events-none absolute inset-0 size-full'
-            : 'pointer-events-none absolute inset-0 size-full opacity-0'
+            ? 'pointer-events-none absolute inset-0 size-full [image-rendering:pixelated]'
+            : 'pointer-events-none absolute inset-0 size-full opacity-0 [image-rendering:pixelated]'
         }
       />
     </>
