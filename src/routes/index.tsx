@@ -2,6 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import {
   ArrowRightIcon,
+  ArrowUpRightIcon,
   BrushIcon,
   CalendarIcon,
   ConsoleIcon,
@@ -22,6 +23,7 @@ import { PluginCard } from '@/components/PluginCard'
 import { SectionActions, SectionHeading } from '@/components/SectionHeading'
 import { ThemeCard } from '@/components/ThemeCard'
 import { VideoCarousel } from '@/components/VideoCarousel'
+import { Voices } from '@/components/Voices'
 import { Button } from '@/components/ui/button'
 import { useHashLink } from '@/lib/hash-scroll'
 import { getNewsIndex } from '@/lib/content'
@@ -193,6 +195,22 @@ function Home() {
     >
       Read the install guide
       <ArrowRightIcon data-icon="inline-end" />
+    </Button>
+  )
+  const moreOnX = (
+    <Button
+      variant="outline"
+      nativeButton={false}
+      render={
+        <a
+          href="https://x.com/search?q=omarchy&f=live"
+          target="_blank"
+          rel="noopener noreferrer"
+        />
+      }
+    >
+      More on X
+      <ArrowUpRightIcon data-icon="inline-end" />
     </Button>
   )
   const allTeams = (
@@ -633,8 +651,23 @@ function Home() {
         </div>
       </section>
 
+      {/* voices: what the people who installed it said about it, between the
+          people who make it and the invitation to join in. Posts from X,
+          quoted as written. */}
+      <section id="voices" className="border-t border-border-subtle bg-bg-deep">
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+          <SectionHeading
+            title="Heard on the timeline"
+            description="What people posted on X after installing it."
+            action={moreOnX}
+          />
+          <Voices />
+          <SectionActions>{moreOnX}</SectionActions>
+        </div>
+      </section>
+
       {/* community */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
             title="Be the Omarch"
