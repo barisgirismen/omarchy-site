@@ -15,6 +15,7 @@ import { OmarchyWordmark } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
 import { InstallCommand } from '@/components/InstallCommand'
+import { InstallWalkthrough } from '@/components/InstallWalkthrough'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
 import { TypewriterTail } from '@/components/TypewriterTail'
@@ -67,6 +68,54 @@ const FIXES = [
   ' paper cut.',
 ] as const
 const ISO_URL = release.isoUrl
+
+/** The Getting Started chapter, cut to what happens before the ISO boots. */
+const BOOT_STEPS = [
+  {
+    title: 'Get the ISO',
+    body: (
+      <>
+        <a
+          href={ISO_URL}
+          className="text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out hover:decoration-brand"
+        >
+          Download {release.version}
+        </a>{' '}
+        and write it to a USB stick (balenaEtcher, caligula).
+      </>
+    ),
+  },
+  {
+    title: 'Turn off Secure Boot',
+    body: 'And TPM, in the BIOS. The installer needs them off.',
+  },
+  {
+    title: 'Choose where it goes',
+    body: 'The whole drive, or the free space beside Windows for a dual boot.',
+  },
+  {
+    title: 'Back up first',
+    body: 'Everything is encrypted by default, and a full-disk install wipes the drive.',
+  },
+]
+
+function ManualLink({
+  slug,
+  children,
+}: {
+  slug: string
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      to="/manual/$slug/"
+      params={{ slug }}
+      className="text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand"
+    >
+      {children}
+    </Link>
+  )
+}
 
 const videos = [
   {
@@ -459,27 +508,51 @@ function Home() {
             </div>
           </div>
 
-          {/* The two variants worth knowing about. Getting Started is the
-              button above, so it is not repeated here. */}
-          <p className="mt-6 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
-            The manual also covers{' '}
-            <Link
-              to="/manual/$slug/"
-              params={{ slug: 'dual-boot-install' }}
-              className="text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand"
-            >
-              dual booting beside Windows
-            </Link>{' '}
-            and{' '}
-            <Link
-              to="/manual/$slug/"
-              params={{ slug: 'unattended-installs' }}
-              className="text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand"
-            >
-              unattended installs
-            </Link>
-            .
-          </p>
+          {/* Then, in reading order, what the ISO route asks of you: the
+              Getting Started chapter cut to what has to happen before the
+              stick goes in, and the installer playing its questions through,
+              side by side where there is room. The dual boot and unattended
+              variants hang off the list, so they are not repeated below the
+              cards. */}
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
+              <h4 className="text-lg font-medium tracking-tight text-text">
+                Before you boot
+              </h4>
+              <ol className="mt-4 grid gap-4 text-[15px] leading-relaxed sm:grid-cols-2">
+                {BOOT_STEPS.map((step, i) => (
+                  <li
+                    key={step.title}
+                    className="grid grid-cols-[2ch_1fr] content-start gap-x-3"
+                  >
+                    <span className="pt-0.5 font-mono text-xs font-medium text-brand">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="text-text">{step.title}</span>
+                    <span className="col-start-2 text-[13px] text-text-secondary">
+                      {step.body}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-auto pt-6 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
+                <ManualLink slug="dual-boot-install">Dual boot</ManualLink> and{' '}
+                <ManualLink slug="unattended-installs">
+                  unattended installs
+                </ManualLink>{' '}
+                have their own chapters.
+              </p>
+            </div>
+            <InstallWalkthrough
+              className="ring-elevation flex min-w-0 flex-col bg-surface"
+              aside={
+                <>
+                  Keyboard, account, disk, encryption. The installer takes it
+                  from there, and shows a few of the hotkeys while it works.
+                </>
+              }
+            />
+          </div>
           <SectionActions>{installGuide}</SectionActions>
         </div>
       </section>
