@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import {
   BrushIcon,
   ChevronLeftIcon,
@@ -10,7 +11,7 @@ import {
   OPEN_PICKER_EVENT,
   PICKER_STATE_EVENT,
   SITE_THEMES,
-  applyTheme,
+  switchTheme,
   paintFavicon,
   watchChrome,
   readTheme,
@@ -118,11 +119,14 @@ export function ThemePicker() {
   /** Where a finger went down, and how far it has travelled since. */
   const swipe = useRef({ id: -1, from: 0, moved: 0 })
 
+  const indexRef = useRef(0)
+  indexRef.current = index
+
   const step = useCallback((delta: number) => {
-    setIndex((at) => {
-      const next = (at + delta + SITE_THEMES.length) % SITE_THEMES.length
-      applyTheme(SITE_THEMES[next].id)
-      return next
+    const next =
+      (indexRef.current + delta + SITE_THEMES.length) % SITE_THEMES.length
+    switchTheme(SITE_THEMES[next].id, () => {
+      flushSync(() => setIndex(next))
     })
   }, [])
 

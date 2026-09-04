@@ -6,6 +6,7 @@
  */
 
 import { OMARCHY_MARK_PATH } from '@/components/Brand'
+import { runThemeViewTransition } from '@/lib/theme-transition'
 
 export type SiteTheme = {
   id: string
@@ -257,5 +258,16 @@ export function applyTheme(id: string) {
   window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: id }))
   requestAnimationFrame(() => {
     requestAnimationFrame(() => root.classList.remove('no-transitions'))
+  })
+}
+
+/**
+ * Apply a theme through the split-wipe view transition used on omarchy-www.
+ * Reduced motion and browsers without View Transitions skip the animation.
+ */
+export function switchTheme(id: string, after?: () => void) {
+  runThemeViewTransition(() => {
+    applyTheme(id)
+    after?.()
   })
 }
