@@ -21,6 +21,7 @@ import { TypewriterTail } from '@/components/TypewriterTail'
 import { PluginCard } from '@/components/PluginCard'
 import { SectionActions, SectionHeading } from '@/components/SectionHeading'
 import { ThemeCard } from '@/components/ThemeCard'
+import { TilingWall } from '@/components/TilingWall'
 import { VideoCarousel } from '@/components/VideoCarousel'
 import { Button } from '@/components/ui/button'
 import { useHashLink } from '@/lib/hash-scroll'
@@ -202,6 +203,16 @@ function Home() {
       render={<Link to="/$/" params={{ _splat: 'teams' }} />}
     >
       All teams
+      <ArrowRightIcon data-icon="inline-end" />
+    </Button>
+  )
+  const hotkeys = (
+    <Button
+      variant="outline"
+      nativeButton={false}
+      render={<Link to="/manual/$slug/" params={{ slug: 'hotkeys' }} />}
+    >
+      All the hotkeys
       <ArrowRightIcon data-icon="inline-end" />
     </Button>
   )
@@ -481,6 +492,39 @@ function Home() {
             .
           </p>
           <SectionActions>{installGuide}</SectionActions>
+        </div>
+      </section>
+
+      {/* the desktop itself: real screenshots, tiled the way Hyprland tiles
+          them and moved the way it moves them, so the page can be tried
+          before the ISO is. */}
+      <section id="desktop" className="border-t border-border-subtle">
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+          <SectionHeading
+            title="The desktop does the tiling"
+            description={
+              <>
+                Windows place themselves. On the desktop, Super and an arrow
+                moves between them, Super + Shift and an arrow swaps them, and a
+                number throws one to another workspace. Try it here:{' '}
+                <span className="hidden sm:inline">
+                  arrows move the focus,{' '}
+                  <kbd className="border border-border-strong px-1.5 py-0.5 font-mono text-[11px] text-text-secondary">
+                    Shift
+                  </kbd>{' '}
+                  + arrows swap, or drag one window onto another.
+                </span>
+                <span className="sm:hidden">
+                  hold a title bar and drag the window onto another.
+                </span>
+              </>
+            }
+            action={hotkeys}
+          />
+          <div className="mt-10">
+            <TilingWall />
+          </div>
+          <SectionActions>{hotkeys}</SectionActions>
         </div>
       </section>
 

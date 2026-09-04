@@ -1397,6 +1397,111 @@ h6 {
   }
 }
 
+/* ------------------------------------------------------------- tiling wall */
+
+/* Six columns, and the slot decides the span: the first is wide, the second
+   tall beside it, the rest a row of three. Every window states the 16/9 of
+   its slot itself, the info window included, so any window can land in any
+   slot without the wall changing height. */
+.tiling-wall {
+  grid-template-columns: repeat(6, 1fr);
+  container-type: inline-size;
+  --gap: 1rem;
+}
+/* The slot width is worked out on the tiles, not the wall: a container
+   unit resolves against an ancestor container, so on the wall itself 100cqw
+   was the viewport, and every box came out a third taller than 16/9 and
+   cropped its screenshot at the sides. */
+.tiling-tile {
+  --slot: calc((100cqw - 5 * var(--gap)) / 6);
+  position: relative;
+  grid-column: span 2;
+  cursor: grab;
+}
+.tiling-tile[data-slot='0'] {
+  grid-column: span 4;
+}
+.tiling-view {
+  min-height: calc((2 * var(--slot) + var(--gap)) * 9 / 16);
+}
+.tiling-tile[data-slot='0'] .tiling-view {
+  min-height: calc((4 * var(--slot) + 3 * var(--gap)) * 9 / 16);
+}
+/* The tile beside the wide one takes that window's height, not its own. */
+.tiling-tile[data-slot='1'] .tiling-view {
+  min-height: 0;
+}
+/* The info window is text, and text grows: held to the slot's box and
+   clipped at the foot, or its row would grow with it and every screenshot
+   in that row would stretch past 16/9 and crop. */
+.tiling-fetch {
+  height: calc((2 * var(--slot) + var(--gap)) * 9 / 16);
+}
+.tiling-tile[data-slot='0'] .tiling-fetch {
+  height: calc((4 * var(--slot) + 3 * var(--gap)) * 9 / 16);
+}
+.tiling-tile[data-slot='1'] .tiling-fetch {
+  height: auto;
+}
+/* Two columns on a phone: the wide slot spans both, the others pair up. */
+@media (max-width: 639.98px) {
+  .tiling-wall {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tiling-tile {
+    --slot: calc((100cqw - var(--gap)) / 2);
+    grid-column: span 1;
+  }
+  .tiling-tile[data-slot='0'] {
+    grid-column: span 2;
+  }
+  .tiling-view,
+  .tiling-tile[data-slot='1'] .tiling-view {
+    min-height: calc(var(--slot) * 10 / 16);
+  }
+  .tiling-tile[data-slot='0'] .tiling-view {
+    min-height: calc((2 * var(--slot) + var(--gap)) * 9 / 16);
+  }
+  /* The info window keeps its slot's height and clips rather than grows. */
+  .tiling-fetch {
+    height: calc(var(--slot) * 10 / 16);
+  }
+  .tiling-tile[data-slot='0'] .tiling-fetch {
+    height: calc((2 * var(--slot) + var(--gap)) * 9 / 16);
+  }
+}
+/* Focus follows the keyboard; Hyprland marks it on the border alone, so the
+   brand ring is the focus indicator and there is no outline on top of it. */
+.tiling-tile:focus-visible {
+  outline: none;
+}
+/* The ring is a layer over the window, not a shadow or outline on it: the
+   screenshot is positioned to fill its box and paints over both, so the
+   ring showed on the title bar alone. A pseudo-element after the image
+   paints last and cannot be covered. */
+.tiling-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1.5px transparent;
+  transition: box-shadow 150ms ease-out;
+}
+.tiling-tile[data-active]::after {
+  box-shadow: inset 0 0 0 1.5px var(--color-brand);
+}
+.tiling-tile[data-drop]::after {
+  box-shadow: inset 0 0 0 1.5px var(--color-text);
+}
+.tiling-tile[data-dragging] {
+  z-index: 5;
+  opacity: 0.92;
+  cursor: grabbing;
+}
+.tiling-tile a {
+  cursor: pointer;
+}
+
 /* ---------------------------------------------------------------- nav mark */
 
 /* Hovering the mark redraws it: the frame first, then the stems and the
