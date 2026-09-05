@@ -316,7 +316,10 @@ export function ThemePicker() {
         event.preventDefault()
         event.stopPropagation()
       }}
-      className="fixed inset-0 z-(--z-modal) flex flex-col items-center justify-center outline-none"
+      // touch-none: a swipe across the deck is otherwise a pan gesture for
+      // the page underneath as well, which shifted it sideways on phones
+      // and could cancel the picker's own pointer events midway.
+      className="fixed inset-0 z-(--z-modal) flex touch-none flex-col items-center justify-center outline-none"
     >
       {/* Dimmer, not a curtain: the page behind is the live preview - and
           it wears the same blur and fade the site's dialogs do, so opening
