@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { HeartIcon, StarIcon, VerifiedIcon } from '@/components/icons'
+import { InstallCommand } from '@/components/InstallCommand'
 import type { CatalogueEntry } from '@/lib/plugins'
 import { cn } from '@/lib/utils'
 
@@ -85,6 +86,25 @@ export function PluginCard({ plugin }: { plugin: CatalogueEntry }) {
           {plugin.builtIn ? 'Omarchy' : (plugin.author ?? 'unknown')} -{' '}
           {plugin.category}
         </p>
+        {/* The section promises every plugin a single command away, so the
+            card hands the command over rather than sending you a page on to
+            find it. It sits above the stretched link, so the button copies
+            and the text selects instead of navigating. A plugin set up by
+            hand says so in the same slot, as plain text rather than a box,
+            so a row of cards keeps one bottom line and nobody reads the
+            note as a second kind of command. */}
+        {plugin.installCommand ? (
+          <InstallCommand
+            compact
+            command={plugin.installCommand}
+            label={`Copy install command for ${plugin.name}`}
+            className="relative z-10 mt-2.5"
+          />
+        ) : (
+          <p className="mt-2.5 flex h-9 items-center font-mono text-xs text-text-muted">
+            {plugin.status}
+          </p>
+        )}
       </div>
 
       {/* Focus ring for the stretched link. It is drawn inward: the card

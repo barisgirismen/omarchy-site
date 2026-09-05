@@ -13,7 +13,10 @@
 export type Engagement = { views: number; copies: number; hearts: number }
 
 /** What a card shows and a filter or sort reads. The full record, with its
- *  verification history and install details, stays on the plugin's page. */
+ *  verification history and install notes, stays on the plugin's page. The
+ *  install command rides along, empty where there is none: the card hands
+ *  it over, and one shared prefix across the catalogue costs little over
+ *  the wire. */
 export type CatalogueEntry = {
   id: string
   name: string
@@ -33,6 +36,12 @@ export type CatalogueEntry = {
   thumbH: number | null
   accent: string | null
   initials: string | null
+  /** The one-line install; '' for a plugin set up by hand, which is also
+   *  exactly when the marketplace marks it unavailable. */
+  installCommand: string
+  /** What stands in for the command when there is none: "Manual setup",
+   *  "Built in", or what the check found. */
+  status: string | null
   stats: Engagement
 }
 
@@ -165,6 +174,8 @@ export function toCatalogueEntry<T extends CatalogueEntry>(
     thumbH: p.thumbH,
     accent: p.accent,
     initials: p.initials,
+    installCommand: p.installCommand,
+    status: p.status,
     stats: p.stats,
   }
 }
