@@ -2,10 +2,11 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import {
   ArrowRightIcon,
+  ArrowUpRightIcon,
   BrushIcon,
   CalendarIcon,
-  ConsoleIcon,
   DiscordIcon,
+  DisplayIcon,
   DownloadIcon,
   UsbIcon,
   PlayIcon,
@@ -14,7 +15,6 @@ import {
 import { OmarchyWordmark } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
-import { InstallCommand } from '@/components/InstallCommand'
 import { InstallWalkthrough } from '@/components/InstallWalkthrough'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
@@ -53,7 +53,28 @@ export const Route = createFileRoute('/')({
   component: Home,
 })
 
-const INSTALL_COMMAND = 'curl -fsSL https://omarchy.org/install | bash'
+/** The two ways to run the whole desktop in a window without installing
+ *  anything: an app for Apple Silicon Macs, an app for Windows 10 and 11. */
+const TRY = {
+  mac: { label: 'Try on Mac', href: 'https://github.com/omacom/try-omarchy' },
+  windows: {
+    label: 'Try on Windows',
+    href: 'https://github.com/omacom/try-omarchy-windows',
+  },
+} as const
+
+/** Which of the two the visitor is most likely on, read after mount so the
+ *  server and the first paint agree; null on Linux and on anything unsure. */
+function useTryDevice() {
+  const [device, setDevice] = useState<keyof typeof TRY | null>(null)
+  useEffect(() => {
+    const ua = navigator.userAgent
+    if (/iPhone|iPad/.test(ua)) return
+    if (/Mac/.test(ua)) setDevice('mac')
+    else if (/Win/.test(ua)) setDevice('windows')
+  }, [])
+  return device
+}
 
 /* What the section's title finishes with, in turn. The first is the claim the
    campaign makes - everything is every + thing, so its line still types out
@@ -99,6 +120,11 @@ const BOOT_STEPS = [
   },
 ]
 
+/* A link inside a card's note: underlined from the start, in the border
+   colour, brand on hover - the same as the prose links under the cards. */
+const noteLink =
+  'text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand'
+
 function ManualLink({
   slug,
   children,
@@ -107,11 +133,7 @@ function ManualLink({
   children: React.ReactNode
 }) {
   return (
-    <Link
-      to="/manual/$slug/"
-      params={{ slug }}
-      className="text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand"
-    >
+    <Link to="/manual/$slug/" params={{ slug }} className={noteLink}>
       {children}
     </Link>
   )
@@ -188,6 +210,7 @@ const communityCards = [
 
 function Home() {
   const { top, total, news } = Route.useLoaderData()
+  const device = useTryDevice()
   const [intro, setIntro] = useState(false)
   const installLink = useHashLink('install')
   const watchLink = useHashLink('watch')
@@ -449,18 +472,20 @@ function Home() {
           <SectionHeading
             level={3}
             title="Install Omarchy"
-            description="Omarchy installs as a complete operating system. Both routes below land in the same place: a full, encrypted desktop in under a minute."
+            description="Omarchy installs as a complete operating system: from a USB stick to a full, encrypted desktop in under a minute. Not ready to give it a drive? Try it as an app first."
             action={installGuide}
           />
 
           {/* A fork in the road reads as two things you pick between, so they
               are cards, the same ones the plugins, themes and community use.
               Both blurbs run to two lines and both notes to one, so the thing
-              you press sits on the same line in each. It was the copy that
-              knocked them apart: four lines of blurb on one side against two
-              on the other left a hole under the short one, and a note that
-              wrapped where the other did not put the button 19px below the
-              command box it is meant to match. */}
+              you press sits on the same line in each. The second card used to
+              carry the curl one-liner for an existing Arch install; that route
+              is gone, and in its place are the two Try apps, which is what
+              someone not ready to wipe a drive is actually looking for. The
+              note under the download says how long it takes, and where the
+              checksum is, rather than the size and architecture, which nobody
+              would remember to keep current. */}
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
               <div className="flex items-center gap-2.5">
@@ -483,26 +508,53 @@ function Home() {
                   Download Omarchy {release.version}
                 </Button>
                 <p className="mt-2.5 text-[13px] text-text-muted">
-                  5.8 GB, for 64-bit PCs.
+                  Under a minute from stick to desktop.
+                  <br className="hidden md:inline" />
+                  Verify the file:{' '}
+                  <a href={`${ISO_URL}.sha256`} className={noteLink}>
+                    SHA-256
+                  </a>
+                  ,{' '}
+                  <a href={`${ISO_URL}.sig`} className={noteLink}>
+                    signature
+                  </a>
+                  .
                 </p>
               </div>
             </div>
 
             <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
               <div className="flex items-center gap-2.5">
-                <ConsoleIcon className="size-5 text-brand" />
+                <DisplayIcon className="size-5 text-brand" />
                 <h4 className="text-lg font-medium tracking-tight text-text">
-                  Already running Arch?
+                  Try it first
                 </h4>
               </div>
               <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                Keep the system you have and let the installer lay Omarchy over
-                it. One command, then a reboot.
+                The whole desktop as an app on your Mac or Windows PC. Nothing
+                partitioned, nothing changed underneath.
               </p>
               <div className="mt-auto pt-6">
-                <InstallCommand command={INSTALL_COMMAND} />
+                {/* Both apps, the visitor's own machine's filled in once the
+                    browser has said which it is; on Linux, neither. */}
+                <div className="flex flex-wrap gap-2">
+                  {(['mac', 'windows'] as const).map((key) => (
+                    <Button
+                      key={key}
+                      size="lg"
+                      variant={device === key ? 'default' : 'outline'}
+                      nativeButton={false}
+                      render={<a href={TRY[key].href} />}
+                    >
+                      {TRY[key].label}
+                      <ArrowUpRightIcon data-icon="inline-end" />
+                    </Button>
+                  ))}
+                </div>
                 <p className="mt-2.5 text-[13px] text-text-muted">
-                  The same script the ISO uses. Read it before running.
+                  Apple Silicon Macs, Windows 10 and 11.
+                  <br className="hidden md:inline" />
+                  On Linux, the ISO is the way in.
                 </p>
               </div>
             </div>
