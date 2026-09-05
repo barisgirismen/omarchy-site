@@ -42,8 +42,10 @@ export function InstallCommand({
       {/* One line on a wide screen, where it fits. On a phone it wraps at its
           spaces instead: a command held to one line is both cut off mid-URL
           and, because a grid column will not size below its content's minimum,
-          wide enough to drag the whole page sideways. */}
-      <code className="min-w-0 flex-1 overflow-x-auto py-1.5 font-mono text-sm break-words whitespace-normal text-text sm:whitespace-nowrap">
+          wide enough to drag the whole page sideways. The type drops a step
+          there too, so the URL and what follows it share a line: at 14px a
+          375px phone broke the command over three. */}
+      <code className="min-w-0 flex-1 overflow-x-auto py-1.5 font-mono text-[11px] break-words whitespace-normal text-text sm:text-sm sm:whitespace-nowrap">
         <span aria-hidden="true" className="mr-2 text-brand select-none">
           $
         </span>
