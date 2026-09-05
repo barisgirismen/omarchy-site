@@ -9,6 +9,8 @@ export type UseTextEffectOptions = {
   palette?: string
   background?: string
   backgroundPacked?: number
+  fit?: 'terminal' | 'fill'
+  cropTopHalfRows?: number
   onFinished?: () => void
 }
 

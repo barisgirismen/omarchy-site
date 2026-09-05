@@ -2,8 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTextEffect } from '@/vendor/wte/react.js'
 import {
   WORDMARK_ART,
+  WORDMARK_CROP_TOP_HALF_ROWS,
   WORDMARK_EFFECT,
   WORDMARK_FALLBACK_MS,
+  WORDMARK_FIT,
   WORDMARK_FRAME_RATE,
   WORDMARK_WASM_URL,
 } from '@/data/wordmark-art'
@@ -82,6 +84,8 @@ function Player({ onFallback }: Props) {
     wasmUrl: WORDMARK_WASM_URL,
     frameRate: WORDMARK_FRAME_RATE,
     palette: look.palette,
+    fit: WORDMARK_FIT,
+    cropTopHalfRows: WORDMARK_CROP_TOP_HALF_ROWS,
     onFinished: holdLastFrame,
   })
 
