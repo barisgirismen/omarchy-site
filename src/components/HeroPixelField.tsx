@@ -1,6 +1,14 @@
 import { useEffect, useRef } from 'react'
-import { OPEN_PICKER_EVENT, PICKER_STATE_EVENT, THEME_EVENT } from '@/lib/theme'
+import {
+  OPEN_PICKER_EVENT,
+  PICKER_STATE_EVENT,
+  THEME_EVENT,
+  readTheme,
+} from '@/lib/theme'
 import { GRID_CLEAR_EVENT, GRID_EVENT } from '@/lib/pixel-grid'
+import { createAudioReactive } from '@/lib/audio-reactive'
+import { createWordmarkEtch, type WordmarkEtch } from '@/lib/ttfx-etch'
+import { themePaletteArg } from '@/lib/theme-palettes'
 import {
   WORDMARK_HEIGHT,
   WORDMARK_ROWS,
@@ -232,11 +240,13 @@ type Props = {
    */
   onGlyphPress?: () => void
   /**
-   * Paint the glyph into the field. The homepage leaves this off: laseretch
-   * draws OMARCHY in the slot above the canvas. Click and hover still use
-   * the slot rect.
+   * Paint the glyph into the field. Homepage and 404 both stamp; homepage
+   * also etches, so the letters are the same cells the cursor lights.
    */
   stampGlyph?: boolean
+  /** Run laseretch into this field's cells instead of overlaying a canvas. */
+  etch?: boolean
+  onEtchReady?: () => void
 }
 
 /**
@@ -253,12 +263,16 @@ export function HeroPixelField({
   glyph = WORDMARK_GLYPH,
   onGlyphPress,
   stampGlyph = true,
+  etch = false,
+  onEtchReady,
 }: Props) {
   // The press handler is read from inside an effect that must outlive every
   // render, so it arrives by ref: putting it in the dependency list would
   // tear down and rebuild the canvas whenever the parent re-rendered.
   const press = useRef(onGlyphPress)
   press.current = onGlyphPress
+  const etchReady = useRef(onEtchReady)
+  etchReady.current = onEtchReady
 
   const isHero = variant === 'hero'
 
@@ -286,11 +300,22 @@ export function HeroPixelField({
     // Re-read the palette when the theme changes; the next frame paints in
     // the new colors. Reduced motion repaints once, immediately.
     let palette = readPalette()
-    const onTheme = () => {
+    const onTheme = (event: Event) => {
       palette = readPalette()
+      const id = (event as CustomEvent<string>).detail
+      if (etchHandle && typeof id === 'string') {
+        etchHandle.restart(themePaletteArg(id))
+      }
       if (reducedMotion) draw(lastDraw)
     }
     window.addEventListener(THEME_EVENT, onTheme)
+    const onAudio = (event: Event) => {
+      const detail = (event as CustomEvent).detail
+      if (detail instanceof MediaStream || detail instanceof HTMLMediaElement) {
+        audio.connect(detail)
+      }
+    }
+    window.addEventListener('omarchy-audio', onAudio)
 
     const onPickerState = (event: Event) => {
       pickerOpen = Boolean((event as CustomEvent).detail?.open)
@@ -356,6 +381,27 @@ export function HeroPixelField({
     let logoHoverTarget = 0
     let logoPending = false
     let pickerOpen = false
+    const audio = createAudioReactive()
+    let etchHandle: WordmarkEtch | null = null
+    let etchPending = Boolean(etch && isHero && !reducedMotion)
+    let lastEtchAt = 0
+
+    if (etchPending) {
+      void createWordmarkEtch(glyph, themePaletteArg(readTheme()))
+        .then((handle) => {
+          etchHandle = handle
+          etchPending = false
+          lastEtchAt = performance.now()
+          etchReady.current?.()
+          if (reducedMotion) draw(lastDraw)
+        })
+        .catch(() => {
+          etchPending = false
+          etchReady.current?.()
+        })
+    } else {
+      etchReady.current?.()
+    }
 
     /** Whether a device-px point is inside the wordmark's box. The box,
      * not the lit pixels: testing per pixel made the hover flicker off in
@@ -516,8 +562,21 @@ export function HeroPixelField({
       return true
     }
 
+    const letterAt = (row: number, col: number, bits: string) => {
+      if (bits[col] !== '1') return false
+      if (etchPending) return false
+      if (!etchHandle) return true
+      return etchHandle.mask[row * glyph.width + col] === 1
+    }
+
     const draw = (time: number) => {
       const t = reducedMotion ? 0 : time / 1000
+      audio.sample(time)
+      if (etchHandle && lastEtchAt > 0) {
+        etchHandle.advance(time - lastEtchAt)
+        lastEtchAt = time
+      }
+      const pulse = audio.beat
 
       // The pointer itself is never smoothed: the cells under the cursor are
       // the cells that light. Only the fade in and out of the field's
@@ -623,7 +682,9 @@ export function HeroPixelField({
             // The ramp decides where the texture lives; the drifting noise
             // and the twinkle only make it breathe, so the composition
             // stays put.
-            lum = shade * (0.3 + 0.52 * base * base + 0.18 * twinkle) * 0.62
+            lum =
+              shade * (0.3 + 0.52 * base * base + 0.18 * twinkle) * 0.62 +
+              pulse * 0.22 * shade
           }
 
           const xLeft = wmX + col * wmCW
@@ -694,7 +755,7 @@ export function HeroPixelField({
           ctx.fillStyle = palette.lit
           let run = 0
           for (let col = 0; col <= glyph.width; col++) {
-            if (bits[col] === '1') {
+            if (letterAt(row, col, bits)) {
               run++
               continue
             }
@@ -708,7 +769,7 @@ export function HeroPixelField({
         }
 
         for (let col = 0; col < glyph.width; col++) {
-          if (bits[col] !== '1') continue
+          if (!letterAt(row, col, bits)) continue
           const xLeft = wmX + col * wmCW
           const x = Math.round(xLeft)
 
@@ -734,6 +795,7 @@ export function HeroPixelField({
             const floor = logoHover * 0.2
             if (floor > crest) crest = floor
           }
+          if (pulse > crest) crest = pulse
 
           ctx.fillStyle =
             crest > 0.45
@@ -839,6 +901,7 @@ export function HeroPixelField({
     }
 
     const onPointerDown = (event: PointerEvent) => {
+      audio.unlock()
       if (!visible) return
       const { inside, x, y } = locate(event)
       if (!inside) return
@@ -963,7 +1026,10 @@ export function HeroPixelField({
       cancelAnimationFrame(frame)
       observer.disconnect()
       visibility.disconnect()
+      etchHandle?.destroy()
+      audio.close()
       window.removeEventListener(THEME_EVENT, onTheme)
+      window.removeEventListener('omarchy-audio', onAudio)
       window.removeEventListener(PICKER_STATE_EVENT, onPickerState)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerdown', onPointerDown)
@@ -972,7 +1038,7 @@ export function HeroPixelField({
       window.removeEventListener('contextmenu', onPointerCancel)
       if (isHero) window.dispatchEvent(new CustomEvent(GRID_CLEAR_EVENT))
     }
-  }, [onPainted, isHero, stampGlyph])
+  }, [onPainted, isHero, stampGlyph, etch])
 
   return (
     <canvas

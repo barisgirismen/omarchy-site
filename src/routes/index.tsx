@@ -14,7 +14,6 @@ import {
 import { OmarchyWordmark } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
-import { WteWordmark } from '@/components/WteWordmark'
 import { InstallCommand } from '@/components/InstallCommand'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
@@ -143,7 +142,7 @@ function Home() {
   const [intro, setIntro] = useState(false)
   const installLink = useHashLink('install')
   const watchLink = useHashLink('watch')
-  const [wordmarkFallback, setWordmarkFallback] = useState(false)
+  const [wordmarkFallback, setWordmarkFallback] = useState(true)
 
   // Intro stagger plays once per session; returning within the session
   // renders the resting state immediately.
@@ -222,7 +221,7 @@ function Home() {
         }
         style={{ background: 'var(--t-field-bg)' }}
       >
-        <HeroShader stampGlyph={false} />
+        <HeroShader etch onEtchReady={() => setWordmarkFallback(false)} />
 
         {/* The bar's labels, blended against the canvas. They have to live in
             here to reach it: the real header is sticky, and a sticky element
@@ -235,7 +234,7 @@ function Home() {
               as sitting low and crowd the copy below. */}
           <div className="flex-[2.1]" />
           {/* The slot the field measures its cell size from. The green mask
-              stays hidden unless laseretch cannot run. */}
+              stays on until laseretch is painting those same cells. */}
           <div data-hero-wordmark className="relative w-[88%] max-w-4xl">
             <OmarchyWordmark
               className={
@@ -243,7 +242,6 @@ function Home() {
                 (wordmarkFallback ? ' hero-wordmark-static-on' : '')
               }
             />
-            <WteWordmark onFallback={setWordmarkFallback} />
           </div>
           <div className="flex-1" />
 

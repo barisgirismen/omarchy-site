@@ -8,6 +8,8 @@ type FieldProps = {
   glyph?: FieldGlyph
   onGlyphPress?: () => void
   stampGlyph?: boolean
+  etch?: boolean
+  onEtchReady?: () => void
   variant?: 'hero' | 'field'
 }
 
@@ -19,8 +21,9 @@ type Props = {
   glyph?: FieldGlyph
   /** What a press on the word does. Defaults to the theme picker. */
   onGlyphPress?: () => void
-  /** Draw the glyph into the field. Home leaves this to laseretch. */
   stampGlyph?: boolean
+  etch?: boolean
+  onEtchReady?: () => void
 }
 
 function usePixelField() {
@@ -39,8 +42,8 @@ function usePixelField() {
 
 /**
  * The hero backdrop. The drifting pixel field is painted on the same
- * lattice the wordmark slot is measured from. The homepage etches OMARCHY
- * with laseretch instead of stamping the bitmap into this canvas.
+ * lattice the wordmark slot is measured from. The homepage laseretches
+ * OMARCHY into those cells.
  *
  * The canvas module is loaded on the client after first paint. It is large
  * and runs a rAF loop; shipping it with the shell made a reload wait on it
@@ -51,6 +54,8 @@ export function HeroShader({
   glyph,
   onGlyphPress,
   stampGlyph,
+  etch,
+  onEtchReady,
 }: Props) {
   const Field = usePixelField()
   return (
@@ -64,6 +69,8 @@ export function HeroShader({
           glyph={glyph}
           onGlyphPress={onGlyphPress}
           stampGlyph={stampGlyph}
+          etch={etch}
+          onEtchReady={onEtchReady}
         />
       ) : null}
     </div>
