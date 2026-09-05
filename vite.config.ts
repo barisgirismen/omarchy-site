@@ -1,5 +1,6 @@
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { NodeRequest, sendNodeResponse } from 'srvx/node'
 import { defineConfig, lazyPlugins } from 'vite-plus'
 import type { Plugin } from 'vite-plus'
 import { isPassthrough } from './scripts/site-passthrough.mjs'
@@ -9,6 +10,46 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+
+/**
+ * Vite+ SSR environments are runnable, but TanStack Start's
+ * `instanceof RunnableDevEnvironment` check fails (the class the plugin
+ * imported is not the one that created the env). Start then skips its
+ * HTML middleware and every page is Connect's Cannot GET /.
+ */
+function tanstackStartHtml(): Plugin {
+  return {
+    name: 'omarchy-tanstack-start-html',
+    configureServer(viteDevServer) {
+      return () => {
+        const serverEnv = viteDevServer.environments.ssr as
+          | {
+              runner?: {
+                import: (id: string) => Promise<{
+                  default: { fetch: (req: Request) => Promise<Response> }
+                }>
+              }
+            }
+          | undefined
+        const runner = serverEnv?.runner
+        if (!runner?.import) return
+        viteDevServer.middlewares.use(async (req, res, next) => {
+          if (req.originalUrl) req.url = req.originalUrl
+          const webReq = new NodeRequest({ req, res })
+          try {
+            const serverEntry = await runner.import(
+              'virtual:tanstack-start-server-entry',
+            )
+            const webRes = await serverEntry.default.fetch(webReq)
+            return sendNodeResponse(res, webRes)
+          } catch (error) {
+            next(error)
+          }
+        })
+      }
+    },
+  }
+}
 
 /**
  * The checkout still has the old site's index.html at the project root, with
@@ -203,6 +244,7 @@ const config = defineConfig({
     // GitHub Pages uploads that folder. Server functions run at build time
     // too (see the static middleware on each), so a client-side navigation
     // reads a JSON file instead of calling a server that is not there.
+    tanstackStartHtml(),
     tanstackStart({
       prerender: {
         enabled: true,
