@@ -25,10 +25,10 @@ const navLinks = [
 
 /**
  * One header, always the same content: the glyph, the nav, GitHub, and
- * Install. The only thing scrolling changes is the surface, transparent
- * over the home hero and, past it, the colour of whatever section it is
- * sitting on, so nothing appears,
- * disappears, or moves as you cross the boundary. The name never renders
+ * Install. The only thing scrolling changes is the surface: empty at the
+ * top of a hero, filling as soon as the page moves, then the colour of
+ * whatever section it is sitting on. Nothing in the bar appears,
+ * disappears, or moves as you cross a boundary. The name never renders
  * as text; the glyph is the identity.
  */
 /**
@@ -172,10 +172,10 @@ function useHeroInView(seed: boolean) {
 }
 
 /**
- * How solid the bar's surface should be, 0 to 1. It starts filling in the
- * moment the bar's top edge reaches the bottom of the hero's buttons, and is
- * fully opaque exactly where it used to appear all at once: when the bar's
- * bottom edge meets the hero's, the border those two sections share.
+ * How solid the bar's surface should be, 0 to 1. Over a hero it is empty at
+ * rest and fills across the first two of its own heights, so the field is
+ * still showing at the top and the labels have a pane under them the moment
+ * the page moves. Past that, or on a page with no hero, it is already a bar.
  *
  * The value is written to a CSS variable rather than React state, so a scroll
  * costs one style write instead of a re-render, and the anchors are measured
@@ -222,8 +222,9 @@ function useNavSurface(
 
     /**
      * Where each of the page's grounds begins and ends, and what colour it is.
-     * The hero is left out: the blended ghost lives over it and the bar stays
-     * bare all the way down it.
+     * The hero is left out: the blended ghost lives over it at rest, and the
+     * bar fills from the first pixels of scroll rather than taking a colour
+     * from the field.
      */
     type Ground = { top: number; bottom: number; colour: string }
     let grounds: Ground[] = []
@@ -232,11 +233,12 @@ function useNavSurface(
      *  does, so the one mounted when this effect runs may be the outgoing
      *  page's; comparing identities is how the swap is noticed. */
     let surveyed: Element | null = null
-    /** Whether the mounted page has a hero. Over a hero the bar goes bare
-     *  and the blended ghost carries the labels; a page without one has no
-     *  such moment, and the bar always wears at least the page's own
-     *  ground - a bar that is transparent for the first few dozen pixels of
-     *  scroll reads as content sliding under a pane of nothing. */
+    /** Whether the mounted page has a hero. Over a hero the bar starts
+     *  empty and the blended ghost carries the labels at rest; a page
+     *  without one has no such moment, and the bar always wears at least
+     *  the page's own ground - a bar that is transparent for the first few
+     *  dozen pixels of scroll reads as content sliding under a pane of
+     *  nothing. */
     let heroUp = false
     // Asked, not waited for. Arriving on a page with the pointer already over
     // the bar - which is what clicking a link in it does - no pointerenter
@@ -288,13 +290,9 @@ function useNavSurface(
     /**
      * The bar carries a section's colour only while it is wholly inside that
      * section: from the moment its own top edge meets the section's top, to
-     * the moment its bottom edge meets the section's bottom. Outside that -
-     * which is exactly while a boundary is crossing it - it carries nothing.
-     *
-     * Both switches happen at the instant the fill and the thing behind it are
-     * the same colour, so neither is visible. What you see instead is a bar
-     * that hides the page sliding under it, and lets a section edge pass
-     * through in the open.
+     * the moment its bottom edge meets the section's bottom. A boundary
+     * crossing it keeps the last colour rather than emptying the pane; once
+     * the fill is up it stays up.
      *
      * Cheap enough to run straight from the scroll event: it reads scrollY,
      * which costs no layout, and compares it against numbers taken once.
@@ -307,19 +305,24 @@ function useNavSurface(
     }
 
     const paint = () => {
-      const y = window.scrollY
-      // Whole rule, in one line: the bar is coloured when its top edge and
-      // its bottom edge are in the same ground, and bare when they are not.
+      const y = Math.max(0, window.scrollY)
+      // The bar takes a section's colour when its top edge and its bottom
+      // edge are in the same ground. Otherwise it keeps the page's own, so
+      // a boundary crossing it does not empty the pane.
       const top = groundAt(y)
       const here = top && top === groundAt(y + height) ? top : null
       // Nothing to say while the sheet is down: the bar paints as the top of
       // the sheet then, from a class, not from the page behind it.
       if (here) el.style.setProperty('--nav-ground', here.colour)
-      else if (!heroUp) el.style.setProperty('--nav-ground', 'var(--color-bg)')
-      el.style.setProperty('--nav-surface', here || !heroUp ? '1' : '0')
-      // The ghost holds the labels for as long as it is up, and hovering hands
-      // them over early: it sits under the bar and cannot answer a pointer.
-      solid(sheetOpen || !blended || hovering)
+      else el.style.setProperty('--nav-ground', 'var(--color-bg)')
+      const ramp = height * 2
+      const surface = here || !heroUp ? 1 : ramp > 0 ? Math.min(1, y / ramp) : 0
+      el.style.setProperty('--nav-surface', String(surface))
+      // The ghost holds the labels only while the bar is still empty.
+      // Hovering hands them over early: it sits under the bar and cannot
+      // answer a pointer. The first pixel of fill does too, because a
+      // blended word on a pane reads as hollow.
+      solid(sheetOpen || !blended || hovering || surface > 0)
     }
 
     const onEnter = () => {
@@ -484,10 +487,10 @@ export function SiteHeader() {
 
   return (
     <header className="pixel-container sticky top-0 z-(--z-nav)">
-      {/* The surface fades in across the scroll between the hero's buttons
-          and the hero's bottom edge, rather than switching on at one point.
-          --nav-surface carries the progress; everything that makes the bar a
-          bar reads from it, so they arrive together. */}
+      {/* The surface fades in across the first two heights of the bar,
+          rather than switching on at one point. --nav-surface carries the
+          progress; everything that makes the bar a bar reads from it, so
+          they arrive together. */}
       <div
         ref={bar}
         // Over the hero the blended ghost holds the labels from the first
@@ -513,9 +516,10 @@ export function SiteHeader() {
           backgroundColor: menuOpen
             ? undefined
             : 'color-mix(in srgb, var(--nav-ground, var(--color-bg)) calc(var(--nav-surface, 0) * 90%), transparent)',
-          // The blur arrives with the fill and leaves with it. Over the hero
-          // the bar has no surface at all, and a blur there smeared the
-          // pixels behind letters that are meant to sit on them cleanly.
+          // The blur arrives with the fill and leaves with it. At rest over
+          // the hero the bar has no surface at all, and a blur there would
+          // smear the pixels behind letters that are meant to sit on them
+          // cleanly.
           backdropFilter: menuOpen
             ? undefined
             : 'blur(calc(var(--nav-surface, 0) * 12px))',
