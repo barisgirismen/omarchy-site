@@ -598,10 +598,7 @@ function Home() {
             <InstallWalkthrough
               className="ring-elevation flex min-w-0 flex-col bg-surface"
               aside={
-                <>
-                  Keyboard, account, disk, encryption. The installer takes it
-                  from there, and shows a few of the hotkeys while it works.
-                </>
+                <>Keyboard, account, disk. The installer takes it from there.</>
               }
             />
           </div>
