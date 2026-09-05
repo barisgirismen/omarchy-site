@@ -14,6 +14,7 @@ import {
 } from '@/lib/etch'
 import { BANDS, loadMusic, music } from '@/lib/music'
 import type { Etch } from '@/lib/etch'
+import { wordmarkAudioShade } from '@/lib/wordmark-audio'
 
 /**
  * A word drawn on the field's own lattice. The hero wears the wordmark; the
@@ -1034,11 +1035,24 @@ export function HeroPixelField({
           if (floor > crest) crest = floor
         }
 
-        return crest > 0.45
-          ? palette.crest
-          : crest > 0.12
-            ? palette.hover
-            : restInkAt(cy)
+        const col = Math.max(
+          0,
+          Math.min(glyph.width - 1, Math.floor((cx - wmX) / wmCW)),
+        )
+        const row = Math.max(
+          0,
+          Math.min(glyph.height - 1, Math.floor((cy - wmY) / wmCH)),
+        )
+        const tone = wordmarkAudioShade(
+          col,
+          row,
+          glyph.width,
+          bandsNow,
+          beatPulse,
+        )
+        if (tone > crest) crest = tone
+
+        return mix(restInkAt(cy), palette.crest, crest)
       }
 
       // Cell edges snap to whole device px with rounding against the shared
@@ -1051,8 +1065,16 @@ export function HeroPixelField({
         const y = Math.round(yTop)
         const rowHeight = Math.round(yTop + wmCH) - y
 
-        // At rest the whole row can go out as a few spans, in its own ink.
-        if (stamps.length === 0 && !cursorOnWordmark && logoHover < 0.01) {
+        // At rest the whole row can go out as a few spans, in its own ink,
+        // unless the track is moving: then each letter cell has to follow
+        // the spectrum or the mark will not flash on the beat.
+        if (
+          stamps.length === 0 &&
+          !cursorOnWordmark &&
+          logoHover < 0.01 &&
+          beatPulse < 0.04 &&
+          !listening
+        ) {
           ctx.fillStyle = restInks[row]
           let run = 0
           for (let col = 0; col <= glyph.width; col++) {
