@@ -7,7 +7,11 @@ import {
 } from '@/lib/theme'
 import { GRID_CLEAR_EVENT, GRID_EVENT } from '@/lib/pixel-grid'
 import { createAudioReactive } from '@/lib/audio-reactive'
-import { createWordmarkEtch, type WordmarkEtch } from '@/lib/ttfx-etch'
+import {
+  createWordmarkEtch,
+  paintEtchMarks,
+  type WordmarkEtch,
+} from '@/lib/ttfx-etch'
 import { themePaletteArg } from '@/lib/theme-palettes'
 import {
   WORDMARK_HEIGHT,
@@ -805,6 +809,18 @@ export function HeroPixelField({
                 : palette.lit
           ctx.fillRect(x, y, Math.round(xLeft + wmCW) - x, rowHeight)
         }
+      }
+
+      if (etchHandle) {
+        paintEtchMarks(ctx, etchHandle.symbols, etchHandle.fg, {
+          originX: wmX,
+          originY: wmY,
+          cellW: wmCW,
+          cellH: wmCH,
+          cols: glyph.width,
+          rows: glyph.height,
+          fallback: palette.crest,
+        })
       }
 
       if (!paintedRef.current) {

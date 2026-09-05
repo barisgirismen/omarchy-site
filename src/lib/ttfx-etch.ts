@@ -15,13 +15,98 @@ function loadGlue(): Promise<typeof Session> {
   return gluePromise
 }
 
+const FULL_BLOCK = 0x2588
+const CARET = 0x5e
+const SLASH = 0x2f
+const STAR = 0x2a
+const DOT = 0x2e
+const COMMA = 0x2c
+
+/** Stroke weight as a fraction of the cell, matching WTE's light box lines. */
+const BEAM_WEIGHT = 0.1
+const SPARK_WEIGHT = 0.18
+
+export type EtchSymbolKind = 'empty' | 'letter' | 'beam' | 'spark'
+
+export type EtchMarkGeom = {
+  originX: number
+  originY: number
+  cellW: number
+  cellH: number
+  cols: number
+  rows: number
+  fallback: string
+}
+
 export type WordmarkEtch = {
-  /** 1 where laseretch has a visible cell this frame. Length width*height. */
+  /** 1 where a letter block is visible this frame. Length width*height. */
   mask: Uint8Array
+  symbols: Uint32Array
+  fg: Uint32Array
   done: boolean
   advance: (dtMs: number) => void
   restart: (palette?: string) => void
   destroy: () => void
+}
+
+/**
+ * Laseretch draws `/` `.` `,` `*` as terminal glyphs. The field paints every
+ * occupied letter as a full square, so those marks have to stay strokes or
+ * they read as a beam as wide as the word.
+ */
+export function etchSymbolKind(cp: number): EtchSymbolKind {
+  if (cp === FULL_BLOCK || cp === CARET) return 'letter'
+  if (cp === SLASH) return 'beam'
+  if (cp === STAR || cp === DOT || cp === COMMA) return 'spark'
+  return 'empty'
+}
+
+export function paintEtchMarks(
+  ctx: CanvasRenderingContext2D,
+  symbols: Uint32Array,
+  fg: Uint32Array,
+  geom: EtchMarkGeom,
+): void {
+  const { originX, originY, cellW, cellH, cols, rows, fallback } = geom
+  const beamW = Math.max(1, Math.round(Math.min(cellW, cellH) * BEAM_WEIGHT))
+  const spark = Math.max(1, Math.round(Math.min(cellW, cellH) * SPARK_WEIGHT))
+  ctx.save()
+  ctx.lineCap = 'butt'
+  ctx.lineWidth = beamW
+  for (let row = 0; row < rows; row++) {
+    const y = originY + row * cellH
+    for (let col = 0; col < cols; col++) {
+      const i = row * cols + col
+      const kind = etchSymbolKind(symbols[i] ?? 32)
+      if (kind === 'empty' || kind === 'letter') continue
+      const x = originX + col * cellW
+      const color = cssFromPacked(fg[i] ?? 0, fallback)
+      if (kind === 'beam') {
+        ctx.strokeStyle = color
+        ctx.beginPath()
+        ctx.moveTo(x, y + cellH)
+        ctx.lineTo(x + cellW, y)
+        ctx.stroke()
+      } else {
+        ctx.fillStyle = color
+        ctx.fillRect(
+          Math.round(x + (cellW - spark) / 2),
+          Math.round(y + (cellH - spark) / 2),
+          spark,
+          spark,
+        )
+      }
+    }
+  }
+  ctx.restore()
+}
+
+function cssFromPacked(packed: number, fallback: string): string {
+  if (packed === 0) return fallback
+  const r = (packed >> 16) & 255
+  const g = (packed >> 8) & 255
+  const b = packed & 255
+  return `rgb(${r}, ${g}, ${b})`
 }
 
 /**
@@ -39,6 +124,8 @@ export async function createWordmarkEtch(
   const SessionCtor = await loadGlue()
   const art = bitmapToBlockArt(glyph.rows)
   const cells = glyph.width * glyph.height
+  const packedSymbols = new Uint32Array(cells)
+  const packedFg = new Uint32Array(cells)
   const symbols = new Uint32Array(cells)
   const fg = new Uint32Array(cells)
   const bg = new Uint32Array(cells)
@@ -51,16 +138,21 @@ export async function createWordmarkEtch(
 
   const capture = () => {
     if (!session) return
-    session.fill(symbols, fg, bg, flags)
+    session.fill(packedSymbols, packedFg, bg, flags)
     const width = Math.min(glyph.width, session.width())
     const height = Math.min(glyph.height, session.height())
     mask.fill(0)
+    symbols.fill(32)
+    fg.fill(0)
     for (let row = 0; row < height; row++) {
       const srcRow = row * session.width()
       const dstRow = row * glyph.width
       for (let col = 0; col < width; col++) {
-        const cp = symbols[srcRow + col] ?? 32
-        mask[dstRow + col] = cp === 32 || cp === 0 ? 0 : 1
+        const cp = packedSymbols[srcRow + col] ?? 32
+        const i = dstRow + col
+        symbols[i] = cp
+        fg[i] = packedFg[srcRow + col] ?? 0
+        mask[i] = etchSymbolKind(cp) === 'letter' ? 1 : 0
       }
     }
   }
@@ -90,6 +182,8 @@ export async function createWordmarkEtch(
 
   return {
     mask,
+    symbols,
+    fg,
     get done() {
       return done
     },
