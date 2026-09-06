@@ -193,7 +193,7 @@ const communityCards = [
     icon: CalendarFilledIcon,
     title: 'Meetups',
     body: 'Omarchy meetups are popping up around the world. Find one near you, or start one.',
-    splat: 'meetups',
+    to: '/meetups/',
     cta: 'Find a meetup',
   },
   {
@@ -938,12 +938,7 @@ function Home() {
                   {inner}
                 </a>
               ) : (
-                <Link
-                  key={card.title}
-                  to="/$/"
-                  params={{ _splat: card.splat }}
-                  className={className}
-                >
+                <Link key={card.title} to={card.to} className={className}>
                   {inner}
                 </Link>
               )

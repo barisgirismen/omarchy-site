@@ -301,10 +301,12 @@ function MeetupsPage() {
             )
           })}
         </ul>
-        {/* The countries of the chosen region. The row keeps its height
-            when there is nothing in it, so picking a region does not push
-            the map down a line. */}
-        <ul className="mt-3 flex min-h-11 flex-wrap gap-x-4 gap-y-2 sm:min-h-9">
+        {/* The countries of the chosen region. Where the map is shown the
+            row keeps its height when there is nothing in it, so picking a
+            region does not push the map down a line. The names are plain
+            text, so their touch targets are grown underneath them rather
+            than by spacing the rows out. */}
+        <ul className="mt-3 flex flex-wrap gap-x-4 sm:min-h-9">
           {countries.length > 1 ? (
             <>
               {countries.map((code) => {
@@ -316,7 +318,7 @@ function MeetupsPage() {
                       aria-pressed={on}
                       onClick={() => setCountry(on ? null : code)}
                       className={cn(
-                        'min-h-11 text-sm underline-offset-4 transition-colors sm:min-h-9 duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                        'relative min-h-9 text-sm underline-offset-4 transition-colors duration-150 ease-out before:absolute before:inset-x-0 before:-inset-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                         on
                           ? 'text-brand underline decoration-current'
                           : 'text-text-secondary hover:text-text',
@@ -355,7 +357,9 @@ function MeetupsPage() {
         }}
         active={active}
         onActive={setActive}
-        className="mt-6"
+        // A world map on a phone is a postage stamp with dots too close to
+        // tell apart, so the chips carry the filtering there on their own.
+        className="mt-6 hidden sm:block"
       />
 
       {months.length === 0 ? (

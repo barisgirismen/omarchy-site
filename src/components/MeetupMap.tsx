@@ -151,7 +151,9 @@ export function MeetupMap({
   useEffect(() => {
     const el = frame.current
     if (!el) return
-    const measure = () => setPxPerUnit(el.clientWidth / W)
+    // Hidden, the frame is zero wide; a unit is then left at one pixel so
+    // nothing downstream divides by nothing.
+    const measure = () => setPxPerUnit(el.clientWidth / W || 1)
     measure()
     const watch = new ResizeObserver(measure)
     watch.observe(el)
