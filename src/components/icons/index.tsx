@@ -490,6 +490,54 @@ export function StoreIcon(props: IconProps) {
   )
 }
 
+/** IconCalendar1 from the square filled set. */
+export function CalendarFilledIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M8.5 2V4H15.5V2H17V4H21V9H3V4H7V2H8.5Z" fill="currentColor" />
+      <path d="M3 10.5V21H21V10.5H3Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** IconPencilSparkle from the square filled set. */
+export function PencilSparkleIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M9.0014 11.6897L19.5342 2.47351L22.5265 5.46581L13.3103 15.9986C12.7671 13.8907 11.1093 12.2329 9.0014 11.6897Z"
+        fill="currentColor"
+      />
+      <path
+        d="M7.5 13C5.01472 13 3 15.0147 3 17.5V22H7.5C9.98528 22 12 19.9853 12 17.5C12 17.3896 11.996 17.2801 11.9882 17.1715C11.8273 14.9476 10.0524 13.1727 7.82852 13.0118C7.71991 13.004 7.61036 13 7.5 13Z"
+        fill="currentColor"
+      />
+      <path
+        d="M4.33333 7.33333L5.5 5L6.66667 7.33333L9 8.5L6.66667 9.66667L5.5 12L4.33333 9.66667L2 8.5L4.33333 7.33333Z"
+        fill="currentColor"
+      />
+      <path
+        d="M8.66667 3.66667L9.5 2L10.3333 3.66667L12 4.5L10.3333 5.33333L9.5 7L8.66667 5.33333L7 4.5L8.66667 3.66667Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** IconFashion from the square filled set. */
+export function FashionIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M9.64338 3.53004L9.38601 2.69141L0.820312 6.8698L2.85636 11.5996L5.00139 10.6181V21.0001H19.0014V10.6181L21.1464 11.5996L23.1825 6.8698L14.6168 2.69141L14.3594 3.53004C13.953 4.85441 12.9516 5.44842 12.0014 5.44842C11.0512 5.44842 10.0498 4.85441 9.64338 3.53004Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
 export function BankIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
