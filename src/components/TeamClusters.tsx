@@ -58,7 +58,7 @@ export function TeamClusters({
       // shrink the box, so without this the widest row could reach past the
       // edge of a narrow phone and let the whole page scroll sideways.
       className={cn(
-        'mt-6 lg:mt-10 grid items-start gap-x-6 gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]',
+        'mt-6 lg:mt-10 grid items-start gap-x-6 gap-y-2 lg:gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]',
         className,
       )}
     >
@@ -177,8 +177,9 @@ export function TeamClusters({
             </ul>
             {/* Keep revealed names out of grid sizing so longer names and
                 companies cannot resize columns or move neighbouring faces.
-                Reserve three lines, including while no person is named. */}
-            <p className="relative h-12 shrink-0 font-mono text-xs text-text-muted">
+                Reserve two lines on narrow screens and three on desktop,
+                including while no person is named. */}
+            <p className="relative h-8 lg:h-12 shrink-0 font-mono text-xs text-text-muted">
               {named ? (
                 <span
                   key={named.name}
