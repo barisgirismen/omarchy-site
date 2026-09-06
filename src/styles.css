@@ -2218,6 +2218,17 @@ h6 {
   }
 }
 
+/* A phone's bar, once it is on a section, closes with the same hairline the
+   sections draw between themselves, so the bar reads as the top of the
+   section it is wearing rather than a wash lying over it. Not while the
+   sheet is down: the bar is the top of the sheet then, and a line between
+   the two would be a seam across one surface. */
+@media (max-width: 639.98px) {
+  html:not([data-nav-menu='open']) [data-nav-past-hero] {
+    box-shadow: inset 0 -1px 0 var(--color-border-subtle);
+  }
+}
+
 /* ---------------------------------------------------------------- nav mark */
 
 /* Hovering the mark redraws it: the frame first, then the stems and the
