@@ -2,7 +2,7 @@
   "checked": "2026-09-06",
   "github": {
     "stars": 38441,
-    "forks": 4115,
+    "pullRequests": 4805,
     "contributors": 511,
     "commitsYear": 3876,
     "weeks": [
@@ -12,7 +12,7 @@
     ]
   },
   "foundation": {
-    "total": 13,
+    "total": 14.95,
     "steps": [
       {
         "date": "2026-08-21",
@@ -26,6 +26,11 @@
       },
       {
         "date": "2026-08-31",
+        "amount": 12,
+        "post": "/news/2026/08/omacom-foundation-welcomes-brian-armstrong-and-yunjie-dai/"
+      },
+      {
+        "date": "2026-08-31",
         "amount": 12.6,
         "post": "/news/2026/08/1password-and-37signals-become-distinguished-corporate-patrons/"
       },
@@ -33,24 +38,33 @@
         "date": "2026-09-02",
         "amount": 13,
         "post": "/news/2026/09/omacom-foundation-reaches-13-million/"
+      },
+      {
+        "date": "2026-09-03",
+        "amount": 14.95,
+        "post": "/news/2026/09/omacom-foundation-secures-tokens-from-leading-labs/"
       }
     ]
   },
   "downloads": {
-    "total": 200000,
-    "days": 18,
+    "total": 1050000,
     "countries": 215,
     "post": "/news/2026/09/quattro-crosses-200000-iso-downloads/",
-    "steps": [
+    "periods": [
       {
-        "date": "2026-08-28",
-        "count": 100000,
-        "post": "/news/2026/08/100000-downloads-in-a-week/"
+        "label": "Yesterday",
+        "days": 1,
+        "count": 9158
       },
       {
-        "date": "2026-09-02",
-        "count": 200000,
-        "post": "/news/2026/09/quattro-crosses-200000-iso-downloads/"
+        "label": "Last week",
+        "days": 7,
+        "count": 75071
+      },
+      {
+        "label": "Last month",
+        "count": 242851,
+        "days": 30
       }
     ]
   }

@@ -25,7 +25,6 @@ const columns = [
       { label: 'Discord', href: 'https://discord.gg/tXFUdasqhY' },
       { label: 'Meetups', splat: 'meetups' },
       { label: 'Teams', to: '/teams/' },
-      { label: 'Artists in Residence', splat: 'air' },
       { label: 'Workstations', splat: 'workstations' },
     ],
   },
@@ -35,6 +34,7 @@ const columns = [
       { label: 'Omacom Foundation', splat: 'foundation' },
       { label: 'Patrons', splat: 'patrons' },
       { label: 'Sponsorships', splat: 'sponsorships' },
+      { label: 'Artists in Residence', splat: 'air' },
     ],
   },
   {
@@ -75,7 +75,7 @@ export function SiteFooter() {
 
       <div className="footer-rise relative mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between">
-          <div className="w-full shrink-0 sm:w-max lg:w-96">
+          <div className="flex w-full shrink-0 flex-col sm:w-max lg:w-96">
             {/* The way back up: home, at the top, like the mark in the bar.
                 Hovering lifts it to the exact colour the hero's pixels rise
                 to, since that is the tint the field uses for a hovered
@@ -110,7 +110,7 @@ export function SiteFooter() {
 
             {/* Who is behind it and who carries it: attribution belongs with
                 the identity, not down in the fine print with the legal. */}
-            <div className="mt-4 flex flex-col gap-4 text-[13px] text-text-muted [text-wrap:pretty]">
+            <div className="mt-4 flex flex-col text-sm leading-relaxed text-text-muted [text-wrap:pretty] lg:mt-auto">
               <p data-quiet>
                 Incubated at{' '}
                 {/* The link stays plain inline text, so its words sit on the
@@ -171,8 +171,9 @@ export function SiteFooter() {
         <div className="mt-12 flex flex-col gap-2 border-t border-border-subtle pt-6 text-[13px] text-text-muted sm:flex-row sm:items-center sm:justify-between">
           <p data-quiet>
             <Link to="/$/" params={{ _splat: 'brand' }} className={footerLink}>
-              Omarchy is a pending trademark
+              Omarchy™
             </Link>
+            . All rights reserved.
           </p>
           <p data-quiet>
             Partner inquiries:{' '}

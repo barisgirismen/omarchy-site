@@ -48,12 +48,13 @@ function NavTooltip({
 }
 
 const navLinks = [
+  { to: '/', label: 'Home' },
+  { to: '/news/', label: 'News' },
   { to: '/manual/', label: 'Manual' },
   // Plugins points at the standalone directory for launch; the built-in
   // pages stay routable but unlinked.
   { href: 'https://plugins.omarchy.org', label: 'Plugins' },
   { to: '/themes/', label: 'Themes' },
-  { to: '/news/', label: 'News' },
 ] as const
 
 /**
@@ -571,6 +572,7 @@ export function SiteHeader() {
                 <Link
                   key={link.label}
                   to={link.to}
+                  activeOptions={{ exact: link.to === '/' }}
                   className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   activeProps={{ className: 'text-text bg-surface-2' }}
                 >
@@ -662,6 +664,7 @@ export function SiteHeader() {
               <Link
                 key={link.label}
                 to={link.to}
+                activeOptions={{ exact: link.to === '/' }}
                 onClick={() => setMenuOpen(false)}
                 className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 activeProps={{ className: 'text-text font-medium' }}

@@ -140,7 +140,7 @@ console.log(`version.json: ${version}`)
 
 // ---------------------------------------------------------------- momentum
 // The repository's own numbers for the figures beside the news: stars,
-// forks, contributors and a year of weekly commits. The foundation and
+// pull requests, contributors and a year of weekly commits. The foundation and
 // download figures in the same file are quoted from the news posts they
 // link to and kept by hand, so only the github block is rewritten here.
 // GitHub computes the weekly stats on first request and answers 202 with
@@ -160,6 +160,15 @@ const gh = (p, init) =>
 const repoRes = await gh('')
 if (!repoRes.ok) throw new Error(`repo → ${repoRes.status}`)
 const repo = await repoRes.json()
+// One result per page makes the last page the total across all PR states.
+const pullsRes = await gh('/pulls?state=all&per_page=1')
+if (!pullsRes.ok) throw new Error(`pull requests → ${pullsRes.status}`)
+const pullsLastPage = /page=(\d+)>; rel="last"/.exec(
+  pullsRes.headers.get('link') ?? '',
+)
+const pullRequests = pullsLastPage
+  ? Number(pullsLastPage[1])
+  : (await pullsRes.json()).length
 // anon=1 counts the authors whose commits carry an email GitHub cannot
 // match to an account. They are contributors, and they are in the count the
 // repository's own page shows: without this the site said 444 where GitHub
@@ -175,7 +184,7 @@ for (let attempt = 0; attempt < 5 && weeks.length === 0; attempt++) {
   else await new Promise((r) => setTimeout(r, 3000))
 }
 if (weeks.length === 52 && lastPage) {
-  // Stars, forks and contributors only go up. A fall means the answer was
+  // Stars, pull requests and contributors usually go up. A fall may mean the answer was
   // odd rather than the project shrinking - a partial contributor list, a
   // cached response - and the figures would go out on the site as fact. Say
   // so loudly; the run still writes, because a real fall is possible and a
@@ -183,7 +192,7 @@ if (weeks.length === 52 && lastPage) {
   const before = momentum.github
   const now = {
     stars: repo.stargazers_count,
-    forks: repo.forks_count,
+    pullRequests,
     contributors: Number(lastPage[1]),
   }
   for (const [key, value] of Object.entries(now)) {
@@ -198,7 +207,7 @@ if (weeks.length === 52 && lastPage) {
   momentum.checked = new Date().toISOString().slice(0, 10)
   momentum.github = {
     stars: repo.stargazers_count,
-    forks: repo.forks_count,
+    pullRequests,
     contributors: Number(lastPage[1]),
     commitsYear: weeks.reduce((a, b) => a + b, 0),
     weeks,

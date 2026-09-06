@@ -71,7 +71,7 @@ export function TeamClusters() {
                 setOpen(isOpen ? null : team.id)
                 setPicked(null)
               }}
-              className="flex flex-wrap items-baseline gap-x-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="flex flex-col items-start gap-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <span className="font-sans text-sm font-medium text-text">
                 {team.name.replace(/^Omarchy /, '')}

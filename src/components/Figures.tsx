@@ -39,9 +39,6 @@ function weekOf(checked: string, back: number) {
   })
 }
 
-const daysBetween = (a: string, b: string) =>
-  Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000)
-
 /** Weekly commits as rows of eighth-blocks, oldest week on the left. */
 function commitRows(weeks: Array<number>) {
   const top = Math.max(1, ...weeks)
@@ -241,8 +238,7 @@ function WeekHover({
 
 export function Figures() {
   const { foundation, downloads, github } = momentum
-  const first = foundation.steps[0]
-  const last = foundation.steps[foundation.steps.length - 1]
+  const downloadMonth = downloads.periods[downloads.periods.length - 1]
   const funding = useInView()
   const isos = useInView()
   const repo = useInView()
@@ -256,16 +252,12 @@ export function Figures() {
       >
         <span className={number}>
           <Count
-            value={foundation.total}
+            value={foundation.total * 1_000_000}
             live={funding.inView}
             prefix="$"
-            suffix="M"
           />
         </span>
-        <span className={label}>
-          raised for the Omacom Foundation in{' '}
-          {daysBetween(first.date, last.date)} days
-        </span>
+        <span className={label}>pledged to the Omacom Foundation</span>
         {/* One bar per announcement, each a link to the post it quotes, the
             latest at the top: a figure card is read from its number down, and
             the number is where the last bar ends. The row is date, bars and
@@ -306,39 +298,29 @@ export function Figures() {
         <span className={number}>
           <Count value={downloads.total} live={isos.inView} />
         </span>
-        <span className={label}>ISO downloads in {downloads.days} days</span>
-        <p className={meta}>
-          from {downloads.countries} countries and territories
-        </p>
-        {/* The milestones the project announced, one bar each, the latest on
-            top, drawn the same way as the funding: the two cards read as a
-            pair. Each links to its post. */}
-        <div className="figure-chart mt-4 font-mono text-[min(0.75rem,4.4cqw)] leading-relaxed whitespace-pre">
-          {[...downloads.steps].reverse().map((step) => (
-            <Link
-              key={step.post}
-              to={step.post}
-              className="group block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            >
-              <span className="text-text-muted">
-                {shortDate(step.date).padEnd(7)}
-              </span>
-              <span className="text-brand">
-                {'█'.repeat(
-                  Math.round((STEP_WIDTH * step.count) / downloads.total),
-                )}
-              </span>
-              <span className="text-text-muted transition-colors duration-150 ease-out group-hover:text-text">
-                {'  ' + step.count / 1000 + 'k'}
-              </span>
-            </Link>
-          ))}
-        </div>
-        {/* The rate is worked out from the total and the days rather than
-            copied from the post, so it stays right when either moves. */}
-        <p className={meta}>
-          one every {Math.round((downloads.days * 86400) / downloads.total)}{' '}
-          seconds, on average
+        <span className={label}>ISO downloads in year one</span>
+        <table className="mt-2 w-full font-mono text-xs leading-relaxed">
+          <caption className="sr-only">Recent ISO downloads</caption>
+          <tbody className="divide-y-2 divide-border-strong">
+            {downloads.periods.map((period) => (
+              <tr key={period.label}>
+                <th
+                  scope="row"
+                  className="py-2 text-left font-normal text-text-muted"
+                >
+                  {period.label}
+                </th>
+                <td className="py-2 text-right text-text-secondary tabular-nums">
+                  {period.count.toLocaleString('en-US')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="mt-3 font-sans text-xs leading-relaxed text-text-secondary">
+          One every{' '}
+          {Math.round((downloadMonth.days * 86400) / downloadMonth.count)}{' '}
+          seconds, all month long
         </p>
         <Link to={downloads.post} className={more}>
           The numbers
@@ -354,10 +336,6 @@ export function Figures() {
           <Count value={github.stars} live={repo.inView} />
         </span>
         <span className={label}>stars on GitHub</span>
-        <p className={meta}>
-          {github.forks.toLocaleString('en-US')} forks · {github.contributors}{' '}
-          contributors
-        </p>
         {/* One column per week, the last 52, scaled to the busiest week.
             The chart is drawn as text, so the weeks are not elements to hover;
             a row of targets sits over it instead, one per column, each
@@ -371,13 +349,9 @@ export function Figures() {
           </pre>
           <WeekHover weeks={github.weeks} checked={momentum.checked} />
         </div>
-        {/* Two pixels further down than the notes on the other cards, which
-            puts the same clear space under this one: those sit under text,
-            which carries its own room below the letters, and this sits under
-            blocks that fill their line to the last pixel. */}
         <p className={`${meta} mt-[14px]`}>
-          {github.commitsYear.toLocaleString('en-US')} commits in the last 52
-          weeks
+          {github.pullRequests.toLocaleString('en-US')} pull requests ·{' '}
+          {github.contributors} contributors
         </p>
         <a href="https://github.com/omacom/omarchy" className={more}>
           The repo
