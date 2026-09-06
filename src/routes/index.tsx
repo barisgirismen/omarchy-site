@@ -24,6 +24,7 @@ import { Figures } from '@/components/Figures'
 import { HardwareShowcase } from '@/components/HardwareShowcase'
 import { AgentShowcase } from '@/components/AgentShowcase'
 import { GamingShowcase } from '@/components/GamingShowcase'
+import { DeveloperShowcase } from '@/components/DeveloperShowcase'
 import { TypewriterTail } from '@/components/TypewriterTail'
 import { PluginCard } from '@/components/PluginCard'
 import {
@@ -739,11 +740,17 @@ function Home() {
         </div>
       </section>
 
+      <section id="developers" className="border-t border-border-subtle">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
+          <DeveloperShowcase />
+        </div>
+      </section>
+
       {/* news: what the project said lately, full width. The figures used to
           sit beside it and made one screen answer four questions at once;
           they have the section after this one now, so each can be read on
           its own. */}
-      <section id="news" className="border-t border-border-subtle">
+      <section id="news" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="news"
@@ -804,7 +811,7 @@ function Home() {
           light section by section. */}
       <section
         id="figures"
-        className="border-t border-border-subtle bg-bg-deep"
+        className="border-t border-border-subtle"
       >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
@@ -817,7 +824,7 @@ function Home() {
       </section>
 
       {/* voices: posts from the people who installed it, quoted as written. */}
-      <section id="voices" className="border-t border-border-subtle">
+      <section id="voices" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="voices"
@@ -831,7 +838,7 @@ function Home() {
       </section>
 
       {/* the teams: who steers it, shown together as clusters of faces. */}
-      <section id="teams" className="border-t border-border-subtle bg-bg-deep">
+      <section id="teams" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="teams"
@@ -844,7 +851,7 @@ function Home() {
         </div>
       </section>
 
-      <section id="patrons" className="border-t border-border-subtle">
+      <section id="patrons" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="patrons"
@@ -860,7 +867,7 @@ function Home() {
       {/* community */}
       <section
         id="community"
-        className="border-t border-border-subtle bg-bg-deep"
+        className="border-t border-border-subtle"
       >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
