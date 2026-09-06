@@ -40,15 +40,7 @@ function NewsPostPage() {
         className="mx-auto mb-10 w-full max-w-sm text-[color:var(--t-field-lit)]"
         background={WORDMARK_BANDS}
       />
-      <Link
-        to="/news/"
-        className="inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors duration-150 ease-out hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-      >
-        <ArrowLeftIcon className="size-5" />
-        All news
-      </Link>
-
-      <article className="mt-8">
+      <article>
         <header>
           <p className="font-mono text-xs text-text-muted">
             By{' '}
@@ -70,6 +62,14 @@ function NewsPostPage() {
           dangerouslySetInnerHTML={{ __html: post.html }}
         />
       </article>
+
+      <Link
+        to="/news/"
+        className="mt-10 inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors duration-150 ease-out hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
+        <ArrowLeftIcon className="size-5" />
+        All news
+      </Link>
     </main>
   )
 }

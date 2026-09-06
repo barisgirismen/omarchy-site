@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { SearchField } from '@/components/SearchField'
 import themes from '@/data/themes.json'
 import { Button } from '@/components/ui/button'
-import { OPEN_PICKER_EVENT } from '@/lib/theme'
 import { seo } from '@/lib/seo'
 
 export const Route = createFileRoute('/themes')({
@@ -11,7 +10,7 @@ export const Route = createFileRoute('/themes')({
     seo({
       title: 'Themes - Omarchy',
       description:
-        'Community themes for Omarchy. One keystroke restyles the entire system: terminal, bar, notifications, wallpaper.',
+        'Community themes for Omarchy. Install them via Install > Style > Themes in Omarchy.',
       path: '/themes',
     }),
   component: ThemesPage,
@@ -32,25 +31,13 @@ function ThemesPage() {
           Community themes
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-          A theme restyles the whole system at once. Press{' '}
-          <kbd className="rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[13px] text-text">
-            Super&nbsp;+&nbsp;Ctrl&nbsp;+&nbsp;Shift&nbsp;+&nbsp;Space
-          </kbd>{' '}
-          inside Omarchy to cycle through the ones you've installed. Want yours
-          listed? Open a pull request on the site repository.
-        </p>
-        <p className="mt-3 text-[15px] leading-relaxed text-text-secondary">
-          This website wears them too:{' '}
-          <button
-            type="button"
-            onClick={() =>
-              window.dispatchEvent(new CustomEvent(OPEN_PICKER_EVENT))
-            }
-            className="text-text underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:decoration-brand"
-          >
-            press T to try the ones that ship with Omarchy
-          </button>
-          .
+          A theme restyles the whole system at once. Install these community
+          themes via{' '}
+          <span className="font-medium text-text">
+            Install &gt; Style &gt; Themes
+          </span>{' '}
+          in Omarchy. Want yours listed? Open a pull request on the site
+          repository.
         </p>
       </header>
 

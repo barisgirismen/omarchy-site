@@ -1,6 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { RefObject } from 'react'
+import type { ReactElement, RefObject } from 'react'
 import {
   DownloadIcon,
   GithubIcon,
@@ -11,11 +11,43 @@ import {
 import { OmarchyMarkDrawn } from '@/components/Brand'
 import { MusicMenuControl } from '@/components/MusicControl'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useHashLink, useTopLink } from '@/lib/hash-scroll'
 import { OPEN_PICKER_EVENT, THEME_EVENT, groundOf } from '@/lib/theme'
 import { OPEN_SEARCH_EVENT } from '@/lib/search'
 import { useIsNarrow } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
+
+function NavTooltip({
+  children,
+  label,
+  shortcut,
+  nativeButton = true,
+}: {
+  children: ReactElement
+  label: string
+  shortcut?: string
+  nativeButton?: boolean
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger render={children} nativeButton={nativeButton} />
+      <TooltipContent side="bottom" sideOffset={10}>
+        {label}
+        {shortcut && (
+          <kbd className="ml-1 rounded border border-current/25 px-1 font-mono text-[11px] opacity-75">
+            {shortcut}
+          </kbd>
+        )}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 const navLinks = [
   { to: '/manual/', label: 'Manual' },
@@ -465,7 +497,7 @@ export function SiteHeader() {
     <Button
       variant="ghost"
       size="icon"
-      aria-label="Change the theme"
+      aria-label="Change website theme"
       data-nav-glyph
       className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
       onClick={() => window.dispatchEvent(new CustomEvent(OPEN_PICKER_EVENT))}
@@ -552,19 +584,27 @@ export function SiteHeader() {
 
           <div className="ml-auto flex items-center gap-2.5">
             <div className="hidden items-center gap-1 sm:flex">
-              {search}
-              {theme}
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Omarchy on GitHub"
-                data-nav-glyph
-                className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
-                nativeButton={false}
-                render={<a href="https://github.com/omacom/omarchy" />}
-              >
-                <GithubIcon className="size-5" />
-              </Button>
+              <TooltipProvider delay={300}>
+                <NavTooltip label="Search Omarchy" shortcut="⌘K / Ctrl+K">
+                  {search}
+                </NavTooltip>
+                <NavTooltip label="Change website theme" shortcut="T">
+                  {theme}
+                </NavTooltip>
+                <NavTooltip label="View Omarchy on GitHub" nativeButton={false}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Omarchy on GitHub"
+                    data-nav-glyph
+                    className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
+                    nativeButton={false}
+                    render={<a href="https://github.com/omacom/omarchy" />}
+                  >
+                    <GithubIcon className="size-5" />
+                  </Button>
+                </NavTooltip>
+              </TooltipProvider>
               <span className="ml-2 flex">{install}</span>
             </div>
             <Button

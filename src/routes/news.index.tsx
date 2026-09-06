@@ -1,7 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { ArrowRightIcon, RssIcon } from '@/components/icons'
 import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
-import { Button } from '@/components/ui/button'
 import { getNewsIndex } from '@/lib/content'
 import { seo } from '@/lib/seo'
 
@@ -36,14 +35,13 @@ function NewsPage() {
           <h1 className="text-3xl font-semibold tracking-tight text-text">
             News
           </h1>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<a href="/news/rss.xml" />}
+          <a
+            href="/news/rss.xml"
+            className="inline-flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            <RssIcon data-icon="inline-start" />
-            RSS feed
-          </Button>
+            <RssIcon className="size-5" />
+            RSS
+          </a>
         </div>
         <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
           Announcements, releases, and other news.
