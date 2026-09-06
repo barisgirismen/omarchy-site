@@ -4,6 +4,7 @@ import type { ReactElement, RefObject } from 'react'
 import {
   DownloadIcon,
   GithubIcon,
+  MENU_BARS_FOLD_MS,
   MenuBarsIcon,
   PaletteIcon,
   RssIcon,
@@ -225,9 +226,14 @@ function useNavSurface(
   /** Re-surveyed on arrival at a new page, whose sections are its own. */
   pathname: string,
 ) {
+  // Whether the sheet was up the last time this ran, so its closing can be
+  // told apart from any other reason to run.
+  const wasOpen = useRef(sheetOpen)
   useEffect(() => {
     const el = bar.current
     if (!el) return
+    const justClosed = wasOpen.current && !sheetOpen
+    wasOpen.current = sheetOpen
 
     // Exactly one of the two label layers is ever painted. They are never
     // cross-faded: two copies of the same word at partial opacity, one blended
@@ -250,6 +256,15 @@ function useNavSurface(
     // width of the screen.
     if (flat) {
       el.style.setProperty('--nav-surface', '0')
+      // Closing the sheet hands the labels back to the ghost. The toggle's
+      // bars are still folding back out of their cross at that moment, and
+      // blending the real one away at once cut the fold short: the ghost's
+      // still bars took over mid-turn. So the real one stays painted until
+      // the fold is done, and the two swap showing the same picture.
+      if (blended && justClosed) {
+        const swap = window.setTimeout(() => solid(false), MENU_BARS_FOLD_MS)
+        return () => window.clearTimeout(swap)
+      }
       solid(!blended)
       return
     }

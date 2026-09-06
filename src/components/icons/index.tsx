@@ -795,6 +795,11 @@ export function MoonIcon(props: IconProps) {
  * 0.88 scale is what makes the folded arms 16.3 units long, exactly the
  * diagonal of the CrossIcon this ends up looking like.
  */
+/** How long the bars take to fold into a cross, or back. The header waits
+ *  this long after the sheet closes before handing the icon back to the
+ *  blended ghost, so the fold is seen through. */
+export const MENU_BARS_FOLD_MS = 260
+
 export function MenuBarsIcon({
   open = false,
   ...props
@@ -802,8 +807,7 @@ export function MenuBarsIcon({
   const bar = (y: number, folded: string) => ({
     transformOrigin: `12px ${y}px`,
     transform: open ? folded : 'none',
-    transition:
-      'transform 260ms cubic-bezier(0.2, 0, 0, 1), opacity 140ms ease-out',
+    transition: `transform ${MENU_BARS_FOLD_MS}ms cubic-bezier(0.2, 0, 0, 1), opacity 140ms ease-out`,
   })
   return (
     <svg {...base(props)}>
