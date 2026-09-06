@@ -39,7 +39,6 @@ export const PLUGINS_SITE = 'https://plugins.omarchy.org'
 
 export const REDIRECTS = {
   '/manual/toc/': '/manual/',
-  '/security/credits/': '/security/#credits',
 }
 
 /** Whether a request path is one the checkout answers for. */

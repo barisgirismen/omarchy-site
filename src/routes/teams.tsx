@@ -1,9 +1,9 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { ArrowUpRightIcon, DiscordIcon, GithubIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import teams from '@/data/teams.json'
-import { claimNextHashScroll, scrollToAnchor } from '@/lib/anchor-scroll'
 import { seo } from '@/lib/seo'
+import { PageWordmark } from '@/components/PageWordmark'
 
 /**
  * The teams page is the home page's team section at full length: the same
@@ -62,100 +62,13 @@ function TeamNote({
 const noteLink =
   'text-text underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:decoration-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
 
-/** The jump links scroll the page themselves, smoothly and clear of the
- *  bar, the way the home page's anchors do; the site leaves the browser's
- *  own anchor jump alone so a /teams/#core URL opens in place. */
-function useJumpLink(id: string) {
-  const navigate = useNavigate()
-  return (event: React.MouseEvent) => {
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return
-    }
-    const target = document.getElementById(id)
-    if (!target) return
-    event.preventDefault()
-    claimNextHashScroll()
-    scrollToAnchor(target, true)
-    void navigate({
-      to: '/teams/',
-      hash: id,
-      replace: true,
-      resetScroll: false,
-    })
-  }
-}
-
-function TeamJump({ team }: { team: (typeof teams)[number] }) {
-  const jump = useJumpLink(team.id)
-  return (
-    <a
-      href={`#${team.id}`}
-      onClick={jump}
-      className="group flex items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-    >
-      <span className="flex -space-x-2.5">
-        {team.members.slice(0, 4).map((member) => (
-          <span
-            key={member.name}
-            className="block size-7 overflow-hidden rounded-full ring-2 ring-bg"
-          >
-            {member.avatar ? (
-              <img
-                src={member.avatar}
-                alt=""
-                width={240}
-                height={240}
-                loading="lazy"
-                decoding="async"
-                className="size-full rounded-full object-cover"
-              />
-            ) : null}
-          </span>
-        ))}
-      </span>
-      <span className="font-sans text-sm font-medium text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out group-hover:decoration-brand">
-        {team.name.replace(/^Omarchy /, '')}
-      </span>
-      <span className="font-mono text-xs text-text-muted">
-        {team.members.length}
-      </span>
-    </a>
-  )
-}
-
 function TeamsPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <header>
-        <div className="max-w-2xl">
-          <h1 className="text-3xl font-semibold tracking-tight text-text">
-            Teams
-          </h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-            The people guiding Omarchy: Core sets the direction, Security keeps
-            the system safe, and the Rangers help everyone else find their way.
-          </p>
-        </div>
-        {/* One small cluster per team, each a jump to its block: the home
-            page's clusters at a glance, and a table of contents that shows
-            who is in it. */}
-        <nav aria-label="Teams on this page" className="mt-8">
-          <ul className="flex flex-wrap gap-x-8 gap-y-3">
-            {teams.map((team) => (
-              <li key={team.id}>
-                <TeamJump team={team} />
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </header>
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <PageWordmark />
+      <h1 className="text-center page-subtitle text-[0.779625rem] font-normal text-text-secondary sm:text-[0.86625rem]">
+        Teams
+      </h1>
 
       {teams.map((team) => (
         <section

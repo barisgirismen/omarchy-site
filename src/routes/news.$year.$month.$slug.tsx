@@ -1,6 +1,6 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@/components/icons'
-import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
+import { NewsHeader } from '@/components/NewsHeader'
 import { getNewsPost } from '@/lib/content'
 import { SITE_DESCRIPTION, seo } from '@/lib/seo'
 
@@ -34,12 +34,7 @@ function NewsPostPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      {/* The wordmark over the post, as on the news page. */}
-      <OmarchyWordmark
-        label="Omarchy"
-        className="mx-auto mb-[2.6rem] w-full max-w-sm text-[color:var(--t-field-lit)]"
-        background={WORDMARK_BANDS}
-      />
+      <NewsHeader article />
       <article>
         <header>
           <p className="font-mono text-xs text-text-muted">

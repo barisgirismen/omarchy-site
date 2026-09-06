@@ -1,7 +1,8 @@
-import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { getPortedPage } from '@/lib/content'
 import { SITE_DESCRIPTION, excerptFromHtml, seo } from '@/lib/seo'
 import { cn } from '@/lib/utils'
+import { PageWordmark } from '@/components/PageWordmark'
 
 /**
  * Serves every standalone page ported from omarchy.org: /air, /foundation,
@@ -66,6 +67,10 @@ const PORTED: Partial<Record<string, { title: string; description: string }>> =
       description:
         'How to report a vulnerability in Omarchy - tell the Security Team privately at security@omarchy.org - and the people credited for doing exactly that.',
     },
+    'security/credits': {
+      title: 'Security Credits - Omarchy',
+      description: 'The people who responsibly disclosed security vulnerabilities in Omarchy.',
+    },
     server: {
       title: 'Server - Omarchy',
       description: 'Omarchy Server 4.0, coming in 2026.',
@@ -92,6 +97,7 @@ const NARROW = new Set([
   'foundation',
   'sponsorships',
   'security',
+  'security/credits',
   'brand',
   'omakub',
 ])
@@ -99,31 +105,9 @@ const NARROW = new Set([
 export const Route = createFileRoute('/$')({
   loader: async ({ params }) => {
     const path = (params._splat ?? '').replace(/\/+$/, '')
-    // One security page: the credits are a single short section, and a page
-    // of their own gave them nothing but a second footer link. The old
-    // address forwards, so nothing saved or shared goes dark.
-    if (path === 'security/credits') {
-      throw redirect({
-        to: '/$/',
-        params: { _splat: 'security' },
-        hash: 'credits',
-      })
-    }
     const page = await getPortedPage({ data: path })
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- eslint mis-narrows the server-fn return here; tsc sees PortedPage | null
     if (!page) throw notFound()
-    if (path === 'security') {
-      const credits = await getPortedPage({ data: 'security/credits' })
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- same server-fn mis-narrowing as above
-      if (credits) {
-        return {
-          ...page,
-          // The prose's own "security credits" link points where the page
-          // used to live; on the merged page that is just the section below.
-          html: `${page.html.replaceAll('href="/security/credits/"', 'href="#credits"')}<div id="credits">${credits.html}</div>`,
-        }
-      }
-    }
     return page
   },
   head: ({ loaderData, params }) => {
@@ -145,27 +129,36 @@ function PortedPage() {
   const { _splat } = Route.useParams()
   const path = (_splat ?? '').replace(/\/+$/, '')
   const narrow = NARROW.has(path)
-  const hasSubtitle = ['patrons', 'foundation', 'potato'].includes(path)
-  // The badges stand centred, one under the other, so their title does too.
-  const centred = path === 'patrons/badges'
+  const hasSubtitle = ['foundation', 'potato'].includes(path)
+  // Centre the titles beneath the security wordmark and above the badges.
+  const centred = path === 'patrons/badges' || path === 'patrons' || path.startsWith('security')
 
   return (
     <main
       className={cn(
-        'mx-auto px-4 py-12 sm:px-6',
+        'mx-auto px-4 sm:px-6',
+        path.startsWith('security') || path === 'patrons' ? 'py-8' : 'py-12',
         narrow ? 'max-w-3xl' : 'max-w-6xl',
       )}
     >
+      {(path.startsWith('security') || path === 'patrons') && (
+        <PageWordmark />
+      )}
       <h1
         className={cn(
-          'text-3xl font-semibold tracking-tight text-text',
+          path.startsWith('security') || path === 'patrons'
+            ? 'page-subtitle text-[0.779625rem] font-normal text-text-secondary sm:text-[0.86625rem]'
+            : 'text-3xl font-semibold tracking-tight text-text',
           centred && 'text-center',
         )}
       >
         {page.title}
       </h1>
       <div
-        className={cn('prose ported', hasSubtitle ? 'mt-2' : 'mt-8')}
+        className={cn(
+          'prose ported',
+          hasSubtitle ? 'mt-2' : 'mt-8',
+        )}
         dangerouslySetInnerHTML={{ __html: page.html }}
       />
     </main>

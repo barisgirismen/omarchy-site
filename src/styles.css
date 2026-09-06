@@ -1900,17 +1900,6 @@ h6 {
   gap: 1rem;
 }
 
-/* The credits live at the end of the security page now. A rule above and
-   room around it make the section read as its own zone rather than the
-   prose running on; the closing note steps back from the grid. */
-.ported #credits {
-  margin-top: 3em;
-  padding-top: 2.5em;
-  border-top: 1px solid var(--color-border-subtle);
-}
-.ported #credits .team {
-  margin-top: 0;
-}
 .ported .team__note {
   margin-top: 2.5em;
   font-size: 14px;
@@ -2433,4 +2422,8 @@ h6 {
       transition: none;
     }
   }
+}
+
+.page-subtitle {
+  font-family: var(--font-mono);
 }

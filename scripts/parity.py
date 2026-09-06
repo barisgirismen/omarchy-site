@@ -53,7 +53,7 @@ def addresses():
     read = lambda name: json.loads((data / f'{name}.json').read_text())
     pages = {'/', '/404.html', '/manual/', '/manual/toc/', '/news/', '/themes/',
              '/teams/', '/plugins/', '/plugins/explore/', '/plugins/develop/',
-             '/plugins/publish/', '/security/credits/'}
+             '/plugins/publish/'}
     pages.update(f'/{slug}/' for slug in read('pages'))
     pages.update('/manual/' if c['slug'] == 'index' else f'/manual/{c["slug"]}/'
                  for c in read('manual'))

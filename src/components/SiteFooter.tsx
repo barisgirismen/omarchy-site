@@ -38,8 +38,8 @@ const columns = [
   {
     title: 'Project',
     links: [
-      { label: 'GitHub', href: 'https://github.com/omacom/omarchy' },
       { label: 'Security', splat: 'security' },
+      { label: 'GitHub', href: 'https://github.com/omacom/omarchy' },
       { label: 'Brand', splat: 'brand' },
       {
         label: 'Merch',
