@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import {
   BrushIcon,
   ChevronLeftIcon,
@@ -22,9 +21,9 @@ import { cn } from '@/lib/utils'
 /**
  * The Omarchy theme browser, for the website. Press T and the same UI
  * Omarchy shows appears: a row of theme previews with the current one front
- * and center, the theme's name under it, arrows to walk the list. Every step
- * applies immediately, so the page behind the picker is the live preview,
- * exactly like the desktop re-theming behind Omarchy's own picker.
+ * and center, the theme's name under it, arrows to walk the list. Walking
+ * the deck only moves the cards. The page theme changes when you take the
+ * front one.
  */
 /** A theme's desktop screenshot, the card it shows as in the deck. WebP,
  *  since twenty-two of them as PNG came to eight megabytes. */
@@ -70,9 +69,6 @@ export function ThemePicker() {
   const restoreFocus = useRef<HTMLElement | null>(null)
   /** Whether the trigger was wearing a focus ring when it opened the picker. */
   const restoreRing = useRef(false)
-  // The frost holds the page for 160ms before the index commits, so the
-  // ref is the source of truth while a step is in flight. A render that
-  // still holds the old index must not rewind it.
   const indexRef = useRef(0)
 
   const markHintSeen = useCallback(() => {
@@ -111,13 +107,21 @@ export function ThemePicker() {
   const swipe = useRef({ id: -1, from: 0, moved: 0 })
 
   const step = useCallback((delta: number) => {
-    const next =
-      (indexRef.current + delta + SITE_THEMES.length) % SITE_THEMES.length
-    indexRef.current = next
-    switchTheme(SITE_THEMES[next].id, () => {
-      flushSync(() => setIndex(next))
+    setIndex((at) => {
+      const next = (at + delta + SITE_THEMES.length) % SITE_THEMES.length
+      indexRef.current = next
+      return next
     })
   }, [])
+
+  const choose = useCallback(() => {
+    const next = SITE_THEMES[indexRef.current]
+    if (next.id === readTheme()) {
+      close()
+      return
+    }
+    switchTheme(next.id, () => close())
+  }, [close])
 
   // The entry point is T. Omarchy's own chord still works for anyone not on
   // Omarchy, but on Omarchy itself Hyprland binds it at the compositor and
@@ -245,14 +249,17 @@ export function ThemePicker() {
       } else if (event.key === 'ArrowRight' || event.key === 'Right') {
         event.preventDefault()
         step(1)
-      } else if (event.key === 'Escape' || event.key === 'Enter') {
+      } else if (event.key === 'Enter') {
+        event.preventDefault()
+        choose()
+      } else if (event.key === 'Escape') {
         event.preventDefault()
         close()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, step, close])
+  }, [open, step, close, choose])
 
   if (!open) {
     if (!hint) return null
@@ -299,9 +306,9 @@ export function ThemePicker() {
       aria-label="Theme picker"
       tabIndex={-1}
       // Swipe walks the deck. Touch only: a mouse drag across the dimmer is
-      // how someone closes this, and stepping the theme instead would be a
+      // how someone closes this, and stepping the cards instead would be a
       // surprise. A swipe that has travelled is not a tap, so the click it
-      // ends with is swallowed rather than allowed to keep a theme and close.
+      // ends with is swallowed rather than allowed to take a theme and close.
       onPointerDown={(event) => {
         if (event.pointerType !== 'touch') return
         swipe.current = { id: event.pointerId, from: event.clientX, moved: 0 }
@@ -328,11 +335,10 @@ export function ThemePicker() {
       // and could cancel the picker's own pointer events midway.
       className="fixed inset-0 z-(--z-modal) flex touch-none flex-col items-center justify-center outline-none"
     >
-      {/* Dimmer, not a curtain: the page behind is the live preview - and
-          it wears the same blur and fade the site's dialogs do, so opening
-          the picker feels like opening any other layer here. The blur is
-          slight on purpose: the page has to stay readable as a preview of
-          the theme being chosen. */}
+      {/* Dimmer, not a curtain: the page behind stays on the theme you
+          arrived with until you take one. It wears the same blur and fade
+          the site's dialogs do, so opening the picker feels like opening
+          any other layer here. */}
       <div
         aria-hidden="true"
         onClick={close}
@@ -378,7 +384,7 @@ export function ThemePicker() {
               }}
             >
               {/* The deck is a control, not a picture: a neighbour's visible
-                  sliver walks the deck to it, and the front card keeps the
+                  sliver walks the deck to it, and the front card takes that
                   theme and closes. The stack itself stays click-through so
                   the space around the cards still reaches the dimmer. The
                   arrows and Esc do all of this too, which is why these carry
@@ -388,11 +394,9 @@ export function ThemePicker() {
                 tabIndex={-1}
                 aria-hidden={offset !== 0}
                 aria-label={
-                  offset === 0
-                    ? `Keep ${theme.name}`
-                    : `Switch to ${theme.name}`
+                  offset === 0 ? `Use ${theme.name}` : `Show ${theme.name}`
                 }
-                onClick={() => (offset === 0 ? close() : step(offset))}
+                onClick={() => (offset === 0 ? choose() : step(offset))}
                 className="pointer-events-auto block w-full cursor-pointer [--card-dim:0.55] hover:[--card-dim:0.78]"
               >
                 {/* The parallelogram is the card's shape, not a shear of the
@@ -473,7 +477,7 @@ export function ThemePicker() {
       </div>
 
       {/* The name is the plainest way to take the theme you are looking at:
-          the front card keeps it and closes too, but the name is what you
+          the front card takes it and closes too, but the name is what you
           are reading when you decide, and on a phone it is the one target
           that is never half-covered by a neighbouring card. No plate: a
           filled box sat on top of the preview. The name is set in the
@@ -485,8 +489,8 @@ export function ThemePicker() {
       <button
         type="button"
         tabIndex={-1}
-        aria-label={`Keep ${SITE_THEMES[index].name}`}
-        onClick={close}
+        aria-label={`Use ${SITE_THEMES[index].name}`}
+        onClick={choose}
         className={cn(
           'relative mt-1.5 cursor-pointer px-4 py-3.5 text-center transition-[filter] duration-150 ease-out hover:brightness-125',
         )}
