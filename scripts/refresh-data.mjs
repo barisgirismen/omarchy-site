@@ -482,17 +482,25 @@ async function meetupsFromApi(key) {
 /** Saves an event's cover as a small webp, once; the site links the file. */
 async function saveCover(event) {
   if (!event.cover) return null
-  const file = path.join(COVERS, `${event.id}.webp`)
-  const rel = `/images/meetups/${event.id}.webp`
-  if (existsSync(file)) return rel
+  // A new name also replaces the old, permanently cropped cover cache.
+  const file = path.join(COVERS, `${event.id}-full.webp`)
+  const rel = `/images/meetups/${event.id}-full.webp`
+  const sharp = (await import('sharp')).default
+  if (existsSync(file)) {
+    const metadata = await sharp(file).metadata()
+    event.coverWidth = metadata.width
+    event.coverHeight = metadata.height
+    return rel
+  }
   const res = await fetch(event.cover)
   if (!res.ok) return null
-  const sharp = (await import('sharp')).default
   await mkdir(COVERS, { recursive: true })
-  await sharp(Buffer.from(await res.arrayBuffer()))
-    .resize(800, 450, { fit: 'cover' })
+  const info = await sharp(Buffer.from(await res.arrayBuffer()))
+    .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
     .webp({ quality: 80 })
     .toFile(file)
+  event.coverWidth = info.width
+  event.coverHeight = info.height
   return rel
 }
 
@@ -503,7 +511,8 @@ try {
   const events = []
   for (const event of found.filter((e) => e.id && e.title && e.start)) {
     if (new Date(event.start) < MEETUPS_SINCE) continue
-    events.push({ ...event, cover: await saveCover(event) })
+    const cover = await saveCover(event)
+    events.push({ ...event, cover })
   }
   events.sort((a, b) => a.start.localeCompare(b.start))
   await writeFile(

@@ -16,7 +16,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-YDyCEwwpiMzSFDB.webp"
+      "cover": "/images/meetups/evt-YDyCEwwpiMzSFDB-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-NCrEUwhJNMsC4Kb",
@@ -31,7 +33,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-NCrEUwhJNMsC4Kb.webp"
+      "cover": "/images/meetups/evt-NCrEUwhJNMsC4Kb-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-8PIuoFqVqc9aVmG",
@@ -46,7 +50,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-8PIuoFqVqc9aVmG.webp"
+      "cover": "/images/meetups/evt-8PIuoFqVqc9aVmG-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-veZDizoGX3Bg25s",
@@ -61,7 +67,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-veZDizoGX3Bg25s.webp"
+      "cover": "/images/meetups/evt-veZDizoGX3Bg25s-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-nZvEJ5YOhs63tDW",
@@ -76,7 +84,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-nZvEJ5YOhs63tDW.webp"
+      "cover": "/images/meetups/evt-nZvEJ5YOhs63tDW-full.webp",
+      "coverWidth": 796,
+      "coverHeight": 800
     },
     {
       "id": "evt-UupMB4dm4GIoWTG",
@@ -91,7 +101,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-UupMB4dm4GIoWTG.webp"
+      "cover": "/images/meetups/evt-UupMB4dm4GIoWTG-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-f2GyxH5Zx0CAXov",
@@ -106,7 +118,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-f2GyxH5Zx0CAXov.webp"
+      "cover": "/images/meetups/evt-f2GyxH5Zx0CAXov-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 221
     },
     {
       "id": "evt-RoRVsderBgJnU26",
@@ -121,7 +135,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-RoRVsderBgJnU26.webp"
+      "cover": "/images/meetups/evt-RoRVsderBgJnU26-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 372
     },
     {
       "id": "evt-3fIvEvLMHPy1Ogr",
@@ -136,7 +152,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-3fIvEvLMHPy1Ogr.webp"
+      "cover": "/images/meetups/evt-3fIvEvLMHPy1Ogr-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 420
     },
     {
       "id": "evt-zxVLJqEluhmyZ5Y",
@@ -151,7 +169,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-zxVLJqEluhmyZ5Y.webp"
+      "cover": "/images/meetups/evt-zxVLJqEluhmyZ5Y-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-jVYkXohFYboPGSy",
@@ -166,7 +186,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-jVYkXohFYboPGSy.webp"
+      "cover": "/images/meetups/evt-jVYkXohFYboPGSy-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-Ll5RU2JG1z3xWMi",
@@ -181,7 +203,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-Ll5RU2JG1z3xWMi.webp"
+      "cover": "/images/meetups/evt-Ll5RU2JG1z3xWMi-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-nRrUk3GMpk9WTWa",
@@ -196,7 +220,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-nRrUk3GMpk9WTWa.webp"
+      "cover": "/images/meetups/evt-nRrUk3GMpk9WTWa-full.webp",
+      "coverWidth": 749,
+      "coverHeight": 760
     },
     {
       "id": "evt-P63ATltjoCylZva",
@@ -211,7 +237,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-P63ATltjoCylZva.webp"
+      "cover": "/images/meetups/evt-P63ATltjoCylZva-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-JjyzzuPF6K1OG4L",
@@ -226,7 +254,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-JjyzzuPF6K1OG4L.webp"
+      "cover": "/images/meetups/evt-JjyzzuPF6K1OG4L-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-DhhtD30xCwWvDis",
@@ -241,7 +271,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-DhhtD30xCwWvDis.webp"
+      "cover": "/images/meetups/evt-DhhtD30xCwWvDis-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-96XtvjvaJoCMl5o",
@@ -256,7 +288,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-96XtvjvaJoCMl5o.webp"
+      "cover": "/images/meetups/evt-96XtvjvaJoCMl5o-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-1D0kIB3mKwQBhHe",
@@ -271,7 +305,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-1D0kIB3mKwQBhHe.webp"
+      "cover": "/images/meetups/evt-1D0kIB3mKwQBhHe-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-41jd5qB8DeD7GAA",
@@ -286,7 +322,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-41jd5qB8DeD7GAA.webp"
+      "cover": "/images/meetups/evt-41jd5qB8DeD7GAA-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "calev-OvigT69Yjx6joKF",
@@ -316,7 +354,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-pJ0LUFPqhr7UVMy.webp"
+      "cover": "/images/meetups/evt-pJ0LUFPqhr7UVMy-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-YP32b0Yngqy6O1a",
@@ -331,7 +371,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-YP32b0Yngqy6O1a.webp"
+      "cover": "/images/meetups/evt-YP32b0Yngqy6O1a-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-Fcp8LvwsgBrZu5A",
@@ -346,7 +388,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-Fcp8LvwsgBrZu5A.webp"
+      "cover": "/images/meetups/evt-Fcp8LvwsgBrZu5A-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-xfNb8VaeJ6XmAQd",
@@ -361,7 +405,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-xfNb8VaeJ6XmAQd.webp"
+      "cover": "/images/meetups/evt-xfNb8VaeJ6XmAQd-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-FWCoYGKsn4Q5GAe",
@@ -376,7 +422,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-FWCoYGKsn4Q5GAe.webp"
+      "cover": "/images/meetups/evt-FWCoYGKsn4Q5GAe-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-561u3g1WaKeQvev",
@@ -391,7 +439,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-561u3g1WaKeQvev.webp"
+      "cover": "/images/meetups/evt-561u3g1WaKeQvev-full.webp",
+      "coverWidth": 638,
+      "coverHeight": 480
     },
     {
       "id": "evt-j5G2Na928qVdwDX",
@@ -406,7 +456,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-j5G2Na928qVdwDX.webp"
+      "cover": "/images/meetups/evt-j5G2Na928qVdwDX-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 372
     },
     {
       "id": "evt-0vwss6e36b9xqoH",
@@ -421,7 +473,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-0vwss6e36b9xqoH.webp"
+      "cover": "/images/meetups/evt-0vwss6e36b9xqoH-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-uyTp69hEeYKVJTM",
@@ -436,7 +490,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-uyTp69hEeYKVJTM.webp"
+      "cover": "/images/meetups/evt-uyTp69hEeYKVJTM-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-FrQ2q3VN062HsZr",
@@ -451,7 +507,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-FrQ2q3VN062HsZr.webp"
+      "cover": "/images/meetups/evt-FrQ2q3VN062HsZr-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-VjuPq46FI93haPG",
@@ -466,7 +524,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-VjuPq46FI93haPG.webp"
+      "cover": "/images/meetups/evt-VjuPq46FI93haPG-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-ZxhK7paWWnwv9oN",
@@ -481,7 +541,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-ZxhK7paWWnwv9oN.webp"
+      "cover": "/images/meetups/evt-ZxhK7paWWnwv9oN-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-IdxgSQa7FCJQK66",
@@ -496,7 +558,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-IdxgSQa7FCJQK66.webp"
+      "cover": "/images/meetups/evt-IdxgSQa7FCJQK66-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-qxE1td01KCFXH7O",
@@ -511,7 +575,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-qxE1td01KCFXH7O.webp"
+      "cover": "/images/meetups/evt-qxE1td01KCFXH7O-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-VtCcB7yHKpXthhS",
@@ -526,7 +592,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-VtCcB7yHKpXthhS.webp"
+      "cover": "/images/meetups/evt-VtCcB7yHKpXthhS-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-fPYMYyNc9AY1tku",
@@ -541,7 +609,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-fPYMYyNc9AY1tku.webp"
+      "cover": "/images/meetups/evt-fPYMYyNc9AY1tku-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-iqktB9uxMG2ANH5",
@@ -556,7 +626,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-iqktB9uxMG2ANH5.webp"
+      "cover": "/images/meetups/evt-iqktB9uxMG2ANH5-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-9fBfsMazGFKMmsE",
@@ -571,7 +643,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-9fBfsMazGFKMmsE.webp"
+      "cover": "/images/meetups/evt-9fBfsMazGFKMmsE-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-PxPJVCnzOvx3MSu",
@@ -586,7 +660,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-PxPJVCnzOvx3MSu.webp"
+      "cover": "/images/meetups/evt-PxPJVCnzOvx3MSu-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-j0kkKPmpZ4BsV8P",
@@ -601,7 +677,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-j0kkKPmpZ4BsV8P.webp"
+      "cover": "/images/meetups/evt-j0kkKPmpZ4BsV8P-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-BBThcDvell8NhyN",
@@ -616,7 +694,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-BBThcDvell8NhyN.webp"
+      "cover": "/images/meetups/evt-BBThcDvell8NhyN-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-JFiVXWC7UZPmACF",
@@ -631,7 +711,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-JFiVXWC7UZPmACF.webp"
+      "cover": "/images/meetups/evt-JFiVXWC7UZPmACF-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 597
     },
     {
       "id": "evt-045iuTM17KCuLgg",
@@ -646,7 +728,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-045iuTM17KCuLgg.webp"
+      "cover": "/images/meetups/evt-045iuTM17KCuLgg-full.webp",
+      "coverWidth": 757,
+      "coverHeight": 760
     },
     {
       "id": "evt-dYaJHbKm9kTEQiz",
@@ -661,7 +745,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-dYaJHbKm9kTEQiz.webp"
+      "cover": "/images/meetups/evt-dYaJHbKm9kTEQiz-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-CDLEcZNMJtilaTP",
@@ -676,7 +762,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-CDLEcZNMJtilaTP.webp"
+      "cover": "/images/meetups/evt-CDLEcZNMJtilaTP-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 600
     },
     {
       "id": "evt-XY4PE0sSpMrxY7t",
@@ -691,7 +779,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-XY4PE0sSpMrxY7t.webp"
+      "cover": "/images/meetups/evt-XY4PE0sSpMrxY7t-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-mhGcu1eA72jAUc6",
@@ -706,7 +796,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-mhGcu1eA72jAUc6.webp"
+      "cover": "/images/meetups/evt-mhGcu1eA72jAUc6-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-GYrB0LvQb0qk4Se",
@@ -721,7 +813,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-GYrB0LvQb0qk4Se.webp"
+      "cover": "/images/meetups/evt-GYrB0LvQb0qk4Se-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-XRYjkbpI4J5jaA2",
@@ -736,7 +830,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-XRYjkbpI4J5jaA2.webp"
+      "cover": "/images/meetups/evt-XRYjkbpI4J5jaA2-full.webp",
+      "coverWidth": 533,
+      "coverHeight": 800
     },
     {
       "id": "evt-7dhtEiaI22yNRQO",
@@ -751,7 +847,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-7dhtEiaI22yNRQO.webp"
+      "cover": "/images/meetups/evt-7dhtEiaI22yNRQO-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-DDVudPkg0eInV1Z",
@@ -766,7 +864,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-DDVudPkg0eInV1Z.webp"
+      "cover": "/images/meetups/evt-DDVudPkg0eInV1Z-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-1ouSFJxK78jgCia",
@@ -781,7 +881,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-1ouSFJxK78jgCia.webp"
+      "cover": "/images/meetups/evt-1ouSFJxK78jgCia-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-lNdN45JFBUoPvbk",
@@ -796,7 +898,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-lNdN45JFBUoPvbk.webp"
+      "cover": "/images/meetups/evt-lNdN45JFBUoPvbk-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-SwexecbZSjNcHvk",
@@ -811,7 +915,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-SwexecbZSjNcHvk.webp"
+      "cover": "/images/meetups/evt-SwexecbZSjNcHvk-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-KGfhkDm5Kbsyhfb",
@@ -826,7 +932,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-KGfhkDm5Kbsyhfb.webp"
+      "cover": "/images/meetups/evt-KGfhkDm5Kbsyhfb-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-HUWBzsEiEGlNIda",
@@ -841,7 +949,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-HUWBzsEiEGlNIda.webp"
+      "cover": "/images/meetups/evt-HUWBzsEiEGlNIda-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-zrKN452ONQBHEun",
@@ -856,7 +966,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-zrKN452ONQBHEun.webp"
+      "cover": "/images/meetups/evt-zrKN452ONQBHEun-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-4sc11tVaBGUxFeC",
@@ -871,7 +983,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-4sc11tVaBGUxFeC.webp"
+      "cover": "/images/meetups/evt-4sc11tVaBGUxFeC-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-bwIotEyWDuDPayu",
@@ -886,7 +1000,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-bwIotEyWDuDPayu.webp"
+      "cover": "/images/meetups/evt-bwIotEyWDuDPayu-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     },
     {
       "id": "evt-SrfYTm4gfXfmvv3",
@@ -901,7 +1017,9 @@
       "online": false,
       "geo": null,
       "hosts": [],
-      "cover": "/images/meetups/evt-SrfYTm4gfXfmvv3.webp"
+      "cover": "/images/meetups/evt-SrfYTm4gfXfmvv3-full.webp",
+      "coverWidth": 800,
+      "coverHeight": 800
     }
   ]
 }
