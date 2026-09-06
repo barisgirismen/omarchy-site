@@ -813,7 +813,7 @@ function Home() {
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Backed by the oligarchy"
-            description="The billionaires, mere millionaires, and corporations funding the development, maintenance, and spread of Omarchy."
+            description="The billionaires, mere millionaires, and corporations funding the lion's share of the development, maintenance, and spread of Omarchy."
             action={allPatrons}
           />
           <PatronHighlights />
