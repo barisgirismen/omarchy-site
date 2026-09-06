@@ -4,6 +4,10 @@ dist
 dist-ssr
 *.local
 .env
+.env.*
+!.env.example
+coverage
+*.pem
 .nitro
 .tanstack
 .wrangler
