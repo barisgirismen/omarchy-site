@@ -357,24 +357,33 @@ export function GithubIcon(props: IconProps) {
   )
 }
 
+/** IconApple from the square filled set. */
 export function AppleIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
       <path
-        d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
+        d="M15.0993 3.35783C14.3953 4.21083 13.2038 4.8472 12.256 4.8472C12.1477 4.8472 12.0394 4.83366 11.9717 4.82012C11.9581 4.76596 11.931 4.60348 11.931 4.44101C11.931 3.35783 12.4862 2.27466 13.0819 1.59768C13.8401 0.704062 15.1129 0.040619 16.1689 0C16.196 0.121857 16.2096 0.270793 16.2096 0.419729C16.2096 1.5029 15.7492 2.57253 15.0993 3.35783ZM15.844 5.07737C16.4397 5.07737 18.5925 5.13153 20.0007 7.16248C19.8788 7.25725 17.7395 8.46228 17.7395 11.1567C17.7395 14.2708 20.461 15.381 20.5423 15.4081C20.5287 15.4758 20.109 16.911 19.107 18.3868C18.2134 19.6731 17.2657 20.9729 15.844 20.9729C14.4088 20.9729 14.0432 20.1335 12.4049 20.1335C10.7937 20.1335 10.225 21 8.92523 21C7.61188 21 6.70473 19.795 5.66217 18.3327C4.44361 16.5996 3.46875 13.9188 3.46875 11.3733C3.46875 7.29787 6.12252 5.13153 8.73567 5.13153C10.1167 5.13153 11.2676 6.03868 12.1477 6.03868C12.9736 6.03868 14.2599 5.07737 15.844 5.07737Z"
         fill="currentColor"
       />
     </svg>
   )
 }
 
+/** IconLayoutWindow from the square filled set, four panes, for Windows.
+ *  Redrawn on whole pixels for the 20px the buttons show it at: 2px in,
+ *  7px panes, a 2px gap, so the four come out equal instead of rounding
+ *  apart the way the set's 8.25-unit panes did. */
+/** IconLayoutWindow from the square filled set, four panes, for Windows.
+ *  Redrawn on whole pixels for the 20px the buttons show it at: 2px in,
+ *  7px panes, a 1px gap, so the four come out equal instead of rounding
+ *  apart the way the set's 8.25-unit panes did. */
 export function WindowsIcon(props: IconProps) {
   return (
-    <svg {...base(props)}>
-      <path
-        d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"
-        fill="currentColor"
-      />
+    <svg {...base(props)} shapeRendering="crispEdges">
+      <rect x="2.4" y="2.4" width="8.4" height="8.4" fill="currentColor" />
+      <rect x="12" y="2.4" width="8.4" height="8.4" fill="currentColor" />
+      <rect x="2.4" y="12" width="8.4" height="8.4" fill="currentColor" />
+      <rect x="12" y="12" width="8.4" height="8.4" fill="currentColor" />
     </svg>
   )
 }

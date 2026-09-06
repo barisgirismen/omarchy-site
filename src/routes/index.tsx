@@ -18,7 +18,6 @@ import {
 import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
-import { InstallWalkthrough } from '@/components/InstallWalkthrough'
 import { EtchPicker } from '@/components/EtchPicker'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
@@ -101,36 +100,6 @@ const FIXES = [
   ' paper cut.',
 ] as const
 const ISO_URL = release.isoUrl
-
-/** The Getting Started chapter, cut to what happens before the ISO boots. */
-const BOOT_STEPS = [
-  {
-    title: 'Get the ISO',
-    body: (
-      <>
-        <a
-          href={ISO_URL}
-          className="text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out hover:decoration-brand"
-        >
-          Download {release.version}
-        </a>{' '}
-        and write it to a USB stick.
-      </>
-    ),
-  },
-  {
-    title: 'Turn off Secure Boot',
-    body: 'And TPM, in the BIOS.',
-  },
-  {
-    title: 'Choose where it goes',
-    body: 'The whole drive, or free space beside Windows.',
-  },
-  {
-    title: 'Back up first',
-    body: 'A full-disk install wipes the drive.',
-  },
-]
 
 /* A link inside a card's note: underlined from the start, in the border
    colour, brand on hover - the same as the prose links under the cards. */
@@ -583,7 +552,15 @@ function Home() {
           <SectionHeading
             level={3}
             title="Install Omarchy"
-            description="Omarchy installs as a complete operating system: from a USB stick to a full, encrypted desktop in under a minute. Not ready to give it a drive? Try it as an app first."
+            description={
+              <>
+                <span className="block">
+                  Omarchy installs as a complete operating system:
+                </span>
+                From a USB stick to a full, encrypted desktop in under a
+                minute. Not ready to give it a drive? Try it as an app first.
+              </>
+            }
             action={installGuide}
           />
 
@@ -619,7 +596,7 @@ function Home() {
                   Download Omarchy {release.version}
                 </Button>
                 <p className="mt-2.5 text-[13px] text-text-muted">
-                  Under a minute from stick to desktop.
+                  Under a minute from stick to desktop.{' '}
                   <br className="hidden md:inline" />
                   Verify the file:{' '}
                   <a href={`${ISO_URL}.sha256`} className={noteLink}>
@@ -667,7 +644,7 @@ function Home() {
                   })}
                 </div>
                 <p className="mt-2.5 text-[13px] text-text-muted">
-                  Apple Silicon Macs, Windows 10 and 11.
+                  Apple Silicon Macs, Windows 10 and 11.{' '}
                   <br className="hidden md:inline" />
                   On Linux, the ISO is the way in.
                 </p>
@@ -675,43 +652,13 @@ function Home() {
             </div>
           </div>
 
-          {/* Then, in reading order, what the ISO route asks of you: the
-              Getting Started chapter cut to what has to happen before the
-              stick goes in, and the installer playing its questions through,
-              side by side where there is room. The dual boot and unattended
-              variants hang off the list, so they are not repeated below the
-              cards. */}
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
-              <h4 className="text-lg font-medium tracking-tight text-text">
-                Before you boot
-              </h4>
-              <ol className="mt-4 grid gap-4 text-[15px] leading-relaxed">
-                {BOOT_STEPS.map((step, i) => (
-                  <li
-                    key={step.title}
-                    className="grid grid-cols-[2ch_1fr] content-start items-baseline gap-x-3"
-                  >
-                    <span className="font-mono text-xs font-medium text-brand">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="text-text">{step.title}</span>
-                    <span className="col-start-2 text-[13px] text-text-secondary">
-                      {step.body}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-              <p className="mt-auto pt-6 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
-                <ManualLink slug="dual-boot-install">Dual boot</ManualLink> and{' '}
-                <ManualLink slug="unattended-installs">
-                  unattended installs
-                </ManualLink>{' '}
-                have their own chapters.
-              </p>
-            </div>
-            <InstallWalkthrough className="ring-elevation min-w-0 bg-surface" />
-          </div>
+          {/* The two variants worth knowing about. Getting Started is the
+              button above, so it is not repeated here. */}
+          <p className="mt-6 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
+            The manual also covers{' '}
+            <ManualLink slug="dual-boot-install">dual booting beside Windows</ManualLink>{' '}
+            and <ManualLink slug="unattended-installs">unattended installs</ManualLink>.
+          </p>
           <SectionActions>{installGuide}</SectionActions>
         </div>
       </section>

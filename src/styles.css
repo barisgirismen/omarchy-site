@@ -2056,16 +2056,6 @@ h6 {
   }
 }
 
-/* --------------------------------------------------------------- installer */
-
-/* The account screen is the tallest at seven lines; every screen holds
-   that height so the window never resizes mid-run. The overwrite screen
-   reaches seven on a phone too, once its first line and its hint wrap. */
-.installer-lines {
-  --lines: 7;
-  min-height: calc(var(--lines) * 1.5em + (var(--lines) - 1) * 2px);
-}
-
 /* ----------------------------------------------------------------- figures */
 
 /* The charts beside the news draw left to right once their card is on
