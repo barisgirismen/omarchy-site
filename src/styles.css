@@ -1344,8 +1344,6 @@ h6 {
   max-width: 100%;
   height: auto;
   margin: 1.25em 0;
-  outline: 1px solid var(--t-img-outline);
-  outline-offset: -1px;
 }
 .prose code,
 .prose kbd {
