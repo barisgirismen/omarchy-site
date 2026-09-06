@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { SectionActions, SectionHeading } from '@/components/SectionHeading'
 import { cn } from '@/lib/utils'
 import { useIsNarrow } from '@/lib/use-media-query'
+import { useReducedMotion } from 'motion/react'
 
 export type CarouselVideo = {
   id: string
@@ -23,6 +24,9 @@ const TURN_AT = 0.2
 const STALE_MS = 90
 /** Movement under this is still a click, not a drag. */
 const DRAG_SLOP = 6
+
+/** YouTube's watch ids are 11 URL-safe characters. Anything else is not an embed. */
+const youtubeId = (id: string) => (/^[\w-]{11}$/.test(id) ? id : null)
 
 /** Capture keeps a drag alive past the element's edges. It is a nicety, and
  *  a browser that refuses it must not take the whole gesture down with it. */
@@ -59,6 +63,7 @@ export function VideoCarousel({
   // you tap once to reveal a player you tap again is a step too many on a
   // phone.
   const narrow = useIsNarrow()
+  const reduceMotion = useReducedMotion()
   const scroller = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const thumb = useRef<HTMLDivElement>(null)
@@ -420,16 +425,27 @@ export function VideoCarousel({
             aria-label={`${i + 1} of ${videos.length}: ${video.title}`}
           >
             {narrow || playing === video.id ? (
+              youtubeId(video.id) ? (
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${video.id}${
-                  playing === video.id ? '?autoplay=1' : ''
+                  playing === video.id && !reduceMotion ? '?autoplay=1' : ''
                 }`}
                 title={`${video.title} by ${video.channel}`}
+                referrerPolicy="strict-origin-when-cross-origin"
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 loading="lazy"
                 className="img-outlined aspect-video w-full"
               />
+              ) : (
+                <img
+                  src={video.thumb}
+                  alt={`${video.title} by ${video.channel}`}
+                  loading="lazy"
+                  decoding="async"
+                  className="img-outlined aspect-video w-full object-cover"
+                />
+              )
             ) : (
               <button
                 type="button"
