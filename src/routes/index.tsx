@@ -34,6 +34,7 @@ import {
 } from '@/components/SectionHeading'
 import { TeamClusters } from '@/components/TeamClusters'
 import { PatronHighlights } from '@/components/PatronHighlights'
+import { MeetupShowcase } from '@/components/MeetupShowcase'
 import { ThemeShowcase } from '@/components/ThemeShowcase'
 import { VideoCarousel } from '@/components/VideoCarousel'
 import { Voices } from '@/components/Voices'
@@ -864,10 +865,16 @@ function Home() {
         </div>
       </section>
 
+      <section id="meetups" className="border-t border-border-subtle">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
+          <MeetupShowcase />
+        </div>
+      </section>
+
       {/* community */}
       <section
         id="community"
-        className="border-t border-border-subtle"
+        className="border-t border-border-subtle bg-bg-deep"
       >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading

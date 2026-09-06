@@ -37,17 +37,19 @@ export function SectionHeading({
   action,
   level = 2,
   anchor,
+  wide = false,
 }: {
   title: string
   description?: ReactNode
   action?: ReactNode
   level?: 2 | 3
   anchor?: string
+  wide?: boolean
 }) {
   const Heading = level === 3 ? 'h3' : 'h2'
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="max-w-xl">
+      <div className={wide ? 'min-w-0' : 'max-w-xl'}>
         <Heading className="text-2xl font-semibold tracking-tight text-text sm:text-[1.75rem]">
           {anchor ? (
             <SectionAnchor anchor={anchor}>{title}</SectionAnchor>
