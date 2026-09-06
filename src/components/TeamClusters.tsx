@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowUpRightIcon } from '@/components/icons'
 import teams from '@/data/teams.json'
+import { cn } from '@/lib/utils'
 
 /**
  * The teams on one line, each a cluster of overlapping faces. Hovering
@@ -14,7 +15,17 @@ import teams from '@/data/teams.json'
  *  the teams page, so a cluster stays one hand wide however the team grows. */
 const MAX_FACES = 8
 
-export function TeamClusters() {
+export function TeamClusters({
+  groups = teams,
+  maxFaces = MAX_FACES,
+  className,
+}: {
+  groups?: Array<
+    Pick<(typeof teams)[number], 'id' | 'name' | 'description' | 'members'>
+  >
+  maxFaces?: number
+  className?: string
+} = {}) {
   /** The cluster fanned out by its name. */
   const [open, setOpen] = useState<string | null>(null)
   /** On touch, the face last tapped, as "team/name" so a person on two
@@ -46,11 +57,14 @@ export function TeamClusters() {
       // and pulled together with a transform, and a transform does not
       // shrink the box, so without this the widest row could reach past the
       // edge of a narrow phone and let the whole page scroll sideways.
-      className="mt-6 lg:mt-10 grid items-start gap-x-6 gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]"
+      className={cn(
+        'mt-6 lg:mt-10 grid items-start gap-x-6 gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]',
+        className,
+      )}
     >
-      {teams.map((team) => {
+      {groups.map((team) => {
         const isOpen = open === team.id
-        const shown = team.members.slice(0, MAX_FACES)
+        const shown = team.members.slice(0, maxFaces)
         const named = shown.find((m) =>
           [picked, hovered].includes(`${team.id}/${m.name}`),
         )
@@ -161,12 +175,15 @@ export function TeamClusters() {
                 </li>
               ) : null}
             </ul>
-            {/* The hovered or picked person, with their place; the name
-                carries the link the face cannot on touch. The line keeps
-                its height while empty, so nothing below it moves. */}
-            <p className="min-h-4 font-mono text-xs text-text-muted">
+            {/* Keep revealed names out of grid sizing so longer names and
+                companies cannot resize columns or move neighbouring faces.
+                Reserve three lines, including while no person is named. */}
+            <p className="relative h-12 shrink-0 font-mono text-xs text-text-muted">
               {named ? (
-                <span key={named.name} className="team-named inline-block">
+                <span
+                  key={named.name}
+                  className="team-named absolute inset-x-0 top-0 wrap-break-word"
+                >
                   {named.href ? (
                     <a
                       href={named.href}

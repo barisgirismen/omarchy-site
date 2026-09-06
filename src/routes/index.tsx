@@ -21,10 +21,12 @@ import { HeroShader } from '@/components/HeroShader'
 import { EtchPicker } from '@/components/EtchPicker'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
+import { HardwareShowcase } from '@/components/HardwareShowcase'
 import { TypewriterTail } from '@/components/TypewriterTail'
 import { PluginCard } from '@/components/PluginCard'
 import { SectionActions, SectionHeading } from '@/components/SectionHeading'
 import { TeamClusters } from '@/components/TeamClusters'
+import { PatronHighlights } from '@/components/PatronHighlights'
 import { ThemeShowcase } from '@/components/ThemeShowcase'
 import { VideoCarousel } from '@/components/VideoCarousel'
 import { Voices } from '@/components/Voices'
@@ -308,6 +310,12 @@ function Home() {
       <ArrowRightIcon />
     </Link>
   )
+  const allPatrons = (
+    <Link to="/$/" params={{ _splat: 'patrons' }} className={sectionLink}>
+      All patrons
+      <ArrowRightIcon />
+    </Link>
+  )
 
   return (
     <main>
@@ -534,12 +542,7 @@ function Home() {
           <SectionHeading
             level={3}
             title="Install Omarchy"
-            description={
-              <>
-                From a USB stick to a full, encrypted desktop in under a minute.
-                Not ready to give it a drive? Try it as an app first.
-              </>
-            }
+            description="Be up and running in as little as 35 seconds on the fastest machines, and in less than two minutes on the majority of computers."
             action={installGuide}
           />
 
@@ -653,8 +656,17 @@ function Home() {
         </div>
       </section>
 
+      <section
+        id="hardware"
+        className="border-t border-border-subtle bg-bg-deep"
+      >
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
+          <HardwareShowcase />
+        </div>
+      </section>
+
       {/* plugins */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="A plugin for every dream, every desire"
@@ -674,7 +686,7 @@ function Home() {
           shows them. Pressing one dresses this site in it, the same trick
           the picker does behind T, so the keystroke can be tried by hand.
           The extra themes the community made get their link at the end. */}
-      <section className="border-t border-border-subtle">
+      <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Pick a theme, change everything"
@@ -703,7 +715,7 @@ function Home() {
           sit beside it and made one screen answer four questions at once;
           they have the section after this one now, so each can be read on
           its own. */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading title="What's been happening" action={allNews} />
           {/* Two columns of three: six posts down one wide column read as a
@@ -758,7 +770,10 @@ function Home() {
           downloads and the repository, one card each, counting up as they
           arrive. On the light ground, so the page keeps trading dark and
           light section by section. */}
-      <section id="figures" className="border-t border-border-subtle">
+      <section
+        id="figures"
+        className="border-t border-border-subtle bg-bg-deep"
+      >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Momentum by the numbers"
@@ -768,9 +783,20 @@ function Home() {
         </div>
       </section>
 
-      {/* the teams, between the project and the people around it: this is
-          who steers it. All of them on one line as clusters of faces,
-          rather than Core alone as a grid of cards. */}
+      {/* voices: posts from the people who installed it, quoted as written. */}
+      <section id="voices" className="border-t border-border-subtle">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
+          <SectionHeading
+            title="People love Omarchy"
+            description="What people posted on X after installing it."
+            action={moreOnX}
+          />
+          <Voices />
+          <SectionActions>{moreOnX}</SectionActions>
+        </div>
+      </section>
+
+      {/* the teams: who steers it, shown together as clusters of faces. */}
       <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
@@ -783,18 +809,15 @@ function Home() {
         </div>
       </section>
 
-      {/* voices: what the people who installed it said about it, between the
-          people who make it and the invitation to join in. Posts from X,
-          quoted as written. */}
-      <section id="voices" className="border-t border-border-subtle">
+      <section id="patrons" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
-            title="People love Omarchy"
-            description="What people posted on X after installing it."
-            action={moreOnX}
+            title="Backed by the oligarchy"
+            description="The billionaires, mere millionaires, and corporations funding the development, maintenance, and spread of Omarchy."
+            action={allPatrons}
           />
-          <Voices />
-          <SectionActions>{moreOnX}</SectionActions>
+          <PatronHighlights />
+          <SectionActions>{allPatrons}</SectionActions>
         </div>
       </section>
 
