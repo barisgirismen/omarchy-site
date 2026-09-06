@@ -227,6 +227,7 @@ export function SearchPalette() {
             aria-label="Search Omarchy"
             autoComplete="off"
             spellCheck={false}
+            enterKeyHint="search"
             className="h-14 min-w-0 flex-1 bg-transparent text-base text-text outline-none placeholder:text-text-muted [&::-webkit-search-cancel-button]:hidden"
           />
           <button
@@ -237,6 +238,14 @@ export function SearchPalette() {
           >
             <CrossIcon className="size-4" />
           </button>
+        </div>
+
+        <div className="sr-only" aria-live="polite">
+          {query.trim() && index
+            ? hits.length === 0
+              ? 'No matches'
+              : `${hits.length} ${hits.length === 1 ? 'result' : 'results'}`
+            : ''}
         </div>
 
         <div
