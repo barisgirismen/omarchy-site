@@ -1,23 +1,25 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import {
+  AppleIcon,
   ArrowRightIcon,
   XIcon,
   ArrowUpRightIcon,
   BrushIcon,
   CalendarIcon,
-  ConsoleIcon,
   DiscordIcon,
+  DisplayIcon,
   DownloadIcon,
   UsbIcon,
   PlayIcon,
   StoreIcon,
+  WindowsIcon,
 } from '@/components/icons'
 import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
+import { InstallWalkthrough } from '@/components/InstallWalkthrough'
 import { EtchPicker } from '@/components/EtchPicker'
-import { InstallCommand } from '@/components/InstallCommand'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
 import { TypewriterTail } from '@/components/TypewriterTail'
@@ -58,7 +60,33 @@ export const Route = createFileRoute('/')({
   component: Home,
 })
 
-const INSTALL_COMMAND = 'curl -fsSL https://omarchy.org/install | bash'
+/** The two ways to run the whole desktop in a window without installing
+ *  anything: an app for Apple Silicon Macs, an app for Windows 10 and 11. */
+const TRY = {
+  mac: {
+    label: 'Try on Mac',
+    href: 'https://github.com/omacom/try-omarchy',
+    icon: AppleIcon,
+  },
+  windows: {
+    label: 'Try on Windows',
+    href: 'https://github.com/omacom/try-omarchy-windows',
+    icon: WindowsIcon,
+  },
+} as const
+
+/** Which of the two the visitor is most likely on, read after mount so the
+ *  server and the first paint agree; null on Linux and on anything unsure. */
+function useTryDevice() {
+  const [device, setDevice] = useState<keyof typeof TRY | null>(null)
+  useEffect(() => {
+    const ua = navigator.userAgent
+    if (/iPhone|iPad/.test(ua)) return
+    if (/Mac/.test(ua)) setDevice('mac')
+    else if (/Win/.test(ua)) setDevice('windows')
+  }, [])
+  return device
+}
 
 /* What the section's title finishes with, in turn. The first is the claim the
    campaign makes - everything is every + thing, so its line still types out
@@ -73,6 +101,55 @@ const FIXES = [
   ' paper cut.',
 ] as const
 const ISO_URL = release.isoUrl
+
+/** The Getting Started chapter, cut to what happens before the ISO boots. */
+const BOOT_STEPS = [
+  {
+    title: 'Get the ISO',
+    body: (
+      <>
+        <a
+          href={ISO_URL}
+          className="text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out hover:decoration-brand"
+        >
+          Download {release.version}
+        </a>{' '}
+        and write it to a USB stick.
+      </>
+    ),
+  },
+  {
+    title: 'Turn off Secure Boot',
+    body: 'And TPM, in the BIOS.',
+  },
+  {
+    title: 'Choose where it goes',
+    body: 'The whole drive, or free space beside Windows.',
+  },
+  {
+    title: 'Back up first',
+    body: 'A full-disk install wipes the drive.',
+  },
+]
+
+/* A link inside a card's note: underlined from the start, in the border
+   colour, brand on hover - the same as the prose links under the cards. */
+const noteLink =
+  'text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand'
+
+function ManualLink({
+  slug,
+  children,
+}: {
+  slug: string
+  children: React.ReactNode
+}) {
+  return (
+    <Link to="/manual/$slug/" params={{ slug }} className={noteLink}>
+      {children}
+    </Link>
+  )
+}
 
 const videos = [
   {
@@ -180,6 +257,7 @@ function HeroCallout({ href, html }: { href: string; html: string }) {
 
 function Home() {
   const { top, total, news } = Route.useLoaderData()
+  const device = useTryDevice()
   const [intro, setIntro] = useState(false)
   const installLink = useHashLink('install')
   const watchLink = useHashLink('watch')
@@ -505,18 +583,20 @@ function Home() {
           <SectionHeading
             level={3}
             title="Install Omarchy"
-            description="Omarchy installs as a complete operating system. Both routes below land in the same place: a full, encrypted desktop in under a minute."
+            description="Omarchy installs as a complete operating system: from a USB stick to a full, encrypted desktop in under a minute. Not ready to give it a drive? Try it as an app first."
             action={installGuide}
           />
 
           {/* A fork in the road reads as two things you pick between, so they
               are cards, the same ones the plugins, themes and community use.
               Both blurbs run to two lines and both notes to one, so the thing
-              you press sits on the same line in each. It was the copy that
-              knocked them apart: four lines of blurb on one side against two
-              on the other left a hole under the short one, and a note that
-              wrapped where the other did not put the button 19px below the
-              command box it is meant to match. */}
+              you press sits on the same line in each. The second card used to
+              carry the curl one-liner for an existing Arch install; that route
+              is gone, and in its place are the two Try apps, which is what
+              someone not ready to wipe a drive is actually looking for. The
+              note under the download says how long it takes, and where the
+              checksum is, rather than the size and architecture, which nobody
+              would remember to keep current. */}
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
               <div className="flex items-center gap-2.5">
@@ -539,52 +619,99 @@ function Home() {
                   Download Omarchy {release.version}
                 </Button>
                 <p className="mt-2.5 text-[13px] text-text-muted">
-                  5.8 GB, for 64-bit PCs.
+                  Under a minute from stick to desktop.
+                  <br className="hidden md:inline" />
+                  Verify the file:{' '}
+                  <a href={`${ISO_URL}.sha256`} className={noteLink}>
+                    SHA-256
+                  </a>
+                  ,{' '}
+                  <a href={`${ISO_URL}.sig`} className={noteLink}>
+                    signature
+                  </a>
+                  .
                 </p>
               </div>
             </div>
 
             <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
               <div className="flex items-center gap-2.5">
-                <ConsoleIcon className="size-5 text-brand" />
+                <DisplayIcon className="size-5 text-brand" />
                 <h4 className="text-lg font-medium tracking-tight text-text">
-                  Already running Arch?
+                  Try it first
                 </h4>
               </div>
               <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                Keep the system you have and let the installer lay Omarchy over
-                it. One command, then a reboot.
+                The whole desktop as an app on your Mac or Windows PC. Nothing
+                partitioned, nothing changed underneath.
               </p>
               <div className="mt-auto pt-6">
-                <InstallCommand command={INSTALL_COMMAND} />
+                {/* Both apps, the visitor's own machine's filled in once the
+                    browser has said which it is; on Linux, neither. */}
+                <div className="flex flex-wrap gap-2">
+                  {(['mac', 'windows'] as const).map((key) => {
+                    const Mark = TRY[key].icon
+                    return (
+                      <Button
+                        key={key}
+                        size="lg"
+                        variant={device === key ? 'default' : 'outline'}
+                        nativeButton={false}
+                        render={<a href={TRY[key].href} />}
+                      >
+                        <Mark data-icon="inline-start" />
+                        {TRY[key].label}
+                        <ArrowUpRightIcon data-icon="inline-end" />
+                      </Button>
+                    )
+                  })}
+                </div>
                 <p className="mt-2.5 text-[13px] text-text-muted">
-                  The same script the ISO uses. Read it before running.
+                  Apple Silicon Macs, Windows 10 and 11.
+                  <br className="hidden md:inline" />
+                  On Linux, the ISO is the way in.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* The two variants worth knowing about. Getting Started is the
-              button above, so it is not repeated here. */}
-          <p className="mt-6 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
-            The manual also covers{' '}
-            <Link
-              to="/manual/$slug/"
-              params={{ slug: 'dual-boot-install' }}
-              className="text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand"
-            >
-              dual booting beside Windows
-            </Link>{' '}
-            and{' '}
-            <Link
-              to="/manual/$slug/"
-              params={{ slug: 'unattended-installs' }}
-              className="text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand"
-            >
-              unattended installs
-            </Link>
-            .
-          </p>
+          {/* Then, in reading order, what the ISO route asks of you: the
+              Getting Started chapter cut to what has to happen before the
+              stick goes in, and the installer playing its questions through,
+              side by side where there is room. The dual boot and unattended
+              variants hang off the list, so they are not repeated below the
+              cards. */}
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
+              <h4 className="text-lg font-medium tracking-tight text-text">
+                Before you boot
+              </h4>
+              <ol className="mt-4 grid gap-4 text-[15px] leading-relaxed">
+                {BOOT_STEPS.map((step, i) => (
+                  <li
+                    key={step.title}
+                    className="grid grid-cols-[2ch_1fr] content-start items-baseline gap-x-3"
+                  >
+                    <span className="font-mono text-xs font-medium text-brand">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="text-text">{step.title}</span>
+                    <span className="col-start-2 text-[13px] text-text-secondary">
+                      {step.body}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-auto pt-6 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
+                <ManualLink slug="dual-boot-install">Dual boot</ManualLink> and{' '}
+                <ManualLink slug="unattended-installs">
+                  unattended installs
+                </ManualLink>{' '}
+                have their own chapters.
+              </p>
+            </div>
+            <InstallWalkthrough className="ring-elevation min-w-0 bg-surface" />
+          </div>
           <SectionActions>{installGuide}</SectionActions>
         </div>
       </section>
