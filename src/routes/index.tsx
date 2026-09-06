@@ -264,7 +264,7 @@ function Home() {
     <Button
       variant="outline"
       nativeButton={false}
-      render={<Link to="/plugins/" />}
+      render={<a href="https://plugins.omarchy.org" />}
     >
       All plugins
       <ArrowRightIcon data-icon="inline-end" />

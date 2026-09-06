@@ -15,7 +15,7 @@ const columns = [
     title: 'Explore',
     links: [
       { label: 'Manual', to: '/manual/' },
-      { label: 'Plugins', to: '/plugins/' },
+      { label: 'Plugins', href: 'https://plugins.omarchy.org' },
       { label: 'Themes', to: '/themes/' },
       { label: 'News', to: '/news/' },
       { label: 'Download the ISO', href: release.isoUrl },
