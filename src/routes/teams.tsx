@@ -18,7 +18,7 @@ export const Route = createFileRoute('/teams')({
     seo({
       title: 'Teams - Omarchy',
       description:
-        'The people guiding Omarchy: Core sets the direction, Security keeps the system safe, and the Rangers help everyone else find their way.',
+        'The people guiding Omarchy: Core sets the direction, Security keeps the system safe, Design shapes how it looks and feels, and the Rangers help everyone else find their way.',
       path: '/teams',
     }),
   component: TeamsPage,

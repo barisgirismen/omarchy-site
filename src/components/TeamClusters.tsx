@@ -4,7 +4,7 @@ import { ArrowUpRightIcon } from '@/components/icons'
 import teams from '@/data/teams.json'
 
 /**
- * The three teams on one line, each a cluster of overlapping faces. Hovering
+ * The teams on one line, each a cluster of overlapping faces. Hovering
  * a face lifts it and parts its neighbours to make room, the rest of the
  * stack stays as it is; clicking the team's name fans the whole cluster out.
  * Every face is the person's own link and names them under the cluster. The
@@ -38,11 +38,15 @@ export function TeamClusters() {
   return (
     <ul
       ref={root}
+      // One row of four on a wide screen, like the cards below, in columns
+      // sized to their content: when a cluster fans open its column grows
+      // and the others give way by wrapping their descriptions, so nothing
+      // jumps to a new row. Two columns on a tablet, one on a phone.
       // Clipped on the x axis: a row of faces is laid out at its open width
       // and pulled together with a transform, and a transform does not
       // shrink the box, so without this the widest row could reach past the
       // edge of a narrow phone and let the whole page scroll sideways.
-      className="mt-10 flex flex-wrap items-start gap-x-12 gap-y-8 overflow-x-clip"
+      className="mt-10 grid items-start gap-x-6 gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]"
     >
       {teams.map((team) => {
         const isOpen = open === team.id
@@ -67,7 +71,7 @@ export function TeamClusters() {
                 setOpen(isOpen ? null : team.id)
                 setPicked(null)
               }}
-              className="flex items-baseline gap-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="flex flex-wrap items-baseline gap-x-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <span className="font-sans text-sm font-medium text-text">
                 {team.name.replace(/^Omarchy /, '')}
@@ -78,7 +82,7 @@ export function TeamClusters() {
             </button>
             {/* Laid out at their open spacing and pulled together with a
                 transform; a negative margin trims the row to what is seen,
-                so the three clusters sit close, and grows with the fan. */}
+                so the clusters sit close, and grows with the fan. */}
             <ul
               className="team-faces flex gap-(--team-gap)"
               style={

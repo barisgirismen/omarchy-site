@@ -693,13 +693,13 @@ function Home() {
       </section>
 
       {/* the teams, between the project and the people around it: this is
-          who steers it. All three on one line as clusters of faces, rather
-          than Core alone as a grid of cards. */}
+          who steers it. All of them on one line as clusters of faces,
+          rather than Core alone as a grid of cards. */}
       <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
             title="The people steering it"
-            description="Omarchy Core sets the direction, the Security team keeps your system safe, and the Rangers help others find their way."
+            description="Omarchy Core sets the direction, the Security team keeps your system safe, Design shapes how it looks and feels, and the Rangers help others find their way."
             action={allTeams}
           />
           <TeamClusters />
