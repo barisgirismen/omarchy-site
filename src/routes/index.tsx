@@ -184,7 +184,7 @@ const communityCards = [
   },
 ]
 
-/** The site's callout, or null when index.html carries none; the JSON's
+/** The site's callout, or null when banner.json carries none; the JSON's
  *  type only ever sees one of the two. */
 const banner = bannerData as typeof bannerData | null
 
@@ -360,7 +360,7 @@ function Home() {
         <div className="pointer-events-none relative flex flex-1 flex-col items-center px-6">
           <div className="flex-1" />
           {/* The callout, when there is one: the line the site keeps in its
-              index.html for the news of the moment, read at build time. A
+              banner.json for the news of the moment, read at build time. A
               pill over the word, first thing read top down, five cells
               above it as the copy is five below. The field stands clear of
               it like it does of the copy. Nothing shifts when there is

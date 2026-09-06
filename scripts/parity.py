@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Does the built folder answer for every address omarchy.org has?
 
-Walks the omarchy-site checkout for everything GitHub Pages serves - each
-index.html as its directory's address, every other file as its own path -
-then requests each one from dist/client, served the way Pages serves it.
-Every address must answer 200; every file that passes through unchanged
-must be byte-identical to the checkout's. The one difference expected is
-404.html, which the redesign replaces on purpose.
+Checks the app's routes and the checkout's public files against dist/client,
+served the way Pages serves it. Routes come from the content datasets as well
+as source HTML, so removing an obsolete HTML input cannot hide a missing page.
+Every address must answer 200; every passthrough file must be byte-identical
+to the checkout's. The app's generated 404.html is checked as a page.
 
     npm run parity            (after npm run build)
     PARITY_BASE=https://example.org npm run parity
@@ -15,6 +14,7 @@ must be byte-identical to the checkout's. The one difference expected is
 Reads OMARCHY_SITE_DIR like the importers; defaults to this repository.
 """
 import hashlib
+import json
 import http.server
 import os
 import socketserver
@@ -28,9 +28,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SITE = Path(os.environ.get('OMARCHY_SITE_DIR', ROOT)).resolve()
 OUT = ROOT / 'dist' / 'client'
-SKIP_DIRS = {'.git', 'bin', 'templates', 'content', '.github', '.claude', '.idea', 'node_modules', 'src', 'scripts', 'dist', 'public'}
+SKIP_DIRS = {'.git', 'bin', 'templates', 'content', '.github', '.claude', '.agents', '.codex', '.idea', '.tanstack', 'node_modules', 'src', 'scripts', 'dist', 'public', '__pycache__'}
 SKIP_FILES = {'README.md', '.gitignore', '.DS_Store', 'package.json', 'package-lock.json', 'wrangler.jsonc', 'vite.config.ts', 'tsconfig.json', 'tsr.config.json', 'components.json', 'eslint.config.js', 'prettier.config.js', '.prettierignore', '.cta.json'}
-EXPECTED_TO_DIFFER = {'/404.html'}
 
 
 def addresses():
@@ -46,6 +45,22 @@ def addresses():
                 out.append(('/' + parent, rel, 'page'))
             else:
                 out.append(('/' + rel, rel, 'file'))
+    for file in (SITE / 'public').rglob('*'):
+        if file.is_file():
+            out.append(('/' + file.relative_to(SITE / 'public').as_posix(),
+                        file.relative_to(SITE).as_posix(), 'file'))
+    data = SITE / 'src' / 'data'
+    read = lambda name: json.loads((data / f'{name}.json').read_text())
+    pages = {'/', '/404.html', '/manual/', '/manual/toc/', '/news/', '/themes/',
+             '/teams/', '/plugins/', '/plugins/explore/', '/plugins/develop/',
+             '/plugins/publish/', '/security/credits/'}
+    pages.update(f'/{slug}/' for slug in read('pages'))
+    pages.update('/manual/' if c['slug'] == 'index' else f'/manual/{c["slug"]}/'
+                 for c in read('manual'))
+    pages.update(post['path'] for post in read('news-posts'))
+    pages.update(f'/plugins/{p["id"]}/' for p in read('plugins')['plugins'])
+    known = {url for url, _, _ in out}
+    out.extend((url, '', 'page') for url in pages - known)
     return sorted(out)
 
 
@@ -85,7 +100,7 @@ def main():
         if kind == 'file':
             if hashlib.sha256(body).digest() == hashlib.sha256((SITE / rel).read_bytes()).digest():
                 identical += 1
-            elif url not in EXPECTED_TO_DIFFER:
+            else:
                 differ.append(url)
     if httpd:
         httpd.shutdown()
@@ -94,7 +109,7 @@ def main():
     print(f'omarchy.org addresses: {len(urls)} ({pages} pages, {files} files), from {SITE}')
     print(f'checked against: {base}')
     print(f'answering 200: {ok}')
-    print(f'files byte-identical: {identical}/{files}' + (f' (plus {len(EXPECTED_TO_DIFFER)} replaced on purpose)' if EXPECTED_TO_DIFFER else ''))
+    print(f'files byte-identical: {identical}/{files}')
     for u in differ:
         print(f'  DIFFERS: {u}')
     for s, u in missing:
