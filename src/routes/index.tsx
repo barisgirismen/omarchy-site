@@ -22,6 +22,7 @@ import { EtchPicker } from '@/components/EtchPicker'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
 import { HardwareShowcase } from '@/components/HardwareShowcase'
+import { AgentShowcase } from '@/components/AgentShowcase'
 import { TypewriterTail } from '@/components/TypewriterTail'
 import { PluginCard } from '@/components/PluginCard'
 import { SectionActions, SectionHeading } from '@/components/SectionHeading'
@@ -679,11 +680,17 @@ function Home() {
         </div>
       </section>
 
+      <section id="agents" className="border-t border-border-subtle bg-bg-deep">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
+          <AgentShowcase />
+        </div>
+      </section>
+
       {/* themes: the ones Omarchy ships with, shown the way the picker
           shows them. Pressing one dresses this site in it, the same trick
           the picker does behind T, so the keystroke can be tried by hand.
           The extra themes the community made get their link at the end. */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Pick a theme, change everything"
@@ -712,7 +719,7 @@ function Home() {
           sit beside it and made one screen answer four questions at once;
           they have the section after this one now, so each can be read on
           its own. */}
-      <section className="border-t border-border-subtle">
+      <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading title="What's been happening" action={allNews} />
           {/* Two columns of three: six posts down one wide column read as a
@@ -769,7 +776,7 @@ function Home() {
           light section by section. */}
       <section
         id="figures"
-        className="border-t border-border-subtle bg-bg-deep"
+        className="border-t border-border-subtle"
       >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
@@ -781,7 +788,7 @@ function Home() {
       </section>
 
       {/* voices: posts from the people who installed it, quoted as written. */}
-      <section id="voices" className="border-t border-border-subtle">
+      <section id="voices" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="People love Omarchy"
@@ -794,7 +801,7 @@ function Home() {
       </section>
 
       {/* the teams: who steers it, shown together as clusters of faces. */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="It takes a village to raise a distro"
@@ -806,7 +813,7 @@ function Home() {
         </div>
       </section>
 
-      <section id="patrons" className="border-t border-border-subtle">
+      <section id="patrons" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Backed by the oligarchy"
@@ -819,7 +826,7 @@ function Home() {
       </section>
 
       {/* community */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Get involved with Omarchy"
