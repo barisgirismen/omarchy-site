@@ -104,9 +104,9 @@ const SPRITE_STAMP_WAIT = [3, 6] as const
  * screen; the sprite has nothing but its glow, so it dims rather than
  * vanishes. */
 const SPRITE_CHARGE_GLOW = 0.4
-/** How far the sprite charges a stamp, as a share of a full hold: from
- * a bare tap to the biggest bloom a hold can make, any of it. */
-const SPRITE_STAMP_CHARGE = [0, 1] as const
+/** How far the sprite charges a stamp, as a share of a full hold: a
+ * quick click's worth, never the bloom a long hold makes. */
+const SPRITE_STAMP_CHARGE = [0, 0.2] as const
 /**
  * Whether the head script kept the server-rendered word out of sight for
  * an effect to make it. Read from the mark the script leaves, not from the
@@ -791,16 +791,18 @@ export function HeroPixelField({
     const draw = (time: number) => {
       const t = reducedMotion ? 0 : time / 1000
 
-      // The sprite flies whatever the pointer does. Its path is a brisk
-      // figure that covers the whole field, two swings at different
-      // tempos so it never quite repeats, with a wobble on top. Near the
-      // copy the glow hushes itself as it always has.
+      // The sprite flies whatever the pointer does. Its path is a smooth
+      // ellipse round the field, breathing a little in each axis at its
+      // own slow tempo so no two laps are the same. Near the copy the
+      // glow hushes itself as it always has.
       let spriteGoal = 0
       if (isHero && !reducedMotion) {
         const ts = time / 1000
-        const wobble = 0.05 * Math.sin(ts * 2.2 + 0.6)
-        sprite.x = width * (0.5 + (0.44 + wobble) * Math.sin(ts * 0.65))
-        sprite.y = height * (0.48 + (0.38 - wobble) * Math.sin(ts * 0.39 + 1.1))
+        const angle = ts * 0.75
+        const rx = 0.44 * (1 + 0.08 * Math.sin(ts * 0.23))
+        const ry = 0.38 * (1 + 0.08 * Math.sin(ts * 0.17 + 2))
+        sprite.x = width * (0.5 + rx * Math.cos(angle))
+        sprite.y = height * (0.48 + ry * Math.sin(angle))
         const box = host.getBoundingClientRect()
         spriteGoal =
           strengthAt(box.left + sprite.x / dpr, box.top + sprite.y / dpr) *
