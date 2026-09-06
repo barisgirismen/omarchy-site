@@ -192,6 +192,9 @@ export function MusicControl() {
     const levels = new Float32Array(METER_BARS)
     const shown = new Float32Array(METER_BARS)
     let frame = 0
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
     const tick = () => {
       frame = requestAnimationFrame(tick)
       if (!scrubbing.current) {
@@ -201,6 +204,7 @@ export function MusicControl() {
         if (readout.current)
           readout.current.textContent = `${clock(music.time)} / ${clock(music.duration)}`
       }
+      if (reduceMotion) return
       music.meter(levels)
       for (let i = 0; i < METER_BARS; i++) {
         const rise = levels[i] > shown[i]
