@@ -45,6 +45,8 @@ export interface SeoInput {
   type?: 'website' | 'article'
   /** ISO-8601 instant; only read when type is 'article'. */
   published?: string
+  /** e.g. 'noindex' on the not-found page, which is not a real URL. */
+  robots?: string
 }
 
 /** omarchy.org serves every page with a trailing slash; a canonical that
@@ -60,6 +62,7 @@ export function seo({
   path,
   type = 'website',
   published,
+  robots,
 }: SeoInput) {
   const url = `${SITE_URL}${canonicalPath(path)}`
   return {
@@ -75,6 +78,7 @@ export function seo({
         : []),
       { name: 'twitter:title', content: title },
       { name: 'twitter:description', content: description },
+      ...(robots ? [{ name: 'robots', content: robots }] : []),
     ],
     // Only ever set on a leaf route. The root cannot know the path, and two
     // canonicals on one page are worse than none.
