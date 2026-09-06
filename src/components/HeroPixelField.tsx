@@ -75,7 +75,7 @@ const CURSOR_CELLS = 12
  * of the field; the same cells, the same dither, a different reason to
  * light. The ramp still keeps the middle clear for the word and the copy.
  * Beats push the cursor's glow out for a moment. The logo stamp stays a
- * click's, and a click's only. */
+ * press's, and the wander's below. */
 /** How much of the field's height the loudest band may climb. */
 const SPECTRUM_REACH = 0.92
 /** How dense a column gets, and how much of it wears the main ink. */
@@ -90,9 +90,26 @@ const SPECTRUM_FLOOR = 0.08
  * pointer takes it back the instant it moves. The wandering glow is a
  * little quieter than a real cursor, and still hushes near the copy. */
 /** Ms without a pointer move before the glow sets off on its own. */
-const IDLE_MS = 2500
+const IDLE_MS = 1500
 /** How bright the wandering glow is, against a real cursor's. */
 const WANDER_STRENGTH = 0.7
+/* The wander stamps too. Left to itself the glow charges a logo where it
+ * is, the way a held press does, lets it go, and flies on, so the stamp
+ * is seen by people who never think to click the field. Each stamp is
+ * charged a different amount, so they come in different sizes, and the
+ * pause between them varies so they never fall into a beat. */
+/** Seconds the wander flies before its first stamp, and between stamps.
+ * The first comes sooner, since the idle wait and the glow's own fade in
+ * have already passed before the wander has the field. */
+const WANDER_FIRST_STAMP_WAIT = [0.8, 1.6] as const
+const WANDER_STAMP_WAIT = [4, 8] as const
+/** How much of the wandering glow stays while it charges a stamp. A press
+ * hushes the glow outright, but there the pointer is still on screen; the
+ * wander has nothing but its glow, so it dims rather than vanishes. */
+const WANDER_CHARGE_GLOW = 0.4
+/** How far the wander charges a stamp, as a share of a full hold: from
+ * a bare tap to the biggest bloom a hold can make, any of it. */
+const WANDER_STAMP_CHARGE = [0, 1] as const
 /**
  * Whether the head script kept the server-rendered word out of sight for
  * an effect to make it. Read from the mark the script leaves, not from the
@@ -574,6 +591,15 @@ export function HeroPixelField({
     let targetStrength = 0
     let pings: Ping[] = []
     let holding: { x: number; y: number; start: number } | null = null
+    /** A stamp the wander is charging: where, since when, and how far. */
+    let wanderHold: {
+      x: number
+      y: number
+      start: number
+      charge: number
+    } | null = null
+    /** When the wander next starts charging a stamp. */
+    let wanderStampAt = Infinity
     // The wordmark is a button: the pointer turns to a hand over it, and a
     // click plays the word in again with another effect rather than firing
     // a stamp. The word keeps its bands under the pointer; only the cursor
@@ -613,6 +639,28 @@ export function HeroPixelField({
     /** 0..1: how far a held press has charged. */
     const chargeOf = (now: number, start: number) =>
       Math.min((now - start) / 1000 / CHARGE_TIME, 1)
+
+    /** Launches a stamp at a point from a charge. The launch continues
+     * from the charged size: bigger charges bloom further and take longer
+     * to dissolve. The uncharged tap stays small; the extra reach is mostly
+     * bought by holding. The queue stays short so a mash stays legible. */
+    const launch = (x: number, y: number, charge: number, now: number) => {
+      const from = CHARGE_FROM + CHARGE_GROWTH * charge
+      pings = [
+        ...pings.slice(-3),
+        {
+          x,
+          y,
+          born: now,
+          from,
+          to: (from + 1.0 + 3.2 * charge) * (0.92 + Math.random() * 0.16),
+          life: (0.65 + 0.55 * charge) * (0.92 + Math.random() * 0.16),
+        },
+      ]
+    }
+
+    const between = ([lo, hi]: readonly [number, number]) =>
+      lo + Math.random() * (hi - lo)
 
     const measure = () => {
       const box = host.getBoundingClientRect()
@@ -774,15 +822,50 @@ export function HeroPixelField({
         const box = host.getBoundingClientRect()
         wanderStrength =
           strengthAt(box.left + wx / dpr, box.top + wy / dpr) * WANDER_STRENGTH
+
         // Eased blend, so the handover is a glide rather than a slide.
         const k = wanderBlend * wanderBlend * (3 - 2 * wanderBlend)
         const fromX = pointer.x < -1e3 ? wx : pointer.x
         const fromY = pointer.y < -1e3 ? wy : pointer.y
         glow.x = fromX + (wx - fromX) * k
         glow.y = fromY + (wy - fromY) * k
+
+        // Once the wander owns the glow it starts stamping: it charges a
+        // logo under the glow, as a held press would, and lets go at its
+        // chosen charge. The charge rides with the glow, so the stamp is
+        // always where the glow is when it fires; the glow only dims while
+        // charging so the growing glyph reads clean.
+        if (wanderBlend > 0.9) {
+          if (wanderStampAt === Infinity)
+            wanderStampAt = time + between(WANDER_FIRST_STAMP_WAIT) * 1000
+          if (!wanderHold && time >= wanderStampAt) {
+            wanderHold = {
+              x: glow.x,
+              y: glow.y,
+              start: time,
+              charge: between(WANDER_STAMP_CHARGE),
+            }
+          }
+          if (wanderHold) {
+            wanderHold.x = glow.x
+            wanderHold.y = glow.y
+            wanderStrength *= WANDER_CHARGE_GLOW
+            if (chargeOf(time, wanderHold.start) >= wanderHold.charge) {
+              launch(wanderHold.x, wanderHold.y, wanderHold.charge, time)
+              wanderHold = null
+              wanderStampAt = time + between(WANDER_STAMP_WAIT) * 1000
+            }
+          }
+        }
       } else {
         glow.x = pointer.x
         glow.y = pointer.y
+      }
+      // The pointer taking the glow back drops any stamp mid-charge and
+      // the clock with it: the next idle spell starts its own wait.
+      if (!idle && (wanderHold || wanderStampAt !== Infinity)) {
+        wanderHold = null
+        wanderStampAt = Infinity
       }
 
       // The pointer itself is never smoothed: the cells under the cursor are
@@ -843,13 +926,14 @@ export function HeroPixelField({
       }
       // A held press renders as a steady stamp growing under the pointer,
       // so you can watch what you are charging before you let it go.
-      if (holding) {
+      const charging = holding ?? wanderHold
+      if (charging) {
         stamps.push({
-          x: holding.x,
-          y: holding.y,
+          x: charging.x,
+          y: charging.y,
           cellPx:
             wmCW *
-            (CHARGE_FROM + CHARGE_GROWTH * chargeOf(time, holding.start)),
+            (CHARGE_FROM + CHARGE_GROWTH * chargeOf(time, charging.start)),
           amp: 0.9,
         })
       }
@@ -1289,24 +1373,7 @@ export function HeroPixelField({
         targetStrength = inside ? level : 0
       }
       const now = performance.now()
-      const charge = chargeOf(now, holding.start)
-      const from = CHARGE_FROM + CHARGE_GROWTH * charge
-      // Keep the stamp queue short so a mash of clicks stays legible.
-      pings = [
-        ...pings.slice(-3),
-        {
-          x: holding.x,
-          y: holding.y,
-          born: now,
-          from,
-          // The launch continues from the charged size: bigger charges
-          // bloom further and take longer to dissolve.
-          // The uncharged tap stays small; the extra reach is mostly
-          // bought by holding.
-          to: (from + 1.0 + 3.2 * charge) * (0.92 + Math.random() * 0.16),
-          life: (0.65 + 0.55 * charge) * (0.92 + Math.random() * 0.16),
-        },
-      ]
+      launch(holding.x, holding.y, chargeOf(now, holding.start), now)
       holding = null
     }
 
