@@ -813,10 +813,17 @@ export function HeroPixelField({
         // press would, and lets go at its chosen charge. The charge rides
         // with the sprite, so the stamp is always where the sprite is when
         // it fires; the sprite only dims while charging so the growing
-        // glyph reads clean.
-        if (spriteStampAt === Infinity)
+        // glyph reads clean. Not while an effect is making the word,
+        // though: that is the show, and the stamps wait their turn, with
+        // the first wait counted from the moment the word is done.
+        const wordBusy = etch !== null || awaitingFirstEtch
+        if (wordBusy) {
+          spriteHold = null
+          spriteStampAt = Infinity
+        } else if (spriteStampAt === Infinity) {
           spriteStampAt = time + between(SPRITE_FIRST_STAMP_WAIT) * 1000
-        if (!spriteHold && time >= spriteStampAt) {
+        }
+        if (!wordBusy && !spriteHold && time >= spriteStampAt) {
           spriteHold = {
             x: sprite.x,
             y: sprite.y,
