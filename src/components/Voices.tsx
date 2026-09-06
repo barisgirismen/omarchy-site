@@ -28,6 +28,7 @@ function VoicesEmbedded() {
     const script = document.createElement('script')
     script.src = 'https://platform.twitter.com/widgets.js'
     script.async = true
+    script.referrerPolicy = 'origin'
     document.body.appendChild(script)
     return () => script.remove()
   }, [])
