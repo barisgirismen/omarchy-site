@@ -1,12 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { MeetupCover } from '@/components/MeetupCover'
+import { MeetupMap } from '@/components/MeetupMap'
 import { SectionActions } from '@/components/SectionHeading'
 import { CalendarIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import meetups from '@/data/meetups.json'
 import { getPortedPage } from '@/lib/content'
+import { REGIONS, regionOf } from '@/lib/regions'
+import type { Region } from '@/lib/regions'
 import { seo } from '@/lib/seo'
+import { cn } from '@/lib/utils'
 
 /**
  * The meetups page: what is coming up, from the Omarchy calendar on
@@ -130,12 +134,44 @@ function MeetupsPage() {
     Date.parse(`${meetups.refreshed}T00:00:00Z`),
   )
   useEffect(() => setNow(Date.now()), [])
-  const upcoming = meetups.events
+  const allUpcoming = meetups.events
     .filter((event) => Date.parse(event.start) >= now)
     .sort((a, b) => Date.parse(a.start) - Date.parse(b.start))
   const past = meetups.events
     .filter((event) => Date.parse(event.start) < now)
     .sort((a, b) => Date.parse(b.start) - Date.parse(a.start))
+
+  // A region, then a country in it, narrow what is shown: the cards, and
+  // which dots on the map are lit. Meetups whose place the calendar keeps
+  // for its guests have no country, so they show under every region.
+  const [region, setRegion] = useState<Region | null>(null)
+  const [country, setCountry] = useState<string | null>(null)
+  const regions = REGIONS.filter((r) =>
+    allUpcoming.some((e) => regionOf(e.country) === r),
+  )
+  const countries = region
+    ? [
+        ...new Set(
+          allUpcoming
+            .filter((e) => regionOf(e.country) === region)
+            .map((e) => e.country as string),
+        ),
+      ].sort((a, b) => countryOf(a).localeCompare(countryOf(b)))
+    : []
+  const matches = (event: Meetup) =>
+    (!region || !event.country || regionOf(event.country) === region) &&
+    (!country || event.country === country)
+  const upcoming = allUpcoming.filter(matches)
+  const pins = allUpcoming.map((event) => ({
+    id: event.id,
+    title: event.title,
+    url: event.url,
+    shown: matches(event),
+  }))
+  const pickRegion = (next: Region | null) => {
+    setRegion(next)
+    setCountry(null)
+  }
 
   // Upcoming meetups by month, in the order they come.
   const months: { name: string; id: string; meetups: Meetup[] }[] = []
@@ -178,9 +214,79 @@ function MeetupsPage() {
         <div className="hidden shrink-0 sm:block">{calendar}</div>
       </header>
 
+      <MeetupMap pins={pins} className="mt-10" />
+
+      {/* The regions as chips, a legend for the map and a filter for the
+          cards in one, with the countries of the chosen region under
+          them. Each chip carries its count. */}
+      <nav aria-label="Filter the meetups by region" className="mt-6">
+        <ul className="flex flex-wrap gap-2">
+          {[null, ...regions].map((r) => {
+            const on = region === r
+            const count = r
+              ? allUpcoming.filter((e) => regionOf(e.country) === r).length
+              : allUpcoming.length
+            return (
+              <li key={r ?? 'all'}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => pickRegion(r)}
+                  className={cn(
+                    'inline-flex min-h-9 items-center gap-2 border px-3 text-sm transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                    on
+                      ? 'border-brand bg-brand text-brand-ink'
+                      : 'border-border-strong bg-surface text-text hover:bg-surface-2',
+                  )}
+                >
+                  {r ?? 'Everywhere'}
+                  <span
+                    className={cn(
+                      'font-mono text-xs',
+                      on ? 'text-brand-ink/70' : 'text-text-muted',
+                    )}
+                  >
+                    {count}
+                  </span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+        {countries.length > 1 ? (
+          <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+            {countries.map((code) => {
+              const on = country === code
+              return (
+                <li key={code}>
+                  <button
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setCountry(on ? null : code)}
+                    className={cn(
+                      'min-h-9 text-sm underline-offset-4 transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                      on
+                        ? 'text-brand underline decoration-current'
+                        : 'text-text-secondary hover:text-text',
+                    )}
+                  >
+                    {countryOf(code)}
+                    <span className="ml-1.5 font-mono text-xs text-text-muted">
+                      {allUpcoming.filter((e) => e.country === code).length}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        ) : null}
+      </nav>
+
       {months.length === 0 ? (
         <p className="mt-10 text-[15px] text-text-secondary">
-          Nothing on the calendar right now. The next one may be yours.
+          {region || country
+            ? 'Nothing coming up there yet. The next one may be yours.'
+            : 'Nothing on the calendar right now. The next one may be yours.'}
         </p>
       ) : (
         months.map((month) => (

@@ -431,6 +431,29 @@ async function meetupsFromFeed() {
   })
 }
 
+/** Where an event is on the globe, from whichever of the API's fields
+ *  carries it, or null. */
+function coordsOf(ev, geo) {
+  const lat = Number(ev.geo_latitude ?? geo.latitude ?? geo.lat)
+  const lon = Number(ev.geo_longitude ?? geo.longitude ?? geo.lng ?? geo.lon)
+  return Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null
+}
+
+/** The coordinates the calendar's public feed carries, by event, for the
+ *  events the API answers without any: the map on the meetups page needs
+ *  them, and the feed has them for every event with a public place. */
+async function coordsFromFeed() {
+  const byId = new Map()
+  try {
+    for (const event of await meetupsFromFeed()) {
+      if (event.geo) byId.set(event.id, event.geo)
+    }
+  } catch {
+    /* the feed is a bonus here; without it the pins are just fewer */
+  }
+  return byId
+}
+
 /** Luma's API, page by page, as events in the site's shape. */
 async function meetupsFromApi(key) {
   const events = []
@@ -465,16 +488,18 @@ async function meetupsFromApi(key) {
         city: geo.city ?? geo.city_state ?? null,
         country: geo.country ?? null,
         online: !geo.full_address && Boolean(ev.meeting_url),
-        geo:
-          Number.isFinite(geo.latitude) && Number.isFinite(geo.longitude)
-            ? { lat: geo.latitude, lon: geo.longitude }
-            : null,
+        geo: coordsOf(ev, geo),
         hosts: (entry.hosts ?? []).map((h) => h.name).filter(Boolean),
         cover: ev.cover_url ?? null,
       })
     }
     if (!page.has_more || !page.next_cursor) break
     cursor = page.next_cursor
+  }
+  const feedCoords = await coordsFromFeed()
+  for (const event of events) {
+    if (!event.geo && feedCoords.has(event.id))
+      event.geo = feedCoords.get(event.id)
   }
   return events
 }

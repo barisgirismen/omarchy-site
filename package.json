@@ -16,7 +16,7 @@
     "refresh-data": "node scripts/refresh-data.mjs",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "port": "python3 scripts/port_content.py",
+    "port": "python3 scripts/port_content.py && node scripts/meetup-map.mjs",
     "assemble": "node scripts/assemble-static.mjs",
     "parity": "python3 scripts/parity.py"
   },
@@ -50,6 +50,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "dotted-map": "^3.1.0",
     "eslint": "^9.20.0",
     "prettier": "^3.8.1",
     "sharp": "^0.35.2",
