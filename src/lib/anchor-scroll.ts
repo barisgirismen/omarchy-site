@@ -12,10 +12,13 @@ const anchorTop = (el: Element) => {
   return el.getBoundingClientRect().top + window.scrollY - margin
 }
 
-export function scrollToAnchor(el: Element) {
+export function scrollToAnchor(el: Element, smooth = false) {
   window.scrollTo({
     top: Math.max(0, anchorTop(el)),
-    behavior: 'instant',
+    behavior:
+      smooth && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'smooth'
+        : 'instant',
   })
 }
 

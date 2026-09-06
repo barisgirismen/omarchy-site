@@ -238,7 +238,6 @@ function WeekHover({
 
 export function Figures() {
   const { foundation, downloads, github } = momentum
-  const downloadMonth = downloads.periods[downloads.periods.length - 1]
   const funding = useInView()
   const isos = useInView()
   const repo = useInView()
@@ -299,29 +298,26 @@ export function Figures() {
           <Count value={downloads.total} live={isos.inView} />
         </span>
         <span className={label}>ISO downloads in year one</span>
-        <table className="mt-2 w-full font-mono text-xs leading-relaxed">
-          <caption className="sr-only">Recent ISO downloads</caption>
-          <tbody className="divide-y-2 divide-border-strong">
-            {downloads.periods.map((period) => (
-              <tr key={period.label}>
-                <th
-                  scope="row"
-                  className="py-2 text-left font-normal text-text-muted"
-                >
-                  {period.label}
-                </th>
-                <td className="py-2 text-right text-text-secondary tabular-nums">
-                  {period.count.toLocaleString('en-US')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="mt-3 font-sans text-xs leading-relaxed text-text-secondary">
-          One every{' '}
-          {Math.round((downloadMonth.days * 86400) / downloadMonth.count)}{' '}
-          seconds, all month long
-        </p>
+        <div className="flex flex-1 items-center pt-4">
+          <table className="w-full font-mono text-xs leading-relaxed">
+            <caption className="sr-only">Recent ISO downloads</caption>
+            <tbody className="divide-y-2 divide-border-strong">
+              {downloads.periods.map((period) => (
+                <tr key={period.label}>
+                  <th
+                    scope="row"
+                    className="py-2 text-left font-normal text-text-muted"
+                  >
+                    {period.label}
+                  </th>
+                  <td className="py-2 text-right text-text-secondary tabular-nums">
+                    {period.count.toLocaleString('en-US')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <Link to={downloads.post} className={more}>
           The numbers
         </Link>

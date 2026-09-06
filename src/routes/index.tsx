@@ -10,7 +10,6 @@ import {
   DisplayIcon,
   DownloadIcon,
   FashionIcon,
-  PencilSparkleIcon,
   UsbIcon,
   PlayIcon,
   WindowsIcon,
@@ -107,7 +106,7 @@ const noteLink =
 
 // Section navigation stays light, with a full-height target for touch and focus.
 const sectionLink =
-  'inline-flex min-h-10 shrink-0 items-center justify-center gap-2 py-2 text-sm font-medium whitespace-nowrap text-text underline-offset-4 transition-colors duration-150 hover:text-brand hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&_svg]:size-5 [&_svg]:shrink-0'
+  'inline-flex min-h-10 shrink-0 items-center justify-center gap-2 py-2 text-sm font-medium whitespace-nowrap text-text underline decoration-white underline-offset-4 transition-colors duration-150 hover:text-brand hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&_svg]:size-5 [&_svg]:shrink-0'
 
 function ManualLink({
   slug,
@@ -172,11 +171,11 @@ const communityCards = [
     cta: 'Find a meetup',
   },
   {
-    icon: PencilSparkleIcon,
-    title: 'Artists in Residence',
-    body: 'A six-month, funded residency for the artists who make Omarchy beautiful.',
-    splat: 'air',
-    cta: 'Meet the artists',
+    icon: DisplayIcon,
+    title: 'Workstations',
+    body: 'Show off your Omarchy setup and see where other Omarchs make things happen.',
+    splat: 'workstations',
+    cta: 'Show off your setup',
   },
   {
     icon: FashionIcon,
@@ -271,7 +270,7 @@ function Home() {
   )
   const extraThemes = (
     <Link to="/themes/" className={sectionLink}>
-      Extra themes
+      More community themes
       <ArrowRightIcon />
     </Link>
   )
@@ -287,7 +286,7 @@ function Home() {
       params={{ slug: 'getting-started' }}
       className={sectionLink}
     >
-      Read the install guide
+      Full installation guide
       <ArrowRightIcon />
     </Link>
   )
@@ -387,7 +386,6 @@ function Home() {
               >
                 DHH
               </a>
-              .
             </h1>
             <p
               data-hero-stagger
@@ -522,7 +520,12 @@ function Home() {
           data-ground
           className="border-y border-border-subtle bg-bg-deep py-24"
         >
-          <VideoCarousel level={3} title="See it in action" videos={videos} />
+          <VideoCarousel
+            level={3}
+            title="See it in action"
+            description="Experience a transfer of enthusiasm."
+            videos={videos}
+          />
         </div>
 
         <div id="install" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
@@ -531,9 +534,6 @@ function Home() {
             title="Install Omarchy"
             description={
               <>
-                <span className="block">
-                  Omarchy installs as a complete operating system:
-                </span>
                 From a USB stick to a full, encrypted desktop in under a minute.
                 Not ready to give it a drive? Try it as an app first.
               </>
@@ -552,11 +552,11 @@ function Home() {
               checksum is, rather than the size and architecture, which nobody
               would remember to keep current. */}
           <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <div className="ring-elevation flex min-w-0 flex-col bg-surface p-6">
+            <div className="@container ring-elevation flex min-w-0 flex-col bg-surface p-6">
               <div className="flex items-center gap-2.5">
                 <UsbIcon className="size-5 text-brand" />
                 <h4 className="text-lg font-medium tracking-tight text-text">
-                  Start from scratch
+                  Full-disk or dual-boot installation
                 </h4>
               </div>
               <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
@@ -574,16 +574,20 @@ function Home() {
                 </Button>
                 <p className="mt-2.5 text-[13px] text-text-muted">
                   Under a minute from stick to desktop.{' '}
-                  <br className="hidden md:inline" />
-                  Verify the file:{' '}
-                  <a href={`${ISO_URL}.sha256`} className={noteLink}>
-                    SHA-256
-                  </a>
-                  ,{' '}
-                  <a href={`${ISO_URL}.sig`} className={noteLink}>
-                    signature
-                  </a>
-                  .
+                  <span className="block @min-[44rem]:inline">
+                    Verify the file:{' '}
+                    <a
+                      href={`${ISO_URL}.sha256`}
+                      className={`${noteLink} whitespace-nowrap`}
+                    >
+                      SHA-256
+                    </a>
+                    ,{' '}
+                    <a href={`${ISO_URL}.sig`} className={noteLink}>
+                      signature
+                    </a>
+                    .
+                  </span>
                 </p>
               </div>
             </div>
@@ -596,8 +600,8 @@ function Home() {
                 </h4>
               </div>
               <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                The whole desktop as an app on your Mac or Windows PC. Nothing
-                partitioned, nothing changed underneath.
+                All of Omarchy running in a virtual machine, so you can get a
+                taste first.
               </p>
               <div className="mt-auto pt-6">
                 {/* Both apps, the visitor's own machine's filled in once the
@@ -621,9 +625,8 @@ function Home() {
                   })}
                 </div>
                 <p className="mt-2.5 text-[13px] text-text-muted">
-                  Apple Silicon Macs, Windows 10 and 11.{' '}
-                  <br className="hidden md:inline" />
-                  On Linux, the ISO is the way in.
+                  Apple Silicon Macs, Windows 10 and 11.
+                  <span className="block">On Linux, the ISO is the way in.</span>
                 </p>
               </div>
             </div>
@@ -795,7 +798,7 @@ function Home() {
       <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
-            title="Be the Omarch"
+            title="Get involved with Omarchy"
             description="Command your agent, and hang out with the people doing the same."
           />
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

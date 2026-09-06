@@ -62,7 +62,7 @@ function TeamNote({
 const noteLink =
   'text-text underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:decoration-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
 
-/** The jump links scroll the page themselves, instantly and clear of the
+/** The jump links scroll the page themselves, smoothly and clear of the
  *  bar, the way the home page's anchors do; the site leaves the browser's
  *  own anchor jump alone so a /teams/#core URL opens in place. */
 function useJumpLink(id: string) {
@@ -82,7 +82,7 @@ function useJumpLink(id: string) {
     if (!target) return
     event.preventDefault()
     claimNextHashScroll()
-    scrollToAnchor(target)
+    scrollToAnchor(target, true)
     void navigate({
       to: '/teams/',
       hash: id,

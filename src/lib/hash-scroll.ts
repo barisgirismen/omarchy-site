@@ -44,7 +44,7 @@ export function useHashLink(hash: string) {
     event.preventDefault()
     // Honours the scroll-margin-top that holds the section clear of the bar.
     claimNextHashScroll()
-    scrollToAnchor(target)
+    scrollToAnchor(target, true)
     // Replaced, not pushed: pressing the same button three times should not
     // put three entries in the reader's history.
     void navigate({ to: '/', hash, replace: true, resetScroll: false })
@@ -75,8 +75,12 @@ export function useTopLink() {
     event.preventDefault()
 
     if (window.location.pathname === '/') {
-      // The home mark jumps immediately, just like section anchors.
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      window.scrollTo({
+        top: 0,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'instant'
+          : 'smooth',
+      })
       // Drops any #section from the address without a second scroll.
       void navigate({ to: '/', replace: true, resetScroll: false })
       return

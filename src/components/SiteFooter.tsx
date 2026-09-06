@@ -6,7 +6,6 @@ import {
   ThirtySevenSignalsMark,
 } from '@/components/PartnerLogos'
 import { useTopLink } from '@/lib/hash-scroll'
-import release from '@/data/version.json'
 
 const columns = [
   {
@@ -16,7 +15,6 @@ const columns = [
       { label: 'Plugins', href: 'https://plugins.omarchy.org' },
       { label: 'Themes', to: '/themes/' },
       { label: 'News', to: '/news/' },
-      { label: 'Download the ISO', href: release.isoUrl },
     ],
   },
   {
@@ -30,8 +28,8 @@ const columns = [
   },
   {
     title: 'Foundation',
+    splat: 'foundation',
     links: [
-      { label: 'Omacom Foundation', splat: 'foundation' },
       { label: 'Patrons', splat: 'patrons' },
       { label: 'Sponsorships', splat: 'sponsorships' },
       { label: 'Artists in Residence', splat: 'air' },
@@ -100,7 +98,6 @@ export function SiteFooter() {
                   <a href="https://dhh.dk" className={footerLink}>
                     DHH
                   </a>
-                  .
                 </span>
               </span>
               <span className="block">
@@ -137,7 +134,17 @@ export function SiteFooter() {
             {columns.map((col) => (
               <nav key={col.title} data-quiet aria-label={col.title}>
                 <h2 className="font-sans text-xs tracking-widest text-text-muted uppercase">
-                  {col.title}
+                  {'splat' in col ? (
+                    <Link
+                      to="/$/"
+                      params={{ _splat: col.splat }}
+                      className={focusRing}
+                    >
+                      {col.title}
+                    </Link>
+                  ) : (
+                    col.title
+                  )}
                 </h2>
                 <ul className="mt-3.5 flex flex-col gap-2.5">
                   {col.links.map((link) => (
