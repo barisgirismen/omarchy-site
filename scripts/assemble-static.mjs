@@ -81,7 +81,10 @@ const redirects = {
   '/plugins/develop/': `${PLUGINS_SITE}/develop.html`,
   '/plugins/publish/': `${PLUGINS_SITE}/publish.html`,
   ...Object.fromEntries(
-    plugins.map((p) => [`/plugins/${p.id}/`, `${PLUGINS_SITE}/#catalog`]),
+    plugins.map((p) => [
+      `/plugins/${p.id}/`,
+      `${PLUGINS_SITE}/plugin.html?id=${encodeURIComponent(p.id)}`,
+    ]),
   ),
 }
 for (const [from, to] of Object.entries(redirects)) {
