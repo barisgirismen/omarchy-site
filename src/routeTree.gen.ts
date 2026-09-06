@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as R404RouteImport } from './routes/404'
 import { Route as ManualRouteImport } from './routes/manual'
+import { Route as MeetupsRouteImport } from './routes/meetups'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as ThemesRouteImport } from './routes/themes'
 import { Route as ManualIndexRouteImport } from './routes/manual.index'
@@ -38,6 +39,11 @@ const R404Route = R404RouteImport.update({
 const ManualRoute = ManualRouteImport.update({
   id: '/manual',
   path: '/manual',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetupsRoute = MeetupsRouteImport.update({
+  id: '/meetups',
+  path: '/meetups',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamsRoute = TeamsRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
   '/404': typeof R404Route
   '/manual': typeof ManualRouteWithChildren
+  '/meetups': typeof MeetupsRoute
   '/teams': typeof TeamsRoute
   '/themes': typeof ThemesRoute
   '/manual/$slug': typeof ManualSlugRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/404': typeof R404Route
+  '/meetups': typeof MeetupsRoute
   '/teams': typeof TeamsRoute
   '/themes': typeof ThemesRoute
   '/manual/$slug': typeof ManualSlugRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/$': typeof SplatRoute
   '/404': typeof R404Route
   '/manual': typeof ManualRouteWithChildren
+  '/meetups': typeof MeetupsRoute
   '/teams': typeof TeamsRoute
   '/themes': typeof ThemesRoute
   '/manual/$slug': typeof ManualSlugRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/404'
     | '/manual'
+    | '/meetups'
     | '/teams'
     | '/themes'
     | '/manual/$slug'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/404'
+    | '/meetups'
     | '/teams'
     | '/themes'
     | '/manual/$slug'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/404'
     | '/manual'
+    | '/meetups'
     | '/teams'
     | '/themes'
     | '/manual/$slug'
@@ -150,6 +162,7 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
   R404Route: typeof R404Route
   ManualRoute: typeof ManualRouteWithChildren
+  MeetupsRoute: typeof MeetupsRoute
   TeamsRoute: typeof TeamsRoute
   ThemesRoute: typeof ThemesRoute
   NewsIndexRoute: typeof NewsIndexRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       path: '/manual'
       fullPath: '/manual'
       preLoaderRoute: typeof ManualRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meetups': {
+      id: '/meetups'
+      path: '/meetups'
+      fullPath: '/meetups'
+      preLoaderRoute: typeof MeetupsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/teams': {
@@ -249,6 +269,7 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   R404Route: R404Route,
   ManualRoute: ManualRouteWithChildren,
+  MeetupsRoute: MeetupsRoute,
   TeamsRoute: TeamsRoute,
   ThemesRoute: ThemesRoute,
   NewsIndexRoute: NewsIndexRoute,

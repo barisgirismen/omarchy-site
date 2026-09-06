@@ -38,11 +38,6 @@ const PORTED: Partial<Record<string, { title: string; description: string }>> =
       description:
         'The nonprofit behind Omarchy. It holds the trademarks, funds the infrastructure, promotes the work, and supports the open-source projects and developers it is built on.',
     },
-    meetups: {
-      title: 'Meetups - Omarchy',
-      description:
-        'Omarchy meetups around the world, and how to run your own: about Omarchy, Linux and adjacent hacker culture, open to everyone, and run by the community.',
-    },
     omakub: {
       title: 'Omakub - Omarchy',
       description:
@@ -92,7 +87,6 @@ const PORTED: Partial<Record<string, { title: string; description: string }>> =
 const NARROW = new Set([
   'patrons/badges',
   'server',
-  'meetups',
   'air',
   'foundation',
   'sponsorships',
