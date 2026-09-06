@@ -100,8 +100,14 @@ export function ThemePicker() {
     // comes back if it was there to begin with. Choosing a theme with
     // Enter is a keypress, so without this the browser decides the
     // restored focus is keyboard-driven and paints a ring on a logo the
-    // mouse user who clicked it is not even looking at.
-    restoreFocus.current?.focus({ focusVisible: restoreRing.current })
+    // mouse user who clicked it is not even looking at. And it goes back
+    // without scrolling: the last thing focused may be a theme button in
+    // the home page's theme section, clicked long before and scrolled
+    // away from, and the browser would otherwise jump the page to it.
+    restoreFocus.current?.focus({
+      focusVisible: restoreRing.current,
+      preventScroll: true,
+    })
   }, [])
 
   /** Where a finger went down, and how far it has travelled since. */
