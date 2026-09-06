@@ -6,6 +6,7 @@ import {
   GithubIcon,
   MenuBarsIcon,
   PaletteIcon,
+  RssIcon,
   SearchIcon,
 } from '@/components/icons'
 import { OmarchyMarkDrawn } from '@/components/Brand'
@@ -48,7 +49,6 @@ function NavTooltip({
 }
 
 const navLinks = [
-  { to: '/', label: 'Home' },
   { to: '/news/', label: 'News' },
   { to: '/manual/', label: 'Manual' },
   // Plugins points at the standalone directory for launch; the built-in
@@ -572,8 +572,6 @@ export function SiteHeader() {
                 <Link
                   key={link.label}
                   to={link.to}
-                  data-nav-home={link.to === '/' ? '' : undefined}
-                  activeOptions={{ exact: link.to === '/' }}
                   className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   activeProps={{ className: 'text-text bg-surface-2' }}
                 >
@@ -591,6 +589,19 @@ export function SiteHeader() {
                 </NavTooltip>
                 <NavTooltip label="Change website theme" shortcut="T">
                   {theme}
+                </NavTooltip>
+                <NavTooltip label="Subscribe via RSS">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Omarchy RSS feed"
+                    data-nav-glyph
+                    className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
+                    nativeButton={false}
+                    render={<a href="/news/rss.xml" />}
+                  >
+                    <RssIcon className="size-5" />
+                  </Button>
                 </NavTooltip>
                 <NavTooltip label="View Omarchy on GitHub">
                   <Button
@@ -665,8 +676,6 @@ export function SiteHeader() {
               <Link
                 key={link.label}
                 to={link.to}
-                data-nav-home={link.to === '/' ? '' : undefined}
-                activeOptions={{ exact: link.to === '/' }}
                 onClick={() => setMenuOpen(false)}
                 className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 activeProps={{ className: 'text-text font-medium' }}
@@ -700,7 +709,7 @@ export function SiteHeader() {
           {/* On a phone the sound control lives here rather than as a card
               over the hero, where it covered a good part of the screen. */}
           <MusicMenuControl open={menuOpen} />
-          <div className="mt-2 flex items-center gap-2.5 border-t border-border-subtle pt-4 pb-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2.5 border-t border-border-subtle pt-4 pb-2">
             <Button
               className="flex-1"
               nativeButton={false}
@@ -712,6 +721,15 @@ export function SiteHeader() {
             >
               <DownloadIcon className="size-5" />
               Install
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              nativeButton={false}
+              render={<a href="/news/rss.xml" />}
+            >
+              <RssIcon className="size-5" />
+              RSS
             </Button>
             <Button
               variant="outline"
@@ -790,6 +808,9 @@ export function HeroNavGhost() {
             </span>
             <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
               <PaletteIcon className="size-5" />
+            </span>
+            <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
+              <RssIcon className="size-5" />
             </span>
             <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
               <GithubIcon className="size-5" />

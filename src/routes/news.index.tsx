@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowRightIcon, RssIcon } from '@/components/icons'
+import { ArrowRightIcon } from '@/components/icons'
 import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
 import { getNewsIndex } from '@/lib/content'
 import { seo } from '@/lib/seo'
@@ -22,33 +22,17 @@ function NewsPage() {
   const news = Route.useLoaderData()
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       {/* The wordmark over the page, as the site's own news pages carry the
           mark at the top, in the hero's own bands. */}
       <OmarchyWordmark
         label="Omarchy"
-        className="mx-auto mb-10 w-full max-w-sm text-[color:var(--t-field-lit)]"
+        className="mx-auto mb-[2.6rem] w-full max-w-sm text-[color:var(--t-field-lit)]"
         background={WORDMARK_BANDS}
       />
-      <header>
-        <div className="flex items-center justify-between gap-6">
-          <h1 className="text-3xl font-semibold tracking-tight text-text">
-            News
-          </h1>
-          <a
-            href="/news/rss.xml"
-            className="inline-flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          >
-            <RssIcon className="size-5" />
-            RSS
-          </a>
-        </div>
-        <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-          Announcements, releases, and other news.
-        </p>
-      </header>
+      <h1 className="sr-only">News</h1>
 
-      <ul className="mt-10 divide-y divide-border-subtle">
+      <ul className="divide-y divide-border-subtle [&>li:first-child>a]:pt-0">
         {news.map((post) => {
           return (
             <li key={post.slug}>

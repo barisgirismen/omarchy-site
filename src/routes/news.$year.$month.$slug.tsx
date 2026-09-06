@@ -33,11 +33,11 @@ function NewsPostPage() {
   const post = Route.useLoaderData()
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       {/* The wordmark over the post, as on the news page. */}
       <OmarchyWordmark
         label="Omarchy"
-        className="mx-auto mb-10 w-full max-w-sm text-[color:var(--t-field-lit)]"
+        className="mx-auto mb-[2.6rem] w-full max-w-sm text-[color:var(--t-field-lit)]"
         background={WORDMARK_BANDS}
       />
       <article>
