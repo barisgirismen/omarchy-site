@@ -1,4 +1,4 @@
-import { SectionHeading } from '@/components/SectionHeading'
+import { SectionActions, SectionHeading } from '@/components/SectionHeading'
 import { ArrowRightIcon } from '@/components/icons'
 
 const games = [
@@ -29,9 +29,16 @@ const games = [
 ]
 
 export function GamingShowcase() {
+  const action = (
+    <a href="/manual/gaming/" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 py-2 text-sm font-medium whitespace-nowrap text-text underline decoration-current underline-offset-4 transition-colors duration-150 hover:text-brand hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&_svg]:size-5 [&_svg]:shrink-0">
+      Get your game on
+      <ArrowRightIcon aria-hidden="true" />
+    </a>
+  )
   return (
     <>
       <SectionHeading
+        action={action}
         anchor="gaming"
         title="All work and all play is all good"
         description="Omarchy comes ready for Steam, RetroArch, and a whole world of gaming. Graphics drivers and configuration, including NVIDIA on supported hardware, are sorted during installation."
@@ -83,13 +90,7 @@ export function GamingShowcase() {
         ))}
         .
       </p>
-      <a
-        href="/manual/gaming/"
-        className="mt-6 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-text underline-offset-4 hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&:hover_span]:decoration-current"
-      >
-        <span className="underline decoration-current">Get your game on</span>
-        <ArrowRightIcon className="size-5 shrink-0" aria-hidden="true" />
-      </a>
+      <SectionActions>{action}</SectionActions>
     </>
   )
 }

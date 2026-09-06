@@ -23,6 +23,7 @@ import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
 import { HardwareShowcase } from '@/components/HardwareShowcase'
 import { AgentShowcase } from '@/components/AgentShowcase'
+import { WindowsShowcase } from '@/components/WindowsShowcase'
 import { GamingShowcase } from '@/components/GamingShowcase'
 import { DeveloperShowcase } from '@/components/DeveloperShowcase'
 import { TypewriterTail } from '@/components/TypewriterTail'
@@ -163,6 +164,19 @@ const videos = [
     title: 'If you use AI, switch to Omarchy immediately',
     channel: 'Alex Finn',
     thumb: 'https://omarchy.org/assets/images/video/alex-finn.webp',
+  },
+  {
+    id: '2IDjteRQgMQ',
+    title: 'Omarchy Can Do WHAT?! 50 Features You’re Missing',
+    channel: 'NetworkChuck',
+    thumb: '/images/video/networkchuck-50-features.webp',
+  },
+  {
+    id: 'NYFGCESmikA',
+    title: 'DHH: Future of Programming, AI, Agentic Engineering, Vibe Coding & Linux | Lex Fridman Podcast #501',
+    channel: 'Lex Fridman',
+    thumb: '/images/video/lex-fridman-dhh.webp',
+    start: 2326,
   },
 ]
 
@@ -751,7 +765,13 @@ function Home() {
           sit beside it and made one screen answer four questions at once;
           they have the section after this one now, so each can be read on
           its own. */}
-      <section id="news" className="border-t border-border-subtle bg-bg-deep">
+      <section id="windows" className="border-t border-border-subtle bg-bg-deep">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
+          <WindowsShowcase />
+        </div>
+      </section>
+
+      <section id="news" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="news"
@@ -812,7 +832,7 @@ function Home() {
           light section by section. */}
       <section
         id="figures"
-        className="border-t border-border-subtle"
+        className="border-t border-border-subtle bg-bg-deep"
       >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
@@ -825,7 +845,7 @@ function Home() {
       </section>
 
       {/* voices: posts from the people who installed it, quoted as written. */}
-      <section id="voices" className="border-t border-border-subtle bg-bg-deep">
+      <section id="voices" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="voices"
@@ -839,7 +859,7 @@ function Home() {
       </section>
 
       {/* the teams: who steers it, shown together as clusters of faces. */}
-      <section id="teams" className="border-t border-border-subtle">
+      <section id="teams" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="teams"
@@ -852,7 +872,7 @@ function Home() {
         </div>
       </section>
 
-      <section id="patrons" className="border-t border-border-subtle bg-bg-deep">
+      <section id="patrons" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="patrons"
@@ -865,7 +885,7 @@ function Home() {
         </div>
       </section>
 
-      <section id="meetups" className="border-t border-border-subtle">
+      <section id="meetups" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <MeetupShowcase />
         </div>
@@ -874,7 +894,7 @@ function Home() {
       {/* community */}
       <section
         id="community"
-        className="border-t border-border-subtle bg-bg-deep"
+        className="border-t border-border-subtle"
       >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading

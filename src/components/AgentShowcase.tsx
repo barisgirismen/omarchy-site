@@ -1,4 +1,4 @@
-import { SectionHeading } from '@/components/SectionHeading'
+import { SectionActions, SectionHeading } from '@/components/SectionHeading'
 import { ArrowRightIcon } from '@/components/icons'
 import {
   Tooltip,
@@ -62,9 +62,16 @@ const features = [
 ]
 
 export function AgentShowcase() {
+  const action = (
+    <a href="/manual/ai/" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 py-2 text-sm font-medium whitespace-nowrap text-text underline decoration-current underline-offset-4 transition-colors duration-150 hover:text-brand hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&_svg]:size-5 [&_svg]:shrink-0">
+      Meet your new agent
+      <ArrowRightIcon aria-hidden="true" />
+    </a>
+  )
   return (
     <>
       <SectionHeading
+        action={action}
         anchor="agents"
         title="The agentic OS for the age of agents"
         description="Your agent should feel at home on your computer. Omarchy gives it the tools and skills to help you understand, fix, and shape the whole system."
@@ -125,13 +132,7 @@ export function AgentShowcase() {
           ))}
         </ul>
       </TooltipProvider>
-      <a
-        href="/manual/ai/"
-        className="mt-6 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-text underline-offset-4 hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&:hover_span]:decoration-current"
-      >
-        <span className="underline decoration-current">Meet your new agent</span>
-        <ArrowRightIcon className="size-5 shrink-0" aria-hidden="true" />
-      </a>
+      <SectionActions>{action}</SectionActions>
     </>
   )
 }

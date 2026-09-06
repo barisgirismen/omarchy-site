@@ -11,6 +11,7 @@ export type CarouselVideo = {
   title: string
   channel: string
   thumb: string
+  start?: number
 }
 
 const GLIDE_MS = 420
@@ -424,9 +425,10 @@ export function VideoCarousel({
           >
             {narrow || playing === video.id ? (
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${video.id}${
-                  playing === video.id ? '?autoplay=1' : ''
-                }`}
+                src={`https://www.youtube-nocookie.com/embed/${video.id}?${new URLSearchParams({
+                  ...(video.start ? { start: String(video.start) } : {}),
+                  ...(playing === video.id ? { autoplay: '1' } : {}),
+                })}`}
                 title={`${video.title} by ${video.channel}`}
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
