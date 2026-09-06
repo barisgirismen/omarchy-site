@@ -1617,8 +1617,13 @@ h6 {
 .meetup-pin-in {
   animation: meetup-pin-in 300ms ease-out both;
 }
+/* The card beside a dot comes in with a short fade, not a pop. */
+.meetup-card-in {
+  animation: meetup-pin-in 120ms ease-out both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .meetup-pin-in {
+  .meetup-pin-in,
+  .meetup-card-in {
     animation: none;
   }
 }

@@ -252,47 +252,62 @@ export function MeetupMap({
         </g>
       </svg>
 
-      {/* The card beside the dot the reader is on. Placed by the dot's
-          share of the map, so it follows the zoom, and flipped to the
-          left past the middle so it never runs off the edge. */}
+      {/* The card beside the dot the reader is on: the cover, the name,
+          when and where, and what a press does. Placed by the dot's share
+          of the map, so it follows the zoom, and flipped to the left past
+          the middle and upward past the lower part so it never runs off
+          the edge. */}
       {hovered ? (
         <div
           role="tooltip"
           className={cn(
-            'pointer-events-none absolute z-10 flex w-64 max-w-[70vw] gap-3 bg-surface p-3 shadow-lg ring-1 ring-border-strong',
+            'meetup-card-in pointer-events-none absolute z-10 w-72 max-w-[75vw] overflow-hidden bg-surface shadow-xl ring-1 ring-border-strong',
             (hovered.x - box.x) / box.width > 0.55
-              ? '-ml-3 -translate-x-full'
-              : 'ml-3',
-            (hovered.y - box.y) / box.height > 0.6
-              ? '-mt-2 -translate-y-full'
-              : 'mt-2',
+              ? '-ml-4 -translate-x-full'
+              : 'ml-4',
+            (hovered.y - box.y) / box.height > 0.55
+              ? '-mt-3 -translate-y-full'
+              : 'mt-3',
           )}
           style={{
             left: `${((hovered.x - box.x) / box.width) * 100}%`,
             top: `${((hovered.y - box.y) / box.height) * 100}%`,
           }}
         >
-          {hovered.cover ? (
-            <img
-              src={hovered.cover}
-              alt=""
-              className="size-12 shrink-0 object-cover"
-            />
-          ) : null}
-          <div className="min-w-0">
-            <p className="line-clamp-2 text-sm font-medium text-text">
-              {hovered.title}
-            </p>
-            <p className="mt-0.5 font-mono text-xs text-text-muted">
-              {hovered.when}
-            </p>
-            {hovered.where ? (
-              <p className="truncate font-mono text-xs text-text-muted">
-                {hovered.where}
-                {hovered.approximate ? ' (about)' : ''}
+          <div className="flex gap-3 p-3">
+            <div
+              className={cn(
+                'size-16 shrink-0 overflow-hidden bg-bg-deep',
+                hovered.past && 'grayscale',
+              )}
+            >
+              {hovered.cover ? (
+                <img
+                  src={hovered.cover}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : null}
+            </div>
+            <div className="min-w-0">
+              <p className="line-clamp-2 text-sm leading-snug font-medium text-text">
+                {hovered.title}
               </p>
-            ) : null}
+              <p className="mt-1 font-mono text-xs text-text-secondary">
+                {hovered.when}
+              </p>
+              {hovered.where ? (
+                <p className="truncate font-mono text-xs text-text-muted">
+                  {hovered.where}
+                  {hovered.approximate ? ' · about' : ''}
+                </p>
+              ) : null}
+            </div>
           </div>
+          <p className="border-t border-border-subtle px-3 py-1.5 font-mono text-[11px] text-text-muted">
+            {hovered.past ? 'Already happened' : 'Coming up'} · press to see it
+            below
+          </p>
         </div>
       ) : null}
     </div>

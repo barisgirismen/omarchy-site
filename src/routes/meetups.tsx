@@ -374,12 +374,17 @@ function MeetupsPage() {
             aria-labelledby={`month-${month.id}`}
             className="mt-12 first-of-type:mt-10"
           >
-            <h2
-              id={`month-${month.id}`}
-              className="font-sans text-lg font-medium text-text"
-            >
-              {month.name}
-            </h2>
+            <div className="flex items-baseline gap-3">
+              <h2
+                id={`month-${month.id}`}
+                className="font-sans text-lg font-medium text-text"
+              >
+                {month.name}
+              </h2>
+              <span className="font-mono text-xs text-text-muted">
+                {month.meetups.length}
+              </span>
+            </div>
             <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
               {month.meetups.map((meetup) => (
                 <MeetupCard
@@ -396,40 +401,70 @@ function MeetupsPage() {
 
       <SectionActions>{calendar}</SectionActions>
 
+      {/* What has been: a wall of small covers in grey, apart from the
+          calendar above in size and in colour, each coming back to colour
+          under the pointer. A meetup that had no cover wears the mark. */}
       {past.length > 0 ? (
         <section
           aria-labelledby="past-meetups"
           className="mt-14 border-t border-border-subtle pt-10"
         >
-          <h2
-            id="past-meetups"
-            className="font-sans text-lg font-medium text-text"
-          >
-            Already happened
-          </h2>
-          <ul className="mt-5 divide-y divide-border-subtle">
+          <div className="flex items-baseline gap-3">
+            <h2
+              id="past-meetups"
+              className="font-sans text-lg font-medium text-text"
+            >
+              Already happened
+            </h2>
+            <span className="font-mono text-xs text-text-muted">
+              {past.length}
+            </span>
+          </div>
+          <ul className="mt-5 grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4 lg:grid-cols-6">
             {past.map((meetup) => {
               const where = whereOf(meetup)
               return (
-                <li key={meetup.id}>
+                <li
+                  key={meetup.id}
+                  id={`meetup-${meetup.id}`}
+                  onMouseEnter={() => setActive(meetup.id)}
+                  onMouseLeave={() => setActive(null)}
+                >
                   <a
                     href={meetup.url}
-                    className="group flex flex-wrap items-baseline gap-x-4 gap-y-1 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                   >
-                    <time
-                      dateTime={meetup.start}
-                      className="w-24 shrink-0 font-mono text-xs text-text-muted"
+                    <div
+                      className={cn(
+                        'aspect-square w-full overflow-hidden bg-bg-deep grayscale transition-[filter,opacity] duration-200 ease-out group-hover:opacity-100 group-hover:grayscale-0',
+                        active === meetup.id
+                          ? 'opacity-100 grayscale-0'
+                          : 'opacity-70',
+                      )}
                     >
-                      {inZone(meetup, { month: 'short', day: 'numeric' })}
-                    </time>
-                    <span className="min-w-0 flex-1 text-sm text-text-secondary transition-colors duration-150 ease-out group-hover:text-brand">
+                      {meetup.cover ? (
+                        <img
+                          src={meetup.cover}
+                          alt={meetup.title}
+                          width={meetup.coverWidth}
+                          height={meetup.coverHeight}
+                          loading="lazy"
+                          decoding="async"
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <MeetupCover />
+                      )}
+                    </div>
+                    <p className="mt-2 font-mono text-[11px] text-text-muted">
+                      <time dateTime={meetup.start}>
+                        {inZone(meetup, { month: 'short', day: 'numeric' })}
+                      </time>
+                      {where ? ` · ${where}` : ''}
+                    </p>
+                    <p className="mt-0.5 line-clamp-1 text-sm text-text-secondary transition-colors duration-150 ease-out group-hover:text-text">
                       {meetup.title}
-                    </span>
-                    {where ? (
-                      <span className="font-mono text-xs text-text-muted">
-                        {where}
-                      </span>
-                    ) : null}
+                    </p>
                   </a>
                 </li>
               )
