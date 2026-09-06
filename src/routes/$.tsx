@@ -146,6 +146,8 @@ function PortedPage() {
   const path = (_splat ?? '').replace(/\/+$/, '')
   const narrow = NARROW.has(path)
   const hasSubtitle = ['patrons', 'foundation', 'potato'].includes(path)
+  // The badges stand centred, one under the other, so their title does too.
+  const centred = path === 'patrons/badges'
 
   return (
     <main
@@ -154,7 +156,12 @@ function PortedPage() {
         narrow ? 'max-w-3xl' : 'max-w-6xl',
       )}
     >
-      <h1 className="text-3xl font-semibold tracking-tight text-text">
+      <h1
+        className={cn(
+          'text-3xl font-semibold tracking-tight text-text',
+          centred && 'text-center',
+        )}
+      >
         {page.title}
       </h1>
       <div
