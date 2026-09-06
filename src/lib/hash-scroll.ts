@@ -85,7 +85,7 @@ export function useTopLink() {
       void navigate({ to: '/', replace: true, resetScroll: false })
       return
     }
-    void navigate({ to: '/' })
+    void navigate({ to: '/', resetScroll: true })
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 }
