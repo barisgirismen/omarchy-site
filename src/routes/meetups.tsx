@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react'
 import { MeetupCover } from '@/components/MeetupCover'
 import { MeetupMap } from '@/components/MeetupMap'
 import { SectionActions } from '@/components/SectionHeading'
-import { CalendarIcon } from '@/components/icons'
-import { Button } from '@/components/ui/button'
+import { ArrowRightIcon } from '@/components/icons'
 import meetups from '@/data/meetups.json'
 import { getPortedPage } from '@/lib/content'
 import { REGIONS, regionOf } from '@/lib/regions'
@@ -187,15 +186,16 @@ function MeetupsPage() {
       })
   }
 
+  // The way on to the calendar, in the plain link the home page's
+  // sections end on rather than a boxed button.
   const calendar = (
-    <Button
-      variant="outline"
-      nativeButton={false}
-      render={<a href={CALENDAR_URL} />}
+    <a
+      href={CALENDAR_URL}
+      className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 py-2 text-sm font-medium whitespace-nowrap text-text underline decoration-current underline-offset-4 transition-colors duration-150 hover:text-brand hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&_svg]:size-5 [&_svg]:shrink-0"
     >
-      <CalendarIcon data-icon="inline-start" />
       The calendar on Luma
-    </Button>
+      <ArrowRightIcon aria-hidden="true" />
+    </a>
   )
 
   return (
