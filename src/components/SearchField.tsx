@@ -47,6 +47,8 @@ export function SearchField({
         aria-label={label}
         spellCheck={false}
         autoComplete="off"
+        autoCorrect="off"
+        enterKeyHint="search"
         className={cn(
           'h-10 w-full border border-border-strong bg-bg-deep pl-10 text-base text-text placeholder:text-text-muted',
           'transition-[border-color] duration-150 ease-out hover:border-border-strong',
