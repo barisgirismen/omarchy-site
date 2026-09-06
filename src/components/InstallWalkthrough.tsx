@@ -3,12 +3,72 @@ import type { ReactNode } from 'react'
 import { PlayIcon } from '@/components/icons'
 
 /**
- * The ISO's installer, screen by screen, in a window the size of the real
- * thing. Every line is one the installer prints; the answers are the ones a
- * first install would give. It plays once when it scrolls into view, and
- * Replay runs it again. The server renders the last screen, so the static
- * page shows the outcome and the first paint has nothing to reconcile.
+ * The ISO's installer, screen by screen, drawn the way it draws them: the
+ * logo above every screen, the wizard's questions under it with the answers
+ * a first install would give, then the install bar and the reboot button.
+ * Every line is one the installer prints. It plays once when it scrolls
+ * into view, and Replay runs it again. The server renders the last screen,
+ * so the static page shows the outcome and the first paint has nothing to
+ * reconcile.
  */
+
+/**
+ * logo.txt from the Omarchy repository, which the ISO prints in green: ten
+ * rows of block glyphs. Drawn here as rectangles, one per run of filled
+ * half-cells, since a font sets the glyphs a hair apart and the logo showed
+ * its seams; a cell is one unit wide and two tall, the console's shape.
+ */
+const LOGO = `                 ▄▄▄
+ ▄█████▄    ▄███████████▄    ▄███████   ▄███████   ▄███████   ▄█   █▄    ▄█   █▄
+███   ███  ███   ███   ███  ███   ███  ███   ███  ███   ███  ███   ███  ███   ███
+███   ███  ███   ███   ███  ███   ███  ███   ███  ███   █▀   ███   ███  ███   ███
+███   ███  ███   ███   ███ ▄███▄▄▄███ ▄███▄▄▄██▀  ███       ▄███▄▄▄███▄ ███▄▄▄███
+███   ███  ███   ███   ███ ▀███▀▀▀███ ▀███▀▀▀▀    ███      ▀▀███▀▀▀███  ▀▀▀▀▀▀███
+███   ███  ███   ███   ███  ███   ███ ██████████  ███   █▄   ███   ███  ▄██   ███
+███   ███  ███   ███   ███  ███   ███  ███   ███  ███   ███  ███   ███  ███   ███
+ ▀█████▀    ▀█   ███   █▀   ███   █▀   ███   ███  ███████▀   ███   █▀    ▀█████▀
+                                       ███   █▀`
+
+const LOGO_ROWS = LOGO.split('\n')
+const LOGO_COLS = Math.max(...LOGO_ROWS.map((row) => row.length))
+const LOGO_RECTS = LOGO_ROWS.flatMap((row, r) =>
+  [
+    { y: 2 * r, on: (ch: string) => ch === '█' || ch === '▀' },
+    { y: 2 * r + 1, on: (ch: string) => ch === '█' || ch === '▄' },
+  ].flatMap(({ y, on }) => {
+    const rects: { x: number; y: number; w: number }[] = []
+    let start = -1
+    for (let c = 0; c <= row.length; c++) {
+      const lit = c < row.length && on(row[c])
+      if (lit && start < 0) start = c
+      if (!lit && start >= 0) {
+        rects.push({ x: start, y, w: c - start })
+        start = -1
+      }
+    }
+    return rects
+  }),
+)
+
+const Logo = () => (
+  <svg
+    viewBox={`0 0 ${LOGO_COLS} ${LOGO_ROWS.length * 2}`}
+    className="w-full text-brand"
+    shapeRendering="crispEdges"
+    aria-hidden="true"
+  >
+    {LOGO_RECTS.map((rect) => (
+      <rect
+        key={`${rect.x},${rect.y}`}
+        x={rect.x}
+        y={rect.y}
+        width={rect.w}
+        height={1}
+        fill="currentColor"
+      />
+    ))}
+  </svg>
+)
 
 const TIPS = [
   'Super + Space opens the Omarchy menu for apps, settings, and more',
@@ -22,31 +82,65 @@ const INSTALL_MS = 3000
 const TIP_MS = 750
 const TICK_MS = 60
 
-const Brand = () => (
-  <p className="text-lg font-extrabold tracking-[0.5em] text-brand">OMARCHY</p>
+const DISK = '/dev/nvme0n1'
+
+const Line = ({ children }: { children: ReactNode }) => (
+  <p className="text-text">{children}</p>
 )
-const Step = ({ children }: { children: ReactNode }) => (
-  <p className="font-bold text-text">{children}</p>
+const Dim = ({ children }: { children: ReactNode }) => (
+  <p className="text-text-muted">{children}</p>
 )
-const Pick = ({ children }: { children: ReactNode }) => (
-  <p className="flex gap-[1ch] text-text">
-    <span className="font-bold text-brand">❯</span>
-    {children}
+const Blank = () => <p>&nbsp;</p>
+/** A gum choose: its header, then the cursor on the picked entry. */
+const Choose = ({ header, pick }: { header: string; pick: string }) => (
+  <>
+    <p className="text-text-secondary">{header}</p>
+    <p className="text-text">
+      <span className="text-brand">&gt;</span> {pick}
+    </p>
+  </>
+)
+/** A gum input, answered. */
+const Input = ({ prompt, value }: { prompt: string; value: string }) => (
+  <p className="text-text">
+    <span className="text-brand">{prompt}&gt;</span> {value}
   </p>
 )
-const Typed = ({ children }: { children: ReactNode }) => (
-  <span className="text-text">{children}</span>
+/** A gum confirm: the question, then its buttons with the first one lit. */
+const Confirm = ({
+  prompt,
+  yes,
+  no,
+  center,
+}: {
+  prompt?: string
+  yes: string
+  no?: string
+  center?: boolean
+}) => (
+  <>
+    {prompt ? <p className="text-text">{prompt}</p> : null}
+    <p className={'flex gap-2' + (center ? ' justify-center' : '')}>
+      <span className="bg-brand px-3 text-brand-ink">{yes}</span>
+      {no ? (
+        <span className="bg-bg-deep px-3 text-text-secondary">{no}</span>
+      ) : null}
+    </p>
+  </>
 )
 
-/** The wizard's screens and how long each one holds. */
-const SCREENS: { ms: number; body: ReactNode }[] = [
+/** The wizard's screens, how long each one holds, and whether it is set
+ *  centred under the logo (the greeter and the dashboard) or flush with
+ *  its left edge (the configurator's steps). */
+const SCREENS: { ms: number; center?: boolean; body: ReactNode }[] = [
   {
     ms: 1100,
+    center: true,
     body: (
       <>
-        <Brand />
-        <p>Beautiful, Fun &amp; Agentic Linux by DHH</p>
-        <p className="text-text-muted">Press Return to Start Install</p>
+        <Line>Beautiful, Fun &amp; Agentic Linux by DHH</Line>
+        <Blank />
+        <Dim>Press Return to Start Install</Dim>
       </>
     ),
   },
@@ -54,9 +148,10 @@ const SCREENS: { ms: number; body: ReactNode }[] = [
     ms: 1100,
     body: (
       <>
-        <Step>Let&apos;s setup your machine...</Step>
-        <p>Select keyboard layout</p>
-        <Pick>English (US)</Pick>
+        <Line>Let&apos;s setup your machine...</Line>
+        <Dim>Press Ctrl+C to prepare this machine for another owner.</Dim>
+        <Blank />
+        <Choose header="Select keyboard layout" pick="English (US)" />
       </>
     ),
   },
@@ -64,18 +159,12 @@ const SCREENS: { ms: number; body: ReactNode }[] = [
     ms: 1500,
     body: (
       <>
-        <Step>Let&apos;s setup your user account...</Step>
-        <p>
-          Username&gt; <Typed>dhh</Typed>
-        </p>
-        <p>
-          Password&gt; <Typed>••••••••</Typed>
-        </p>
-        <p>
-          Hostname&gt; <Typed>omarchy</Typed>
-        </p>
-        <p>Does this look right?</p>
-        <Pick>Yes</Pick>
+        <Line>Let&apos;s setup your user account...</Line>
+        <Blank />
+        <Input prompt="Username" value="dhh" />
+        <Input prompt="Password" value="••••••••" />
+        <Blank />
+        <Confirm prompt="Does this look right?" yes="Yes" no="No, change it" />
       </>
     ),
   },
@@ -83,20 +172,39 @@ const SCREENS: { ms: number; body: ReactNode }[] = [
     ms: 1000,
     body: (
       <>
-        <Step>Let&apos;s select where to install Omarchy...</Step>
-        <p>Select install disk</p>
-        <Pick>/dev/nvme0n1</Pick>
+        <Line>Let&apos;s select where to install Omarchy...</Line>
+        <Blank />
+        <Choose header="Select install disk" pick={`${DISK} (931.5G)`} />
       </>
     ),
   },
   {
-    ms: 1100,
+    ms: 900,
     body: (
       <>
-        <p className="font-bold text-text">
+        <Line>Let&apos;s select how to install Omarchy...</Line>
+        <Blank />
+        <Choose
+          header={`Select installation mode on ${DISK}`}
+          pick="Full disk install"
+        />
+      </>
+    ),
+  },
+  {
+    ms: 1200,
+    body: (
+      <>
+        <Line>
           Everything will be overwritten. There is no recovery possible.
-        </p>
-        <Pick>Yes, install</Pick>
+        </Line>
+        <Dim>Press Ctrl+C for unencrypted install.</Dim>
+        <Blank />
+        <Confirm
+          prompt={`Confirm overwriting ${DISK}`}
+          yes="Yes, install"
+          no="No, change it"
+        />
       </>
     ),
   },
@@ -107,13 +215,16 @@ const Installing = ({ elapsed }: { elapsed: number }) => {
   const tip = TIPS[Math.min(Math.floor(elapsed / TIP_MS), TIPS.length - 1)]
   return (
     <>
-      <Step>Installing Omarchy</Step>
-      <p className="overflow-hidden whitespace-nowrap text-brand">
-        {'█'.repeat(on)}
-        {'░'.repeat(CELLS - on)}
+      <Line>Installing Omarchy</Line>
+      <Blank />
+      <p className="overflow-hidden whitespace-nowrap">
+        <span className="text-text">{'█'.repeat(on)}</span>
+        <span className="text-text-muted">{'░'.repeat(CELLS - on)}</span>
       </p>
+      <Blank />
       <p>
-        <span className="font-bold text-text">Tip:</span> {tip}
+        <span className="text-text-muted">Tip:</span>{' '}
+        <span className="text-brand">{tip}</span>
       </p>
     </>
   )
@@ -121,13 +232,9 @@ const Installing = ({ elapsed }: { elapsed: number }) => {
 
 const Done = () => (
   <>
-    <Brand />
-    <p className="font-bold text-brand">Installed Omarchy</p>
-    <p>
-      <span className="mt-2 inline-block bg-brand px-3.5 py-0.5 text-xs font-bold tracking-wide text-brand-ink">
-        Reboot Now
-      </span>
-    </p>
+    <Line>Installed Omarchy in 0m 52s</Line>
+    <Blank />
+    <Confirm yes="Reboot Now" center />
   </>
 )
 
@@ -136,15 +243,7 @@ type Frame =
   | { kind: 'install'; elapsed: number }
   | { kind: 'done' }
 
-export function InstallWalkthrough({
-  className,
-  aside,
-}: {
-  className?: string
-  /** A line under the screen, so the window holds more than six short
-   *  lines of wizard next to a taller card. */
-  aside?: ReactNode
-}) {
+export function InstallWalkthrough({ className }: { className?: string }) {
   const root = useRef<HTMLDivElement>(null)
   const [frame, setFrame] = useState<Frame>({ kind: 'done' })
   // Counts the runs; each change starts the wizard over from the first
@@ -211,6 +310,8 @@ export function InstallWalkthrough({
     }
   }, [run])
 
+  const center = frame.kind === 'screen' ? SCREENS[frame.index].center : true
+
   return (
     <div
       ref={root}
@@ -228,25 +329,26 @@ export function InstallWalkthrough({
           Replay
         </button>
       </div>
-      {/* Every screen reserves the height of the tallest (the account, six
-          lines), so the window never resizes mid-run. */}
-      <div
-        aria-hidden="true"
-        className="installer-screen grid content-start gap-0.5 p-5 font-mono text-sm leading-relaxed text-text-secondary"
-      >
-        {frame.kind === 'screen' ? (
-          SCREENS[frame.index].body
-        ) : frame.kind === 'install' ? (
-          <Installing elapsed={frame.elapsed} />
-        ) : (
-          <Done />
-        )}
+      {/* The logo stays put; only the lines under it change. Those reserve
+          the height of the tallest screen, so the window never resizes
+          mid-run. */}
+      <div aria-hidden="true" className="p-5 font-mono text-text-secondary">
+        <Logo />
+        <div
+          className={
+            'installer-lines mt-3 grid content-start gap-0.5 text-[13px] leading-normal' +
+            (center ? ' text-center' : '')
+          }
+        >
+          {frame.kind === 'screen' ? (
+            SCREENS[frame.index].body
+          ) : frame.kind === 'install' ? (
+            <Installing elapsed={frame.elapsed} />
+          ) : (
+            <Done />
+          )}
+        </div>
       </div>
-      {aside ? (
-        <p className="mt-auto border-t border-border-subtle px-5 py-4 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
-          {aside}
-        </p>
-      ) : null}
     </div>
   )
 }

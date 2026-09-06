@@ -932,7 +932,6 @@
   --t-hdr-surface: #141414;
 }
 
-
 /* The explore galaxy draws a dark starfield whatever the theme; this scope
    pins the Tokyo Night dark tokens for everything inside it. */
 .dark-scope {
@@ -2059,20 +2058,12 @@ h6 {
 
 /* --------------------------------------------------------------- installer */
 
-/* The account screen is the tallest at six lines; every screen holds that
-   height so the window never resizes mid-run. The box counts its padding
-   into the height, so the reserve counts it too. Below about 340px the
-   first line wraps, so a small phone reserves seven. */
-.installer-screen {
-  --lines: 6;
-  min-height: calc(
-    var(--lines) * 1.625em + (var(--lines) - 1) * 2px + 2 * 1.25rem
-  );
-}
-@media (max-width: 22.5rem) {
-  .installer-screen {
-    --lines: 7;
-  }
+/* The account screen is the tallest at seven lines; every screen holds
+   that height so the window never resizes mid-run. The overwrite screen
+   reaches seven on a phone too, once its first line and its hint wrap. */
+.installer-lines {
+  --lines: 7;
+  min-height: calc(var(--lines) * 1.5em + (var(--lines) - 1) * 2px);
 }
 
 /* ----------------------------------------------------------------- figures */

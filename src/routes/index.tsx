@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import {
+  AppleIcon,
   ArrowRightIcon,
   ArrowUpRightIcon,
   BrushIcon,
@@ -11,6 +12,7 @@ import {
   UsbIcon,
   PlayIcon,
   StoreIcon,
+  WindowsIcon,
 } from '@/components/icons'
 import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
@@ -59,10 +61,15 @@ export const Route = createFileRoute('/')({
 /** The two ways to run the whole desktop in a window without installing
  *  anything: an app for Apple Silicon Macs, an app for Windows 10 and 11. */
 const TRY = {
-  mac: { label: 'Try on Mac', href: 'https://github.com/omacom/try-omarchy' },
+  mac: {
+    label: 'Try on Mac',
+    href: 'https://github.com/omacom/try-omarchy',
+    icon: AppleIcon,
+  },
   windows: {
     label: 'Try on Windows',
     href: 'https://github.com/omacom/try-omarchy-windows',
+    icon: WindowsIcon,
   },
 } as const
 
@@ -105,21 +112,21 @@ const BOOT_STEPS = [
         >
           Download {release.version}
         </a>{' '}
-        and write it to a USB stick (balenaEtcher, caligula).
+        and write it to a USB stick.
       </>
     ),
   },
   {
     title: 'Turn off Secure Boot',
-    body: 'And TPM, in the BIOS. The installer needs them off.',
+    body: 'And TPM, in the BIOS.',
   },
   {
     title: 'Choose where it goes',
-    body: 'The whole drive, or the free space beside Windows for a dual boot.',
+    body: 'The whole drive, or free space beside Windows.',
   },
   {
     title: 'Back up first',
-    body: 'Everything is encrypted by default, and a full-disk install wipes the drive.',
+    body: 'A full-disk install wipes the drive.',
   },
 ]
 
@@ -620,18 +627,22 @@ function Home() {
                 {/* Both apps, the visitor's own machine's filled in once the
                     browser has said which it is; on Linux, neither. */}
                 <div className="flex flex-wrap gap-2">
-                  {(['mac', 'windows'] as const).map((key) => (
-                    <Button
-                      key={key}
-                      size="lg"
-                      variant={device === key ? 'default' : 'outline'}
-                      nativeButton={false}
-                      render={<a href={TRY[key].href} />}
-                    >
-                      {TRY[key].label}
-                      <ArrowUpRightIcon data-icon="inline-end" />
-                    </Button>
-                  ))}
+                  {(['mac', 'windows'] as const).map((key) => {
+                    const Mark = TRY[key].icon
+                    return (
+                      <Button
+                        key={key}
+                        size="lg"
+                        variant={device === key ? 'default' : 'outline'}
+                        nativeButton={false}
+                        render={<a href={TRY[key].href} />}
+                      >
+                        <Mark data-icon="inline-start" />
+                        {TRY[key].label}
+                        <ArrowUpRightIcon data-icon="inline-end" />
+                      </Button>
+                    )
+                  })}
                 </div>
                 <p className="mt-2.5 text-[13px] text-text-muted">
                   Apple Silicon Macs, Windows 10 and 11.
@@ -653,13 +664,13 @@ function Home() {
               <h4 className="text-lg font-medium tracking-tight text-text">
                 Before you boot
               </h4>
-              <ol className="mt-4 grid gap-4 text-[15px] leading-relaxed sm:grid-cols-2">
+              <ol className="mt-4 grid gap-4 text-[15px] leading-relaxed">
                 {BOOT_STEPS.map((step, i) => (
                   <li
                     key={step.title}
-                    className="grid grid-cols-[2ch_1fr] content-start gap-x-3"
+                    className="grid grid-cols-[2ch_1fr] content-start items-baseline gap-x-3"
                   >
-                    <span className="pt-0.5 font-mono text-xs font-medium text-brand">
+                    <span className="font-mono text-xs font-medium text-brand">
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <span className="text-text">{step.title}</span>
@@ -677,12 +688,7 @@ function Home() {
                 have their own chapters.
               </p>
             </div>
-            <InstallWalkthrough
-              className="ring-elevation flex min-w-0 flex-col bg-surface"
-              aside={
-                <>Keyboard, account, disk. The installer takes it from there.</>
-              }
-            />
+            <InstallWalkthrough className="ring-elevation min-w-0 bg-surface" />
           </div>
           <SectionActions>{installGuide}</SectionActions>
         </div>
