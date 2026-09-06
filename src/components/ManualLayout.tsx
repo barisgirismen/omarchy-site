@@ -32,10 +32,10 @@ export function ManualLayout({
 }) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      {/* No gap between the two columns; the chapter is held to the reading
-          measure and pushed to the page's right edge, so all the room left
-          over sits in one place, between the sidebar's rule and the words. */}
-      <div className="grid gap-12 lg:grid-cols-[16rem_1fr] lg:gap-x-0">
+      {/* Keep a minimum gutter beside the sidebar's rule. Any extra room
+          sits here too, with the chapter held to its reading measure and
+          aligned to the page's right edge. */}
+      <div className="grid gap-12 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-x-8">
         {/* The page's own 3rem sits above the list; the same 3rem is kept
             below it, so the list is inset equally at both ends of the
             screen. The gutter is the list's padding, not the panel's, so the
