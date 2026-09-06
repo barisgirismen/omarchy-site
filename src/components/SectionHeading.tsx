@@ -1,4 +1,25 @@
 import type { ReactNode } from 'react'
+import { useHashLink } from '@/lib/hash-scroll'
+
+/** A homepage permalink with the heading's normal appearance. */
+export function SectionAnchor({
+  anchor,
+  children,
+}: {
+  anchor: string
+  children: ReactNode
+}) {
+  const onClick = useHashLink(anchor)
+  return (
+    <a
+      href={`/#${anchor}`}
+      onClick={onClick}
+      className="text-inherit no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+    >
+      {children}
+    </a>
+  )
+}
 
 /**
  * Section header: one title, with an optional action slot on the right.
@@ -15,18 +36,24 @@ export function SectionHeading({
   description,
   action,
   level = 2,
+  anchor,
 }: {
   title: string
   description?: ReactNode
   action?: ReactNode
   level?: 2 | 3
+  anchor?: string
 }) {
   const Heading = level === 3 ? 'h3' : 'h2'
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="max-w-xl">
         <Heading className="text-2xl font-semibold tracking-tight text-text sm:text-[1.75rem]">
-          {title}
+          {anchor ? (
+            <SectionAnchor anchor={anchor}>{title}</SectionAnchor>
+          ) : (
+            title
+          )}
         </Heading>
         {description ? (
           <p className="mt-2 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">

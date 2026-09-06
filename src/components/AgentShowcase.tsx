@@ -65,6 +65,7 @@ export function AgentShowcase() {
   return (
     <>
       <SectionHeading
+        anchor="agents"
         title="The agentic OS for the age of agents"
         description="Your agent should feel at home on your computer. Omarchy gives it the tools and skills to help you understand, fix, and shape the whole system."
       />

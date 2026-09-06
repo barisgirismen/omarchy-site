@@ -48,11 +48,13 @@ export function VideoCarousel({
   description,
   videos,
   level = 2,
+  anchor,
 }: {
   title: string
   description?: string
   videos: readonly CarouselVideo[]
   level?: 2 | 3
+  anchor?: string
 }) {
   // Narrow screens get the plain YouTube embed. The badge is a desktop
   // affordance: it exists so a hover can promise the click, and a thumbnail
@@ -390,6 +392,7 @@ export function VideoCarousel({
     <>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
+          anchor={anchor}
           title={title}
           description={description}
           level={level}

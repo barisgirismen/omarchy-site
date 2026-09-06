@@ -26,7 +26,11 @@ import { AgentShowcase } from '@/components/AgentShowcase'
 import { GamingShowcase } from '@/components/GamingShowcase'
 import { TypewriterTail } from '@/components/TypewriterTail'
 import { PluginCard } from '@/components/PluginCard'
-import { SectionActions, SectionHeading } from '@/components/SectionHeading'
+import {
+  SectionActions,
+  SectionAnchor,
+  SectionHeading,
+} from '@/components/SectionHeading'
 import { TeamClusters } from '@/components/TeamClusters'
 import { PatronHighlights } from '@/components/PatronHighlights'
 import { ThemeShowcase } from '@/components/ThemeShowcase'
@@ -324,6 +328,7 @@ function Home() {
       {/* hero: one screen, three elements. The field and the wordmark are
           drawn on one shared pixel grid; nothing here repeats the nav. */}
       <section
+        id="home"
         data-hero-sentinel
         className={
           // The hero is a surface you touch, not a passage you read: a long
@@ -389,8 +394,11 @@ function Home() {
               style={{ '--stagger': 0 } as React.CSSProperties}
               className="text-2xl font-medium tracking-tight text-text [text-wrap:balance] sm:text-3xl"
             >
-              <span className="sr-only">Omarchy: </span>
-              Beautiful, fun &amp; agentic Linux by{' '}
+              <SectionAnchor anchor="home">
+                <span className="sr-only">Omarchy: </span>
+                Beautiful, fun &amp; agentic Linux
+              </SectionAnchor>{' '}
+              by{' '}
               <a
                 href="https://dhh.dk"
                 className="underline decoration-transparent underline-offset-[6px] transition-colors duration-150 ease-out hover:decoration-brand"
@@ -467,7 +475,7 @@ function Home() {
           few sentences and the quote already say; the page introduces the
           idea here and lets the manual do the explaining. The install is
           deliberately thin here too: this is a landing page. */}
-      <section>
+      <section id="about">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-28">
           {/* The words on the left, the quote across from them: with the
               column of pillars gone, a single column left the right half of
@@ -476,33 +484,38 @@ function Home() {
             <div>
               {/* Unattributed on purpose: this is the site's own voice, not
                   a quotation set apart from it. */}
-              {/* The line is a quotation of the campaign it names, so it
-                  points at it, wearing the hero byline's underline. The
-                  sentence it reads out is the campaign's, whatever the tail
-                  happens to be showing. */}
               <h2
                 data-typed-block
                 className="text-2xl font-semibold tracking-tight text-text [contain:layout] [text-wrap:balance] sm:text-[1.75rem]"
               >
-                <a
-                  href="https://wecanfixeverything.com/"
-                  className="underline decoration-border-strong underline-offset-[6px] transition-colors duration-150 ease-out hover:decoration-brand"
-                >
+                <SectionAnchor anchor="about">
                   <span className="sr-only">We can fix everything.</span>
                   <span aria-hidden="true">
                     We can fix every
                     <TypewriterTail phrases={FIXES} />
                   </span>
-                </a>
+                </SectionAnchor>
               </h2>
               <p className="mt-6 max-w-[35.5rem] text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                Linux used to be a chore to setup, difficult to debug, and full of confusing upfront choices. Omarchy solves all of it with a lightning fast installation, agents that debug all issues, and fantastic defaults that give you a fully functioning system that looks amazing out of the box.
+                Linux used to be a chore to setup, difficult to debug, and full
+                of confusing upfront choices. Omarchy solves all of it with a
+                lightning fast installation, agents that debug all issues, and
+                fantastic defaults that give you a fully functioning system that
+                looks amazing out of the box.
               </p>
               <p className="mt-5 max-w-[35.5rem] text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                Oma is for omakase, chef's choice: the chef picks the courses, but you are always free to send anything back. Omarchy lets you take an exquisite baseline and then make it your own.
+                Oma is for omakase, chef's choice: the chef picks the courses,
+                but you are always free to send anything back. Omarchy lets you
+                take an exquisite baseline and then make it your own.
               </p>
               <p className="mt-5 max-w-[35.5rem] text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                It's not perfect... yet. But we can fix everything now.
+                It's not perfect... yet. But{' '}
+                <a
+                  href="https://wecanfixeverything.com/"
+                  className="underline decoration-border-strong underline-offset-4 hover:decoration-current"
+                >
+                  we can fix everything now.
+                </a>
               </p>
 
               {/* A quote marked as one by being one: bigger type, real
@@ -527,6 +540,7 @@ function Home() {
           className="border-y border-border-subtle bg-bg-deep py-12 lg:py-24"
         >
           <VideoCarousel
+            anchor="watch"
             level={3}
             title="See it in action"
             description="Experience a transfer of enthusiasm."
@@ -540,6 +554,7 @@ function Home() {
         >
           <SectionHeading
             level={3}
+            anchor="install"
             title="Install Omarchy"
             description="Be up and running in as little as 35 seconds on the fastest machines, and in less than two minutes on the majority of computers."
             action={installGuide}
@@ -665,9 +680,10 @@ function Home() {
       </section>
 
       {/* plugins */}
-      <section className="border-t border-border-subtle">
+      <section id="plugins" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
+            anchor="plugins"
             title="A plugin for every dream, every desire"
             description="Thousands of community plugins are available for Omarchy. Don't find what you need? Just put your agent on the job, then share when done."
             action={allPlugins}
@@ -691,9 +707,10 @@ function Home() {
           shows them. Pressing one dresses this site in it, the same trick
           the picker does behind T, so the keystroke can be tried by hand.
           The extra themes the community made get their link at the end. */}
-      <section className="border-t border-border-subtle">
+      <section id="themes" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
+            anchor="themes"
             title="Pick a theme, change everything"
             description={
               <>
@@ -726,9 +743,13 @@ function Home() {
           sit beside it and made one screen answer four questions at once;
           they have the section after this one now, so each can be read on
           its own. */}
-      <section className="border-t border-border-subtle">
+      <section id="news" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
-          <SectionHeading title="What's been happening" action={allNews} />
+          <SectionHeading
+            anchor="news"
+            title="What's been happening"
+            action={allNews}
+          />
           {/* Two columns of three: six posts down one wide column read as a
               thin list. Each item draws its own line, so the rules meet
               across the gap where a divide-y would stagger. */}
@@ -787,6 +808,7 @@ function Home() {
       >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
+            anchor="figures"
             title="Momentum by the numbers"
             description="Donations, downloads, and contributions. Momentum is based on all of it."
           />
@@ -798,6 +820,7 @@ function Home() {
       <section id="voices" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
+            anchor="voices"
             title="People love Omarchy"
             description="What people posted on X after installing it."
             action={moreOnX}
@@ -808,9 +831,10 @@ function Home() {
       </section>
 
       {/* the teams: who steers it, shown together as clusters of faces. */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section id="teams" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
+            anchor="teams"
             title="It takes a village to raise a distro"
             description="Omarchy Core sets the direction, the Security team keeps your system safe, Design shapes how it looks and feels, and the Rangers help others find their way."
             action={allTeams}
@@ -823,6 +847,7 @@ function Home() {
       <section id="patrons" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
+            anchor="patrons"
             title="Backed by the oligarchy"
             description="The billionaires, mere millionaires, and corporations funding the lion's share of the development, maintenance, and spread of Omarchy."
             action={allPatrons}
@@ -833,9 +858,13 @@ function Home() {
       </section>
 
       {/* community */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section
+        id="community"
+        className="border-t border-border-subtle bg-bg-deep"
+      >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
+            anchor="community"
             title="Get involved with Omarchy"
             description="Command your agent, and hang out with the people doing the same."
           />

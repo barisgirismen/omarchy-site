@@ -32,6 +32,7 @@ export function HardwareShowcase() {
   return (
     <>
       <SectionHeading
+        anchor="hardware"
         title="It runs on almost anything"
         description="You don't need a new machine to try Omarchy. But if you get one, today's laptops are amazing."
       />

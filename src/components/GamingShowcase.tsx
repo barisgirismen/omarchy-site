@@ -32,6 +32,7 @@ export function GamingShowcase() {
   return (
     <>
       <SectionHeading
+        anchor="gaming"
         title="All work and all play is all fun"
         description="Omarchy comes ready for Steam, RetroArch, and a whole world of gaming. Graphics drivers and configuration, including NVIDIA on supported hardware, are sorted during installation."
       />
