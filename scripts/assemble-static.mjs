@@ -31,6 +31,13 @@ const OUT = path.join(ROOT, 'dist/client')
 const copied = []
 const missing = []
 
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+
 for (const rel of WHOLE) {
   const from = path.join(SITE, rel)
   if (!existsSync(from)) {
@@ -97,13 +104,13 @@ for (const [from, to] of Object.entries(redirects)) {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Redirecting to ${to}</title>
-<meta http-equiv="refresh" content="0;url=${to}">
-<link rel="canonical" href="${canonical}">
+<title>Redirecting to ${escapeHtml(to)}</title>
+<meta http-equiv="refresh" content="0;url=${escapeHtml(to)}">
+<link rel="canonical" href="${escapeHtml(canonical)}">
 <meta name="robots" content="noindex">
 <script>window.location.replace(${JSON.stringify(to)})</script>
 </head>
-<body><p>This page moved to <a href="${to}">${to}</a>.</p></body>
+<body><p>This page moved to <a href="${escapeHtml(to)}">${escapeHtml(to)}</a>.</p></body>
 </html>
 `,
   )
