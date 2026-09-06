@@ -51,6 +51,10 @@ export function useRail<T extends HTMLElement = HTMLDivElement>({
   const thumb = useRef<HTMLDivElement>(null)
   const [index, setIndex] = useState(0)
   const [edges, setEdges] = useState({ start: true, end: false })
+  // Which slides sit wholly inside the content column, as opposed to
+  // peeking in from the bleed. Null until measured, so the server's page
+  // and the first paint dim nothing rather than everything.
+  const [inColumn, setInColumn] = useState<Set<number> | null>(null)
   const glide = useRef(0)
   // Mouse drag state, with the pointer's recent speed so a release can be
   // read as a flick. Touch scrolls and snaps natively; this brings the
@@ -154,6 +158,26 @@ export function useRail<T extends HTMLElement = HTMLDivElement>({
     setEdges((was) =>
       was.start === start && was.end === end ? was : { start, end },
     )
+    // The column runs from the rail's padding to the same distance short of
+    // its far edge; a slide is in it when both its edges are.
+    const first = el.children[0] as HTMLElement | undefined
+    const pad = first?.offsetLeft ?? 0
+    const left = el.scrollLeft + pad - 1
+    const right = el.scrollLeft + el.clientWidth - pad + 1
+    const now = new Set<number>()
+    for (let i = 0; i < el.children.length; i++) {
+      const child = el.children[i] as HTMLElement
+      if (
+        child.offsetLeft >= left &&
+        child.offsetLeft + child.clientWidth <= right
+      )
+        now.add(i)
+    }
+    setInColumn((was) => {
+      if (was && was.size === now.size && [...now].every((i) => was.has(i)))
+        return was
+      return now
+    })
   }, [])
 
   /**
@@ -387,6 +411,9 @@ export function useRail<T extends HTMLElement = HTMLDivElement>({
     index,
     atStart: edges.start,
     atEnd: edges.end,
+    /** Whether slide `i` sits wholly inside the content column. True for
+     *  every slide until the rail has been measured. */
+    inColumn: (i: number) => inColumn === null || inColumn.has(i),
     nearest,
     perView,
     glideTo,

@@ -6,6 +6,7 @@ import { RailBar, useRail } from '@/components/Rail'
 import { Button } from '@/components/ui/button'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 import meetups from '@/data/meetups.json'
+import { cn } from '@/lib/utils'
 
 /**
  * The next meetups, on the same full-bleed rail the videos run in: swipe
@@ -100,7 +101,12 @@ export function MeetupShowcase({ action }: { action?: ReactNode }) {
             // peeking in from the bleed the way the videos do. The rail's
             // padding is the column's margins, so 100% here is the column
             // itself; the gaps come out before dividing.
-            className="w-[42.5%] shrink-0 snap-start sm:w-[calc((100%_-_3rem)/3)] lg:w-[calc((100%_-_4.5rem)/4)]"
+            className={cn(
+              'w-[42.5%] shrink-0 snap-start transition-[opacity,filter] duration-300 ease-out sm:w-[calc((100%_-_3rem)/3)] lg:w-[calc((100%_-_4.5rem)/4)]',
+              // Cards peeking in from the bleed sit back, the way the
+              // videos' neighbours do, so the column reads as the page.
+              !rail.inColumn(i) && 'opacity-40 brightness-75',
+            )}
           >
             <a
               href={event.url}
