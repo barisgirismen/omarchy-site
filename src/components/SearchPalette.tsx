@@ -98,6 +98,41 @@ export function SearchPalette() {
     if (open) input.current?.focus()
   }, [open])
 
+  useEffect(() => {
+    if (!open) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const onTab = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return
+      const closeBtn = document.querySelector<HTMLElement>(
+        '[aria-label="Close search"]',
+      )
+      const stops = [input.current, closeBtn].filter(
+        (el): el is HTMLElement => el != null,
+      )
+      if (stops.length === 0) return
+      const first = stops[0]
+      const last = stops[stops.length - 1]
+      const active = document.activeElement
+      if (event.shiftKey) {
+        if (active === first || !stops.includes(active as HTMLElement)) {
+          event.preventDefault()
+          last.focus()
+        }
+      } else if (active === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    window.addEventListener('keydown', onTab)
+    return () => {
+      document.body.style.overflow = previous
+      window.removeEventListener('keydown', onTab)
+    }
+  }, [open])
+
   // The arrows move a selection, not focus, so nothing scrolls the list on
   // their own. scrollIntoView would, but it scrolls every scrollable ancestor
   // to satisfy the request and rounds the row to its own idea of "nearest",
@@ -140,7 +175,7 @@ export function SearchPalette() {
     }
     if (hit.kind === 'plugin') {
       // The directory is its own site now; a new tab, like every link out.
-      window.open(pluginUrl(hit.slug), '_blank', 'noopener')
+      window.open(pluginUrl(hit.slug), '_blank', 'noopener,noreferrer')
       return
     }
     void navigate({ to: '/themes/' })
