@@ -251,7 +251,7 @@ export function MeetupMap({
         <div
           role="tooltip"
           className={cn(
-            'meetup-card-in pointer-events-none absolute z-10 w-72 max-w-[75vw] overflow-hidden bg-surface shadow-xl ring-1 ring-border-strong',
+            'meetup-card-in pointer-events-none absolute z-10 w-80 max-w-[80vw] overflow-hidden bg-surface shadow-xl ring-1 ring-border-strong',
             (hovered.x - box.x) / box.width > 0.55
               ? '-ml-4 -translate-x-full'
               : 'ml-4',
@@ -265,9 +265,11 @@ export function MeetupMap({
           }}
         >
           <div className="flex gap-3 p-3">
+            {/* Tall enough that two lines of name with the day and the
+                place under them never outgrow it. */}
             <div
               className={cn(
-                'size-16 shrink-0 overflow-hidden bg-bg-deep',
+                'size-20 shrink-0 overflow-hidden bg-bg-deep',
                 hovered.past && 'grayscale',
               )}
             >
