@@ -13,7 +13,7 @@ export const Route = createFileRoute('/news/')({
     seo({
       title: 'News - Omarchy',
       description:
-        'Announcements, releases, and other news from the Omarchy project, written by DHH.',
+        'Announcements, releases, and other news from the Omarchy project.',
       path: '/news',
     }),
   component: NewsPage,
@@ -46,10 +46,7 @@ function NewsPage() {
           </Button>
         </div>
         <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-          <span className="block">
-            Announcements, releases, and other news.
-          </span>
-          Dispatches from the project, written by DHH.
+          Announcements, releases, and other news.
         </p>
       </header>
 
