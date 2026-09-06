@@ -11,8 +11,10 @@
  * the avatar. The text is cut where X cuts it for display, so a trailing
  * link to attached media does not come along, and shortened links inside
  * it are put back to where they point. The avatar is saved at 96px as
- * WebP beside the others, and the entry is appended to src/data/voices.json.
- * A post already on the wall is left alone.
+ * WebP beside the others, and the post's pictures come too, up to four,
+ * each cropped to 16:9 at 800px so the cards stay even; a video gives its
+ * poster, and the card marks it as one. The entry is appended to
+ * src/data/voices.json. A post already on the wall is left alone.
  *
  * The avatar goes to the site checkout (OMARCHY_SITE_DIR, else this
  * repository), where the other site images live.
@@ -79,6 +81,8 @@ if (post.note_tweet) {
 }
 
 const handle = post.user.screen_name
+const media = (post.mediaDetails ?? []).slice(0, 4)
+const stem = `${handle.toLowerCase()}-${id}`
 const entry = {
   handle,
   name: post.user.name,
@@ -86,6 +90,14 @@ const entry = {
   url: `https://x.com/${handle}/status/${id}`,
   avatar: `/assets/images/voices/${handle.toLowerCase()}.webp`,
   text,
+  ...(media.length
+    ? {
+        images: media.map((_, i) => `/assets/images/voices/${stem}-${i + 1}.webp`),
+        ...(media.some((m) => m.type === 'video' || m.type === 'animated_gif')
+          ? { video: true }
+          : {}),
+      }
+    : {}),
 }
 
 const voices = JSON.parse(readFileSync(DATA, 'utf8'))
@@ -113,9 +125,25 @@ await sharp(Buffer.from(await image.arrayBuffer()))
   .webp({ quality: 82 })
   .toFile(out)
 
+// The pictures, or a video's poster: 800 by 450, the middle of each.
+for (const [i, item] of media.entries()) {
+  const src = item.media_url_https
+  const picture = await fetch(src.includes('?') ? src : `${src}?name=large`)
+  if (!picture.ok) {
+    console.error(`Picture ${i + 1} could not be fetched (${picture.status})`)
+    process.exit(1)
+  }
+  await sharp(Buffer.from(await picture.arrayBuffer()))
+    .resize(800, 450, { fit: 'cover' })
+    .webp({ quality: 80 })
+    .toFile(path.join(AVATARS, `${stem}-${i + 1}.webp`))
+}
+
 voices.push(entry)
 writeFileSync(DATA, JSON.stringify(voices, null, 2) + '\n')
 console.log(
   `Added ${entry.name} (@${handle}), ${entry.date}: "${text.slice(0, 60).replace(/\n/g, ' ')}${text.length > 60 ? '…' : ''}"`,
 )
-console.log(`Avatar: ${path.relative(process.cwd(), out)}`)
+console.log(
+  `Avatar: ${path.relative(process.cwd(), out)}${media.length ? `, ${media.length} picture${media.length > 1 ? 's' : ''}${entry.video ? ' (video poster)' : ''}` : ''}`,
+)

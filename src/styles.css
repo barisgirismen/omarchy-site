@@ -2220,6 +2220,11 @@ h6 {
   .voices {
     --voices-band: 260px;
     overflow: hidden;
+    /* The clip would take the cards' rings and shadows at the two sides,
+       where the first and last columns meet the edge; a few pixels of room
+       inside the clip, pulled back so the columns do not move. */
+    margin-inline: -12px;
+    padding-inline: 12px;
     max-height: var(--voices-fold);
     mask-image: linear-gradient(
       to bottom,

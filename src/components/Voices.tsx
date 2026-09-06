@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { XIcon } from '@/components/icons'
+import { PlayIcon, XIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { CardRail } from '@/components/CardRail'
@@ -19,7 +19,39 @@ import voices from '@/data/voices.json'
 /** The wall's height before the fold, on a wide screen. */
 const FOLD_REM = 42
 
+/**
+ * TRIAL: X's own embeds, behind ?embeds. One blockquote per post, which
+ * X's widget script turns into an iframe styled by X, in its dark theme.
+ */
+function VoicesEmbedded() {
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://platform.twitter.com/widgets.js'
+    script.async = true
+    document.body.appendChild(script)
+    return () => script.remove()
+  }, [])
+  return (
+    <div className="mt-10 sm:columns-2 lg:columns-3">
+      {voices.map((post) => (
+        <blockquote
+          key={post.url}
+          className="twitter-tweet mb-4 break-inside-avoid"
+          data-theme="dark"
+          data-dnt="true"
+        >
+          <a href={post.url.replace('x.com', 'twitter.com')}>{post.text}</a>
+        </blockquote>
+      ))}
+    </div>
+  )
+}
+
 export function Voices() {
+  const [embeds, setEmbeds] = useState(false)
+  useEffect(() => {
+    setEmbeds(new URLSearchParams(window.location.search).has('embeds'))
+  }, [])
   const [open, setOpen] = useState(false)
   const wall = useRef<HTMLDivElement>(null)
 
@@ -49,6 +81,7 @@ export function Voices() {
     if (open && wall.current) wall.current.style.maxHeight = 'none'
   }
 
+  if (embeds) return <VoicesEmbedded />
   return (
     <>
       <div
@@ -78,11 +111,14 @@ export function Voices() {
 }
 
 function VoiceCard({ post }: { post: (typeof voices)[number] }) {
+  const images = 'images' in post ? post.images : undefined
+  const video = 'video' in post && post.video
   return (
     <article className="ring-elevation ring-elevation-hover group relative mb-4 flex w-full flex-col break-inside-avoid gap-4 rounded-xl bg-surface p-6">
       {/* The author first, the way a post reads on the timeline. The mark's
-          link is stretched over the whole card, so anywhere on it opens the
-          post; the links inside the text sit above it and stay their own. */}
+          link is stretched over the whole card, above the pictures, so
+          anywhere on it opens the post; the links inside the text sit above
+          it and stay their own. */}
       <header className="flex items-center gap-3">
         <img
           src={post.avatar}
@@ -106,7 +142,7 @@ function VoiceCard({ post }: { post: (typeof voices)[number] }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Open the post by ${post.name} on X`}
-          className="ml-auto flex size-8 shrink-0 items-center justify-center text-text-muted transition-colors duration-150 ease-out group-hover:text-text before:absolute before:inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="ml-auto flex size-8 shrink-0 items-center justify-center text-text-muted transition-colors duration-150 ease-out group-hover:text-text before:absolute before:inset-0 before:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <XIcon className="size-5" />
         </a>
@@ -114,7 +150,7 @@ function VoiceCard({ post }: { post: (typeof voices)[number] }) {
       {/* Sans, not mono: six cards of monospaced prose were a wall. Six lines
           keep the cards in step with each other, and the mark in the header
           leads to the whole post. */}
-      <p className="line-clamp-6 font-sans text-[15px] leading-relaxed whitespace-pre-line text-text-secondary [text-wrap:pretty]">
+      <p className="line-clamp-6 font-sans text-[15px] leading-snug whitespace-pre-line text-text-secondary [text-wrap:pretty]">
         {/* A blank line in a post is a paragraph break, kept as a small gap
             rather than a whole empty line. */}
         {post.text.split(/\n{2,}/).map((paragraph, i) => (
@@ -123,7 +159,59 @@ function VoiceCard({ post }: { post: (typeof voices)[number] }) {
           </span>
         ))}
       </p>
+      {/* The post's pictures, laid out the way X lays them out: one on its
+          own, two side by side, three as one tall beside two, four as a
+          grid, all inside one 16:9. A video shows its poster with the play
+          mark; the card opens the post, where it plays. */}
+      {images && images.length ? (
+        <span className="relative block overflow-hidden rounded-lg">
+          <Gallery images={images} />
+          {video ? (
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="flex size-11 items-center justify-center rounded-full bg-black/55 text-white">
+                <PlayIcon className="ml-0.5 size-5" />
+              </span>
+            </span>
+          ) : null}
+        </span>
+      ) : null}
     </article>
+  )
+}
+
+function Gallery({ images }: { images: string[] }) {
+  const pic = (src: string, className = '') => (
+    <img
+      key={src}
+      src={src}
+      alt=""
+      width={800}
+      height={450}
+      loading="lazy"
+      decoding="async"
+      className={`img-outlined size-full object-cover ${className}`}
+    />
+  )
+  if (images.length === 1)
+    return <span className="block aspect-video">{pic(images[0])}</span>
+  if (images.length === 2)
+    return (
+      <span className="grid aspect-video grid-cols-2 gap-0.5">
+        {images.map((src) => pic(src))}
+      </span>
+    )
+  if (images.length === 3)
+    return (
+      <span className="grid aspect-video grid-cols-2 grid-rows-2 gap-0.5">
+        {pic(images[0], 'row-span-2')}
+        {pic(images[1])}
+        {pic(images[2])}
+      </span>
+    )
+  return (
+    <span className="grid aspect-video grid-cols-2 grid-rows-2 gap-0.5">
+      {images.slice(0, 4).map((src) => pic(src))}
+    </span>
   )
 }
 
@@ -163,7 +251,7 @@ function linkify(text: string): ReactNode[] {
         // a handle is one word and never breaks inside itself.
         className={
           (token.startsWith('@') ? 'whitespace-nowrap ' : 'break-all ') +
-          'relative z-10 text-text underline decoration-border-strong underline-offset-[3px] transition-colors duration-150 ease-out hover:decoration-brand'
+          'relative z-20 text-text underline decoration-border-strong underline-offset-[3px] transition-colors duration-150 ease-out hover:decoration-brand'
         }
       >
         {token}
