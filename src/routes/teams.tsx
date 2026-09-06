@@ -182,8 +182,10 @@ function TeamsPage() {
             </p>
           </div>
           {/* Compact portraits keep the people prominent without
-              turning each member into a full-width card. */}
-          <ul className="mt-7 grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-[repeat(auto-fill,9rem)]">
+              turning each member into a full-width card. The columns
+              stretch to fill the row, so the grid reaches the right
+              edge instead of leaving a gutter after the last column. */}
+          <ul className="mt-7 grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))]">
             {team.members.map((member) => {
               const face = (
                 <>
@@ -195,7 +197,7 @@ function TeamsPage() {
                       height={240}
                       loading="lazy"
                       decoding="async"
-                      className="aspect-square h-auto w-35 max-w-full shrink-0 object-cover ring-1 ring-border-subtle"
+                      className="aspect-square w-full object-cover ring-1 ring-border-subtle"
                     />
                   ) : null}
                   <span className="block">
