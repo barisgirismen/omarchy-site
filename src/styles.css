@@ -1603,6 +1603,26 @@ h6 {
     grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   }
 }
+/* The meetups map: the lit dots arrive one after another when the page
+   opens, then stand still. They simply stand for anyone who asked for
+   less motion. */
+@keyframes meetup-pin-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.meetup-pin-in {
+  animation: meetup-pin-in 300ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .meetup-pin-in {
+    animation: none;
+  }
+}
+
 /* The patron badges: one class after another, each its art, name, tier,
    a line about it and its four downloads, centred like a card would be. */
 .ported .badges {

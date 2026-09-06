@@ -16,6 +16,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import prettier from 'prettier'
+import { geocodeTitle } from './lib/geocode.mjs'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = path.join(ROOT, 'src/data')
@@ -504,6 +505,28 @@ async function meetupsFromApi(key) {
   return events
 }
 
+/** The meetups whose place the calendar keeps for its guests get a rough
+ *  one from their title, so the map can show them: the city, marked as
+ *  such, and the country for the filters. Only the ones still missing a
+ *  place are asked about, one a second. */
+async function placeByTitle(events) {
+  let placed = 0
+  for (const event of events) {
+    if (event.geo) continue
+    try {
+      const found = await geocodeTitle(event.title)
+      if (!found) continue
+      event.geo = { lat: found.lat, lon: found.lon, approximate: true }
+      event.city ??= found.city
+      event.country ??= found.country
+      placed++
+    } catch {
+      /* the map is a bonus; without an answer the dot is just missing */
+    }
+  }
+  return placed
+}
+
 /** Saves an event's cover as a small webp, once; the site links the file. */
 async function saveCover(event) {
   if (!event.cover) return null
@@ -533,6 +556,7 @@ try {
   const key = process.env.LUMA_API_KEY
   const source = key ? 'luma-api' : 'luma-feed'
   const found = key ? await meetupsFromApi(key) : await meetupsFromFeed()
+  const placed = await placeByTitle(found)
   const events = []
   for (const event of found.filter((e) => e.id && e.title && e.start)) {
     if (new Date(event.start) < MEETUPS_SINCE) continue
@@ -556,7 +580,7 @@ try {
   console.log(
     `meetups.json: ${events.length} events, ${upcoming} upcoming, from the ${
       key ? 'API' : 'public feed'
-    }`,
+    }, ${placed} placed by title`,
   )
 } catch (error) {
   // The page keeps the last good list; say so, since nothing else would.

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { MeetupCover } from '@/components/MeetupCover'
-import { MeetupMap } from '@/components/MeetupMap'
+import { MeetupMap, PIN_AT, WHOLE_MAP, boxAround } from '@/components/MeetupMap'
 import { SectionActions } from '@/components/SectionHeading'
 import { ArrowRightIcon } from '@/components/icons'
 import meetups from '@/data/meetups.json'
@@ -20,7 +20,23 @@ import { cn } from '@/lib/utils'
  * were. The calendar embed that used to stand here is gone: the events
  * are the page now, and the calendar is a door beside the title.
  */
-type Meetup = (typeof meetups.events)[number]
+/** A meetup as the data carries it. Written out rather than read off the
+ *  JSON, whose shape shifts with what the calendar happens to hold. */
+type Meetup = {
+  id: string
+  title: string
+  url: string
+  start: string
+  timezone: string | null
+  address: string | null
+  city: string | null
+  country: string | null
+  cover: string | null
+  coverWidth?: number
+  coverHeight?: number
+  geo: { lat: number; lon: number; approximate?: boolean } | null
+}
+const events: Meetup[] = meetups.events
 
 const CALENDAR_URL = 'https://luma.com/omarchy'
 
@@ -77,13 +93,28 @@ const inZone = (meetup: Meetup, options: Intl.DateTimeFormatOptions) =>
     timeZone: meetup.timezone || 'UTC',
   }).format(new Date(meetup.start))
 
-function MeetupCard({ meetup }: { meetup: Meetup }) {
+function MeetupCard({
+  meetup,
+  active,
+  onActive,
+}: {
+  meetup: Meetup
+  active: boolean
+  onActive: (id: string | null) => void
+}) {
   const where = whereOf(meetup)
   return (
-    <li>
+    <li
+      id={`meetup-${meetup.id}`}
+      onMouseEnter={() => onActive(meetup.id)}
+      onMouseLeave={() => onActive(null)}
+    >
       <a
         href={meetup.url}
-        className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        className={cn(
+          'group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring',
+          active && '[&_h3]:text-brand',
+        )}
       >
         {meetup.cover ? (
           <img
@@ -93,7 +124,10 @@ function MeetupCard({ meetup }: { meetup: Meetup }) {
             height={meetup.coverHeight}
             loading="lazy"
             decoding="async"
-            className="aspect-square w-full object-cover"
+            className={cn(
+              'aspect-square w-full object-cover transition-[outline-color] duration-150 ease-out',
+              active && 'outline-2 outline-offset-2 outline-brand',
+            )}
           />
         ) : (
           <div className="aspect-square w-full">
@@ -133,10 +167,10 @@ function MeetupsPage() {
     Date.parse(`${meetups.refreshed}T00:00:00Z`),
   )
   useEffect(() => setNow(Date.now()), [])
-  const allUpcoming = meetups.events
+  const allUpcoming = events
     .filter((event) => Date.parse(event.start) >= now)
     .sort((a, b) => Date.parse(a.start) - Date.parse(b.start))
-  const past = meetups.events
+  const past = events
     .filter((event) => Date.parse(event.start) < now)
     .sort((a, b) => Date.parse(b.start) - Date.parse(a.start))
 
@@ -153,7 +187,7 @@ function MeetupsPage() {
         ...new Set(
           allUpcoming
             .filter((e) => regionOf(e.country) === region)
-            .map((e) => e.country as string),
+            .flatMap((e) => (e.country ? [e.country] : [])),
         ),
       ].sort((a, b) => countryOf(a).localeCompare(countryOf(b)))
     : []
@@ -161,16 +195,39 @@ function MeetupsPage() {
     (!region || !event.country || regionOf(event.country) === region) &&
     (!country || event.country === country)
   const upcoming = allUpcoming.filter(matches)
-  const pins = allUpcoming.map((event) => ({
+  const pins = [...allUpcoming, ...past].map((event) => ({
     id: event.id,
     title: event.title,
-    url: event.url,
+    when: `${inZone(event, { weekday: 'short', month: 'short', day: 'numeric' })} · ${inZone(event, { hour: 'numeric', minute: '2-digit' })}`,
+    where: whereOf(event),
+    cover: event.cover,
     shown: matches(event),
+    past: Date.parse(event.start) < now,
+    approximate: Boolean(event.geo?.approximate),
   }))
+  // The map glides onto the region or country being looked at: the box
+  // around its dots, past and upcoming, or the whole world.
+  const focused = allUpcoming.filter(matches)
+  const box =
+    region || country
+      ? boxAround(
+          focused.flatMap((e) => (PIN_AT.get(e.id) ? [PIN_AT.get(e.id)!] : [])),
+        )
+      : WHOLE_MAP
   const pickRegion = (next: Region | null) => {
     setRegion(next)
     setCountry(null)
   }
+
+  // The meetup the reader is on, on the map or in the list; a press on a
+  // dot takes the page to its card.
+  const [active, setActive] = useState<string | null>(null)
+  const goTo = useCallback((id: string) => {
+    const card = document.getElementById(`meetup-${id}`)
+    if (!card) return
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    card.querySelector('a')?.focus({ preventScroll: true })
+  }, [])
 
   // Upcoming meetups by month, in the order they come.
   const months: { name: string; id: string; meetups: Meetup[] }[] = []
@@ -214,7 +271,14 @@ function MeetupsPage() {
         <div className="hidden shrink-0 sm:block">{calendar}</div>
       </header>
 
-      <MeetupMap pins={pins} className="mt-10" />
+      <MeetupMap
+        pins={pins}
+        box={box}
+        active={active}
+        onActive={setActive}
+        onPress={goTo}
+        className="mt-10"
+      />
 
       {/* The regions as chips, a legend for the map and a filter for the
           cards in one, with the countries of the chosen region under
@@ -303,7 +367,12 @@ function MeetupsPage() {
             </h2>
             <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
               {month.meetups.map((meetup) => (
-                <MeetupCard key={meetup.id} meetup={meetup} />
+                <MeetupCard
+                  key={meetup.id}
+                  meetup={meetup}
+                  active={active === meetup.id}
+                  onActive={setActive}
+                />
               ))}
             </ul>
           </section>
