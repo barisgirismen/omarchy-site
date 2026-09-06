@@ -207,6 +207,10 @@
   --t-hdr-surface: #2d3044;
 }
 
+/* In the light themes the card is a shade lighter than the ground, so it
+   stands on its section the way a card does on a dark theme; the grounds
+   themselves stay as the themes set them. White's ground is already white,
+   so there the card matches it and the ring does the separating. */
 [data-theme='white'] {
   --t-bg-deep: #f5f5f5;
   --t-bg: #ffffff;
@@ -346,7 +350,7 @@
 [data-theme='rose-pine'] {
   --t-bg-deep: #ede7e1;
   --t-bg: #faf4ed;
-  --t-surface: #faf4ed;
+  --t-surface: #fffaf3;
   --t-surface-2: #ede7e1;
   --t-border-subtle: #e1dbd5;
   --t-border-strong: #cecacd;
@@ -383,7 +387,7 @@
 [data-theme='catppuccin-latte'] {
   --t-bg-deep: #e3e4e8;
   --t-bg: #eff1f5;
-  --t-surface: #eff1f5;
+  --t-surface: #f8f9fb;
   --t-surface-2: #e3e4e8;
   --t-border-subtle: #d7d8dc;
   --t-border-strong: #acb0be;
@@ -490,7 +494,7 @@
 [data-theme='flexoki-light'] {
   --t-bg-deep: #f2efe4;
   --t-bg: #fffcf0;
-  --t-surface: #fffcf0;
+  --t-surface: #fffefa;
   --t-surface-2: #f2efe4;
   --t-border-subtle: #e5e2d8;
   --t-border-strong: #b7b5ac;
@@ -663,7 +667,7 @@
 [data-theme='lupine'] {
   --t-bg-deep: #ececec;
   --t-bg: #fafafa;
-  --t-surface: #fafafa;
+  --t-surface: #ffffff;
   --t-surface-2: #ececec;
   --t-border-subtle: #dedede;
   --t-border-strong: #9e9e9e;
