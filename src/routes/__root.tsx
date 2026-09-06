@@ -30,7 +30,7 @@ export const Route = createRootRoute({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1, viewport-fit=cover',
       },
-      { title: 'Omarchy - Beautiful, fun & opinionated Linux by DHH' },
+      { title: 'Omarchy - Beautiful, fun & agentic Linux by DHH' },
       { name: 'description', content: SITE_DESCRIPTION },
       // Inherited by every page. Anything page-specific - title, description,
       // url, canonical - is set by the route itself through seo(), which

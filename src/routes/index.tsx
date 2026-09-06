@@ -52,7 +52,7 @@ export const Route = createFileRoute('/')({
   },
   head: () =>
     seo({
-      title: 'Omarchy - Beautiful, fun & opinionated Linux by DHH',
+      title: 'Omarchy - Beautiful, fun & agentic Linux by DHH',
       description: SITE_DESCRIPTION,
       path: '/',
     }),
@@ -398,7 +398,7 @@ function Home() {
               className="text-2xl font-medium tracking-tight text-text [text-wrap:balance] sm:text-3xl"
             >
               <span className="sr-only">Omarchy: </span>
-              Beautiful, fun &amp; opinionated Linux by{' '}
+              Beautiful, fun &amp; agentic Linux by{' '}
               <a
                 href="https://dhh.dk"
                 className="underline decoration-border-strong underline-offset-[6px] transition-colors duration-150 ease-out hover:decoration-brand"

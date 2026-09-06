@@ -99,7 +99,7 @@ export function SiteFooter() {
               className="mt-4 text-sm leading-relaxed text-text-muted"
             >
               <span className="block">
-                Beautiful, fun &amp; opinionated Linux by{' '}
+                Beautiful, fun &amp; agentic Linux by{' '}
                 <a href="https://dhh.dk" className={footerLink}>
                   DHH
                 </a>
