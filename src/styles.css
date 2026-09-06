@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './theme-transition.css';
 
 /* Typefaces from Fontsource. Latin and latin-ext only: the site is English
    with a few European names (Lütke, Øverli). The full packages also ship
