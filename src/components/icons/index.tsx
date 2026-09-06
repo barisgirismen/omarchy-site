@@ -400,6 +400,20 @@ export function XIcon(props: IconProps) {
   )
 }
 
+/** IconRssFeed from the square filled set, with the box corners squared off. */
+export function RssIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.75 2.75H21.25V21.25H2.75V2.75ZM7.61831 17.8418C8.42492 17.8418 9.0788 17.1879 9.0788 16.3813C9.0788 15.5747 8.42492 14.9208 7.61831 14.9208C6.8117 14.9208 6.15782 15.5747 6.15782 16.3813C6.15782 17.1879 6.8117 17.8418 7.61831 17.8418ZM11.9998 17.8418C11.9998 14.6153 9.38425 11.9998 6.15782 11.9998V10.0525C10.4597 10.0525 13.9471 13.5398 13.9471 17.8418H11.9998ZM6.15782 8.10514C11.5352 8.10514 15.8944 12.4644 15.8944 17.8418H17.8418C17.8418 11.3889 12.6107 6.15782 6.15782 6.15782V8.10514Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
 export function CalendarIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

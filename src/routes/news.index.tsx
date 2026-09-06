@@ -1,5 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowRightIcon } from '@/components/icons'
+import { ArrowRightIcon, RssIcon } from '@/components/icons'
+import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
+import { Button } from '@/components/ui/button'
 import { getNewsIndex } from '@/lib/content'
 import { seo } from '@/lib/seo'
 
@@ -11,7 +13,7 @@ export const Route = createFileRoute('/news/')({
     seo({
       title: 'News - Omarchy',
       description:
-        'The latest from the Omarchy project and the Omacom Foundation.',
+        'Announcements, releases, and other news from the Omarchy project, written by DHH.',
       path: '/news',
     }),
   component: NewsPage,
@@ -22,11 +24,31 @@ function NewsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+      {/* The wordmark over the page, as the site's own news pages carry the
+          mark at the top, in the hero's own bands. */}
+      <OmarchyWordmark
+        label="Omarchy"
+        className="mx-auto mb-10 w-full max-w-sm text-[color:var(--t-field-lit)]"
+        background={WORDMARK_BANDS}
+      />
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-text">
-          News
-        </h1>
+        <div className="flex items-center justify-between gap-6">
+          <h1 className="text-3xl font-semibold tracking-tight text-text">
+            News
+          </h1>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<a href="/news/rss.xml" />}
+          >
+            <RssIcon data-icon="inline-start" />
+            RSS feed
+          </Button>
+        </div>
         <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
+          <span className="block">
+            Announcements, releases, and other news.
+          </span>
           Dispatches from the project, written by DHH.
         </p>
       </header>
