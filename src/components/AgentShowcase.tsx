@@ -129,7 +129,7 @@ export function AgentShowcase() {
         href="/manual/ai/"
         className="mt-6 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-text underline-offset-4 hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&:hover_span]:decoration-current"
       >
-        <span className="underline decoration-white">Meet your new agent</span>
+        <span className="underline decoration-current">Meet your new agent</span>
         <ArrowRightIcon className="size-5 shrink-0" aria-hidden="true" />
       </a>
     </>
