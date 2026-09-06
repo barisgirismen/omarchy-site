@@ -1783,16 +1783,35 @@ h6 {
 .ported .rules {
   margin-top: 1.5em;
 }
-.ported .rules > *:not(.rules__header) {
+.ported .rules__title {
   margin: 0;
+}
+.ported .rules__header > p {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-secondary);
+}
+.ported .rules > ol {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
 }
 .ported .rule {
   display: grid;
-  grid-template-columns: minmax(10rem, 16rem) minmax(0, 1fr);
-  gap: 1.5rem;
-  padding: 0.85em 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.4rem;
+  margin: 0;
+  padding: 1.25rem 0;
   border-bottom: 1px solid var(--color-border-subtle);
-  max-width: 48rem;
+}
+.ported .rule:first-child {
+  padding-top: 0;
+}
+.ported .rule:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.ported .rules__note {
+  margin: 1.5rem 0 0;
 }
 .ported .rule__name {
   margin: 0;
