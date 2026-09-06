@@ -34,6 +34,9 @@ export type MapPin = {
 /** A box on the map, in its units, to glide onto. */
 export type MapBox = { x: number; y: number; width: number; height: number }
 
+/** The card's width plus the gap that keeps it off its dot. */
+const CARD_ROOM = 320 + 16
+
 const { width: W, height: H } = mapData
 
 /** The box that shows everything. */
@@ -164,6 +167,12 @@ export function MeetupMap({
   const targetRadius = coarse
     ? Math.max(5.5 * k, 22 / (pxPerUnit * scale))
     : 5.5 * k
+  // Where the card goes, in pixels of the frame rather than shares of the
+  // map, since the card itself is a fixed width.
+  const frameW = pxPerUnit * W
+  const compact = frameW < 2 * CARD_ROOM
+  const fx = hovered ? (hovered.x - box.x) / box.width : 0
+  const fy = hovered ? (hovered.y - box.y) / box.height : 0
 
   return (
     <div ref={frame} className={cn('relative', className)}>
@@ -279,25 +288,29 @@ export function MeetupMap({
 
       {/* The card beside the dot the reader is on: the cover, the name,
           when and where, and what a press does. Placed by the dot's share
-          of the map, so it follows the zoom, and flipped to the left past
-          the middle and upward past the lower part so it never runs off
-          the edge. */}
+          of the map, so it follows the zoom, and flipped to the left when
+          it would run off the right edge and upward past the lower part.
+          On a map too narrow to hold a card beside a dot on either side, a
+          phone's, it lies along the bottom of the map instead: a card
+          hanging off the side made the whole page wider than the screen. */}
       {hovered ? (
         <div
           role="tooltip"
           className={cn(
-            'meetup-card-in pointer-events-none absolute z-10 w-80 max-w-[80vw] overflow-hidden bg-surface shadow-xl ring-1 ring-border-strong',
-            (hovered.x - box.x) / box.width > 0.55
-              ? '-ml-4 -translate-x-full'
-              : 'ml-4',
-            (hovered.y - box.y) / box.height > 0.55
-              ? '-mt-3 -translate-y-full'
-              : 'mt-3',
+            'meetup-card-in pointer-events-none absolute z-10 overflow-hidden bg-surface shadow-xl ring-1 ring-border-strong',
+            compact
+              ? 'inset-x-0 bottom-0'
+              : cn(
+                  'w-80',
+                  fx * frameW + CARD_ROOM > frameW
+                    ? '-ml-4 -translate-x-full'
+                    : 'ml-4',
+                  fy > 0.55 ? '-mt-3 -translate-y-full' : 'mt-3',
+                ),
           )}
-          style={{
-            left: `${((hovered.x - box.x) / box.width) * 100}%`,
-            top: `${((hovered.y - box.y) / box.height) * 100}%`,
-          }}
+          style={
+            compact ? undefined : { left: `${fx * 100}%`, top: `${fy * 100}%` }
+          }
         >
           <div className="flex gap-3 p-3">
             {/* Tall enough that two lines of name with the day and the
