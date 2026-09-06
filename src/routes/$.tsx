@@ -139,7 +139,7 @@ function PortedPage() {
   const { _splat } = Route.useParams()
   const path = (_splat ?? '').replace(/\/+$/, '')
   const narrow = NARROW.has(path)
-  const hasSubtitle = ['patrons', 'foundation'].includes(path)
+  const hasSubtitle = ['patrons', 'foundation', 'potato'].includes(path)
 
   return (
     <main

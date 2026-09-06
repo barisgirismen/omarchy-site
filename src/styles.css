@@ -1472,6 +1472,36 @@ h6 {
 
 /* --------------------------------------- ported structural page layouts */
 
+.ported .potato__intro {
+  margin: 0;
+  max-width: var(--measure);
+}
+.ported .potato__demo {
+  margin: 1.75rem 0 0;
+}
+.ported .potato__demo iframe {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: var(--color-bg-deep);
+  border: 1px solid var(--color-border-subtle);
+}
+.ported .potato__demo figcaption {
+  margin-top: 0.75rem;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.ported .potato__next {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.ported .potato__next p {
+  max-width: var(--measure);
+  margin: 0 0 0.75rem;
+}
+
 /* Pages built from repeating records (teams, patrons, sponsorships,
    workstations, AIR) break out of the reading measure and lay out as grids
    instead of one entry per line. */
