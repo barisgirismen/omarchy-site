@@ -33,7 +33,7 @@ const PORTED: Partial<Record<string, { title: string; description: string }>> =
         'The Omarchy wordmark and logo, as vectors and at 4096px, and the terms for using them. Omarchy is a pending trademark.',
     },
     foundation: {
-      title: 'The Omacom Foundation - Omarchy',
+      title: 'Omacom Foundation - Omarchy',
       description:
         'The nonprofit behind Omarchy. It holds the trademarks, funds the infrastructure, promotes the work, and supports the open-source projects and developers it is built on.',
     },
@@ -137,7 +137,9 @@ export const Route = createFileRoute('/$')({
 function PortedPage() {
   const page = Route.useLoaderData()
   const { _splat } = Route.useParams()
-  const narrow = NARROW.has((_splat ?? '').replace(/\/+$/, ''))
+  const path = (_splat ?? '').replace(/\/+$/, '')
+  const narrow = NARROW.has(path)
+  const hasSubtitle = ['patrons', 'foundation'].includes(path)
 
   return (
     <main
@@ -150,7 +152,7 @@ function PortedPage() {
         {page.title}
       </h1>
       <div
-        className="prose ported mt-8"
+        className={cn('prose ported', hasSubtitle ? 'mt-2' : 'mt-8')}
         dangerouslySetInnerHTML={{ __html: page.html }}
       />
     </main>

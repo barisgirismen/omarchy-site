@@ -9,6 +9,7 @@ repository this script lives in) and writes:
                             bin/build-news renders
   src/data/pages.json       standalone pages keyed by path {title, html}
   src/data/teams.json       the teams page, parsed into teams and members
+  src/data/patrons.json     individual, corporate, and token patrons for the homepage
   src/data/themes.json      the theme gallery {repo, image, name}, from
                             themes/index.html - the file a theme pull
                             request edits, read on every build so a merged
@@ -119,15 +120,15 @@ def parse_teams(html: str) -> list[dict]:
         r'<section class="team" id="([^"]+)">(.*?)</section>', html, re.S
     ):
         team_id, body = block
-        name = re.search(r'class="team__name">([^<]+)<', body)
+        name = re.search(r'class="team__name">(?:<a[^>]*>)?([^<]+)<', body)
         desc = re.search(r'class="team__description">([^<]*)<', body)
         members = []
-        for member in re.findall(r'<article class="member">(.*?)</article>',
+        for member in re.findall(r'<article class="member"[^>]*>(.*?)</article>',
                                  body, re.S):
             avatar = re.search(r'class="member__avatar" src="([^"]+)"', member)
             person = re.search(
                 r'class="member__name">(?:<a href="([^"]+)">)?([^<]+)', member)
-            meta = re.search(r'class="member__meta">([^<]*)<', member)
+            meta = re.search(r'class="member__meta">(?:<a[^>]*>)?([^<]*)<', member)
             if not person:
                 continue
             members.append({
@@ -276,6 +277,11 @@ def main() -> None:
     (OUT / 'teams.json').write_text(json.dumps(teams, indent=1))
     print(f'teams.json: {len(teams)} teams, '
           f'{sum(len(t["members"]) for t in teams)} people')
+
+    patrons = [group for group in parse_teams(pages['patrons']['html'])
+               if group['id'] != 'everyone']
+    (OUT / 'patrons.json').write_text(json.dumps(patrons, indent=1))
+    print(f'patrons.json: {sum(len(group["members"]) for group in patrons)} people')
 
     # ------------------------------------------------------- marketplace docs
     # Another repository, over the network. A build of the site reads only
