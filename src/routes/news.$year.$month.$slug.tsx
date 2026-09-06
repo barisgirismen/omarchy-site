@@ -25,6 +25,7 @@ export const Route = createFileRoute('/news/$year/$month/$slug')({
       description: loaderData?.excerpt || SITE_DESCRIPTION,
       path: loaderData?.path ?? '/news/',
       type: 'article',
+      published: loaderData?.date,
     }),
   component: NewsPostPage,
 })

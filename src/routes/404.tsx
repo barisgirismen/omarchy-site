@@ -15,6 +15,7 @@ export const Route = createFileRoute('/404')({
       title: 'Not found - Omarchy',
       description: 'There is nothing at this address.',
       path: '/404/',
+      robots: 'noindex',
     }),
   component: NotFoundHero,
 })

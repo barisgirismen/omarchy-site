@@ -16,7 +16,7 @@
  * Every absolute URL in the head is built from this. Open Graph forbids
  * relative image URLs, and a canonical is only meaningful as an absolute.
  */
-export const SITE_URL = 'https://omarchy.baris.sh'
+export const SITE_URL = 'https://omarchy.org'
 
 /**
  * The site's own summary, and the fallback for any page without one. These
@@ -43,10 +43,28 @@ export interface SeoInput {
   path: string
   /** 'article' for anything with a publication date; 'website' otherwise. */
   type?: 'website' | 'article'
+  /** ISO-8601 instant; only read when type is 'article'. */
+  published?: string
+  /** e.g. 'noindex' on the not-found page, which is not a real URL. */
+  robots?: string
 }
 
-export function seo({ title, description, path, type = 'website' }: SeoInput) {
-  const url = `${SITE_URL}${path}`
+/** omarchy.org serves every page with a trailing slash; a canonical that
+ *  drops it is a different URL to every crawler. */
+function canonicalPath(path: string) {
+  if (path === '/') return '/'
+  return path.endsWith('/') ? path : `${path}/`
+}
+
+export function seo({
+  title,
+  description,
+  path,
+  type = 'website',
+  published,
+  robots,
+}: SeoInput) {
+  const url = `${SITE_URL}${canonicalPath(path)}`
   return {
     meta: [
       { title },
@@ -55,8 +73,12 @@ export function seo({ title, description, path, type = 'website' }: SeoInput) {
       { property: 'og:description', content: description },
       { property: 'og:url', content: url },
       { property: 'og:type', content: type },
+      ...(type === 'article' && published
+        ? [{ property: 'article:published_time', content: published }]
+        : []),
       { name: 'twitter:title', content: title },
       { name: 'twitter:description', content: description },
+      ...(robots ? [{ name: 'robots', content: robots }] : []),
     ],
     // Only ever set on a leaf route. The root cannot know the path, and two
     // canonicals on one page are worse than none.
@@ -87,13 +109,14 @@ const NAMED: Record<string, string> = {
  */
 const decode = (text: string) =>
   text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, ref: string) => {
-    if (ref[0] === '#')
-      return String.fromCodePoint(
-        parseInt(
-          ref.slice(ref[1] === 'x' || ref[1] === 'X' ? 2 : 1),
-          ref[1] === 'x' || ref[1] === 'X' ? 16 : 10,
-        ),
+    if (ref[0] === '#') {
+      const n = parseInt(
+        ref.slice(ref[1] === 'x' || ref[1] === 'X' ? 2 : 1),
+        ref[1] === 'x' || ref[1] === 'X' ? 16 : 10,
       )
+      if (!Number.isInteger(n) || n < 0 || n > 0x10ffff) return whole
+      return String.fromCodePoint(n)
+    }
     return NAMED[ref.toLowerCase()] ?? whole
   })
 
