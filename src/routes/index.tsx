@@ -173,7 +173,8 @@ const videos = [
   },
   {
     id: 'NYFGCESmikA',
-    title: 'DHH: Future of Programming, AI, Agentic Engineering, Vibe Coding & Linux | Lex Fridman Podcast #501',
+    title:
+      'DHH: Future of Programming, AI, Agentic Engineering, Vibe Coding & Linux | Lex Fridman Podcast #501',
     channel: 'Lex Fridman',
     thumb: '/images/video/lex-fridman-dhh.webp',
     start: 2326,
@@ -335,6 +336,12 @@ function Home() {
   const allPatrons = (
     <Link to="/$/" params={{ _splat: 'patrons' }} className={sectionLink}>
       All patrons
+      <ArrowRightIcon />
+    </Link>
+  )
+  const allMeetups = (
+    <Link to="/meetups/" className={sectionLink}>
+      All meetups
       <ArrowRightIcon />
     </Link>
   )
@@ -749,7 +756,10 @@ function Home() {
         </div>
       </section>
 
-      <section id="developers" className="border-t border-border-subtle bg-bg-deep">
+      <section
+        id="developers"
+        className="border-t border-border-subtle bg-bg-deep"
+      >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <DeveloperShowcase />
         </div>
@@ -765,7 +775,10 @@ function Home() {
           sit beside it and made one screen answer four questions at once;
           they have the section after this one now, so each can be read on
           its own. */}
-      <section id="windows" className="border-t border-border-subtle bg-bg-deep">
+      <section
+        id="windows"
+        className="border-t border-border-subtle bg-bg-deep"
+      >
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <WindowsShowcase />
         </div>
@@ -885,17 +898,16 @@ function Home() {
         </div>
       </section>
 
-      <section id="meetups" className="border-t border-border-subtle bg-bg-deep">
-        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
-          <MeetupShowcase />
-        </div>
+      {/* meetups: a rail across the whole window, like the videos. */}
+      <section
+        id="meetups"
+        className="border-t border-border-subtle bg-bg-deep py-12 lg:py-24"
+      >
+        <MeetupShowcase action={allMeetups} />
       </section>
 
       {/* community */}
-      <section
-        id="community"
-        className="border-t border-border-subtle"
-      >
+      <section id="community" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             anchor="community"

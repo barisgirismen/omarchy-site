@@ -1189,11 +1189,19 @@ h6 {
 @layer components {
   .rail-column {
     padding-inline: max(1rem, calc((100% - min(100% - 2rem, 69rem)) / 2));
+    scroll-padding-inline: max(
+      1rem,
+      calc((100% - min(100% - 2rem, 69rem)) / 2)
+    );
   }
 
   @media (width >= 40rem) {
     .rail-column {
       padding-inline: max(1.5rem, calc((100% - min(100% - 3rem, 69rem)) / 2));
+      scroll-padding-inline: max(
+        1.5rem,
+        calc((100% - min(100% - 3rem, 69rem)) / 2)
+      );
     }
   }
 }
