@@ -9,6 +9,7 @@ import {
   SearchIcon,
 } from '@/components/icons'
 import { OmarchyMarkDrawn } from '@/components/Brand'
+import { MusicMenuControl } from '@/components/MusicControl'
 import { Button } from '@/components/ui/button'
 import { useHashLink, useTopLink } from '@/lib/hash-scroll'
 import { OPEN_PICKER_EVENT, THEME_EVENT, groundOf } from '@/lib/theme'
@@ -630,6 +631,9 @@ export function SiteHeader() {
             <PaletteIcon className="size-5" />
             Change the theme
           </button>
+          {/* On a phone the sound control lives here rather than as a card
+              over the hero, where it covered a good part of the screen. */}
+          <MusicMenuControl open={menuOpen} />
           <div className="mt-2 flex items-center gap-2.5 border-t border-border-subtle pt-4 pb-2">
             <Button
               className="flex-1"

@@ -26,7 +26,6 @@ export const TRACK = {
   src: '/music/kevin_koontz-we_can_fix_everything.mp3',
   /** The cover, 176px square: shown at 44 css px, sharp on dense screens. */
   art: '/music/kevin_koontz-we_can_fix_everything.webp',
-  radio: 'https://radio.omarchy.org/',
 }
 
 /**
