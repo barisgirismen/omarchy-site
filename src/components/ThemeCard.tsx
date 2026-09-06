@@ -25,7 +25,7 @@ export function ThemeCard({ theme }: { theme: SiteThemeEntry }) {
       <div className="relative aspect-video w-full overflow-hidden bg-bg-deep">
         <img
           src={theme.image}
-          alt=""
+          alt={theme.name}
           width={1200}
           height={675}
           loading="lazy"
