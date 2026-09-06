@@ -27,16 +27,14 @@ function NavTooltip({
   children,
   label,
   shortcut,
-  nativeButton = true,
 }: {
   children: ReactElement
   label: string
   shortcut?: string
-  nativeButton?: boolean
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger render={children} nativeButton={nativeButton} />
+      <TooltipTrigger render={children} />
       <TooltipContent side="bottom" sideOffset={10}>
         {label}
         {shortcut && (
@@ -591,7 +589,7 @@ export function SiteHeader() {
                 <NavTooltip label="Change website theme" shortcut="T">
                   {theme}
                 </NavTooltip>
-                <NavTooltip label="View Omarchy on GitHub" nativeButton={false}>
+                <NavTooltip label="View Omarchy on GitHub">
                   <Button
                     variant="ghost"
                     size="icon"
