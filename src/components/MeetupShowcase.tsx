@@ -64,7 +64,18 @@ export function MeetupShowcase({ action }: { action?: ReactNode }) {
           roomy
           anchor="meetups"
           title="Share the love of beautiful, fun & agentic Linux"
-          description="Get together with others who love computers as much as you do. Share plugins, present work, and help newcomers into the community."
+          description={
+            <>
+              Get together with others who love computers as much as you do.{' '}
+              {/* From a tablet up the second sentence starts its own line, so
+                  the two lines read as two thoughts rather than breaking
+                  mid-sentence. Narrower screens wrap as they need to. */}
+              <span className="md:block">
+                Share plugins, present work, and help newcomers into the
+                community.
+              </span>
+            </>
+          }
           action={
             <div className="flex flex-col items-end gap-3">
               {action}
