@@ -33,7 +33,7 @@ export function GamingShowcase() {
     <>
       <SectionHeading
         anchor="gaming"
-        title="All work and all play is all fun"
+        title="All work and all play is all good"
         description="Omarchy comes ready for Steam, RetroArch, and a whole world of gaming. Graphics drivers and configuration, including NVIDIA on supported hardware, are sorted during installation."
       />
       <div className="mt-6 grid gap-6 md:grid-cols-3 lg:mt-10 lg:gap-8">
