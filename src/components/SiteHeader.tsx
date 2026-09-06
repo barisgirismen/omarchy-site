@@ -10,7 +10,7 @@ import {
   RssIcon,
   SearchIcon,
 } from '@/components/icons'
-import { OmarchyMarkDrawn } from '@/components/Brand'
+import { OmarchyMarkDrawn, OmarchyWordmark } from '@/components/Brand'
 import { MusicMenuControl } from '@/components/MusicControl'
 import { Button } from '@/components/ui/button'
 import {
@@ -264,6 +264,11 @@ function useNavSurface(
     type Ground = { top: number; bottom: number; colour: string }
     let grounds: Ground[] = []
     let height = 0
+    /** Where the hero ends, in page coordinates. On a phone the bar swaps
+     *  the mark for the wordmark once its top edge is past this: the moment
+     *  it first touches a section and takes a surface. It stays swapped
+     *  through the bare moments at section edges further down. */
+    let heroBottom = 0
     /** The <main> the last survey read. The route changes before the DOM
      *  does, so the one mounted when this effect runs may be the outgoing
      *  page's; comparing identities is how the swap is noticed. */
@@ -296,7 +301,11 @@ function useNavSurface(
         sizes.disconnect()
         if (main) sizes.observe(main)
       }
-      heroUp = document.querySelector('[data-hero-sentinel]') !== null
+      const hero = document.querySelector('[data-hero-sentinel]')
+      heroUp = hero !== null
+      heroBottom = hero
+        ? hero.getBoundingClientRect().bottom + window.scrollY
+        : 0
       height = el.getBoundingClientRect().height
       // Sections, plus any band inside one that paints its own ground and
       // marks itself as such - "See it in action" is a full-bleed strip of
@@ -347,17 +356,65 @@ function useNavSurface(
       return found
     }
 
+    // On a phone the bar is never bare past the hero. Going bare lets
+    // whatever is scrolling under the bar show straight through it for the
+    // moment a section edge is crossing, which behind the wordmark read as
+    // a leak. The edge still passes through pixel by pixel: while it is
+    // inside the bar, the bar paints the upper section's colour down to the
+    // edge and the lower section's below it, both at the usual 90% over the
+    // blur, and the split moves with the scroll.
+    const phone = window.matchMedia('(max-width: 639.98px)')
+    const wash = (colour: string) =>
+      `color-mix(in srgb, ${colour} 90%, transparent)`
+
     const paint = () => {
       const y = window.scrollY
       // Whole rule, in one line: the bar is coloured when its top edge and
       // its bottom edge are in the same ground, and bare when they are not.
       const top = groundAt(y)
-      const here = top && top === groundAt(y + height) ? top : null
+      const bottom = groundAt(y + height)
+      const whole = top && top === bottom ? top : null
+      // A phone's bar is on a ground as soon as any of it is: the fill
+      // arrives from the bottom the moment the first section touches it,
+      // and leaves the same way going back up.
+      const here = phone.matches ? (top ?? bottom) : whole
+      // While an edge is inside a phone's bar, the bar paints what is above
+      // the edge down to it and what is below from there: the upper
+      // ground's colour, or nothing where the hero still is. The edge is
+      // whichever comes first below the bar's top: the lower ground's top,
+      // or the upper one's bottom when the upper is a band nested in the
+      // lower and the bar is leaving it. The gradient carries the fill
+      // then, and the flat colour stands down so it cannot paint over the
+      // part that is still bare.
+      let image = ''
+      let fill = '1'
+      if (phone.matches && !sheetOpen && top !== bottom) {
+        const edge =
+          top && bottom
+            ? Math.min(top.bottom, bottom.top > y ? bottom.top : Infinity)
+            : top
+              ? top.bottom
+              : bottom!.top
+        const split = Math.round(edge - y)
+        const above = top ? wash(top.colour) : 'transparent'
+        const below = bottom ? wash(bottom.colour) : 'transparent'
+        image = `linear-gradient(to bottom, ${above} ${split}px, ${below} ${split}px)`
+        fill = '0'
+      }
+      el.style.backgroundImage = image
+      el.style.setProperty('--nav-fill', fill)
       // Nothing to say while the sheet is down: the bar paints as the top of
       // the sheet then, from a class, not from the page behind it.
       if (here) el.style.setProperty('--nav-ground', here.colour)
       else if (!heroUp) el.style.setProperty('--nav-ground', 'var(--color-bg)')
       el.style.setProperty('--nav-surface', here || !heroUp ? '1' : '0')
+      // On a phone the wordmark comes with the fill, as the section touches
+      // the bar; the mark can only give way once there is a surface to set
+      // the wordmark on.
+      el.toggleAttribute(
+        'data-nav-past-hero',
+        !heroUp || (phone.matches ? y + height : y) >= heroBottom,
+      )
       // The ghost holds the labels for as long as it is up, and hovering hands
       // them over early: it sits under the bar and cannot answer a pointer.
       solid(sheetOpen || !blended || hovering)
@@ -419,6 +476,7 @@ function useNavSurface(
 
     el.addEventListener('pointerenter', onEnter)
     el.addEventListener('pointerleave', onLeave)
+    phone.addEventListener('change', paint)
     window.addEventListener('scroll', paint, { passive: true })
     window.addEventListener('resize', relayout)
     // Each ground's colour is read once and held, so a theme has to say when
@@ -432,6 +490,9 @@ function useNavSurface(
       sizes.disconnect()
       el.removeEventListener('pointerenter', onEnter)
       el.removeEventListener('pointerleave', onLeave)
+      phone.removeEventListener('change', paint)
+      el.style.backgroundImage = ''
+      el.style.removeProperty('--nav-fill')
       window.removeEventListener('scroll', paint)
       window.removeEventListener('resize', relayout)
       window.removeEventListener(THEME_EVENT, relayout)
@@ -486,9 +547,14 @@ export function SiteHeader() {
       to="/"
       aria-label="Omarchy home"
       onClick={homeLink}
-      className="mark-draw-trigger flex items-center"
+      className="mark-draw-trigger relative flex items-center"
     >
-      <OmarchyMarkDrawn className="size-[22px] shrink-0 text-brand lg:size-[calc(var(--pxc)*2)]" />
+      {/* On a phone the mark gives way to the wordmark, flat in the brand
+          colour the way the footer wears it, once the bar is past the hero and has a
+          surface to set it on. Both sit in the mark's slot, so nothing else
+          in the bar moves; the wordmark simply runs further to the right. */}
+      <OmarchyMarkDrawn className="size-[22px] shrink-0 text-brand transition-opacity duration-150 ease-out max-sm:group-data-[nav-past-hero]/bar:opacity-0 lg:size-[calc(var(--pxc)*2)]" />
+      <OmarchyWordmark className="absolute top-1/2 left-0 w-28 -translate-y-1/2 text-brand opacity-0 transition-opacity duration-150 ease-out group-data-[nav-past-hero]/bar:opacity-100 sm:hidden" />
     </Link>
   )
 
@@ -544,7 +610,7 @@ export function SiteHeader() {
         // With the sheet down, the bar is the top of the sheet and wears its
         // ground rather than the section's: taking a colour from the page
         // behind it would put a seam across the one surface being looked at.
-        className={cn(menuOpen && 'bg-bg/95 backdrop-blur-lg')}
+        className={cn('group/bar', menuOpen && 'bg-bg/95 backdrop-blur-lg')}
         style={{
           // On the bar rather than the header, so both the surface it paints
           // and the height the hooks measure include the strip above it.
@@ -560,7 +626,7 @@ export function SiteHeader() {
           // whose ground took that path.
           backgroundColor: menuOpen
             ? undefined
-            : 'color-mix(in srgb, var(--nav-ground, var(--color-bg)) calc(var(--nav-surface, 0) * 90%), transparent)',
+            : 'color-mix(in srgb, var(--nav-ground, var(--color-bg)) calc(var(--nav-surface, 0) * var(--nav-fill, 1) * 90%), transparent)',
           // The blur arrives with the fill and leaves with it. Over the hero
           // the bar has no surface at all, and a blur there smeared the
           // pixels behind letters that are meant to sit on them cleanly.
