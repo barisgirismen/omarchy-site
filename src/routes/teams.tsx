@@ -248,19 +248,24 @@ function TeamsPage() {
               Not on a team? Neither is almost everyone.
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-              Most of Omarchy happens in the Discord and on GitHub: questions,
-              themes, plugins, pull requests.
+              {/* Its own line where there is room for it; on a phone the
+                  sentence wraps anyway and a forced break read as a gap. */}
+              <span className="md:block">
+                Most of Omarchy happens in the Discord and on GitHub:
+              </span>{' '}
+              Questions, themes, plugins, pull requests.
             </p>
           </div>
+          {/* Two things to do, not two places named: the Discord is the
+              first door, so it gets the filled button. */}
           <div className="flex flex-wrap gap-2">
             <Button
-              variant="outline"
               size="lg"
               nativeButton={false}
               render={<a href="https://discord.gg/tXFUdasqhY" />}
             >
               <DiscordIcon data-icon="inline-start" />
-              Discord
+              Join the Discord
             </Button>
             <Button
               variant="outline"
@@ -269,7 +274,7 @@ function TeamsPage() {
               render={<a href="https://github.com/omacom/omarchy" />}
             >
               <GithubIcon data-icon="inline-start" />
-              GitHub
+              Open GitHub
             </Button>
           </div>
         </div>
