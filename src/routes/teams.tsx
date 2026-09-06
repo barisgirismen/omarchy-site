@@ -193,23 +193,26 @@ function TeamsPage() {
                       className="img-outlined aspect-square w-full object-cover"
                     />
                   ) : null}
-                  {/* Underlined from the start in nothing, so the hover is a
-                      colour arriving rather than a line, and the whole
-                      record carries it - the same as the name under a
-                      cluster on the home page. */}
-                  <span className="mt-3 flex items-center gap-1 font-sans text-sm font-medium text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out group-hover:decoration-brand">
-                    {member.name}
-                    {member.href ? (
-                      <ArrowUpRightIcon className="size-3.5 shrink-0 text-text-muted opacity-0 transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-visible:opacity-100" />
-                    ) : null}
-                  </span>
-                  <span className="block font-mono text-xs text-text-muted">
-                    {member.meta}
+                  {/* The photo runs to the card's edge; only the words
+                      under it get the padding. Underlined from the start in
+                      nothing, so the hover is a colour arriving rather than
+                      a line, and the whole record carries it - the same as
+                      the name under a cluster on the home page. */}
+                  <span className="block p-3">
+                    <span className="flex items-center gap-1 font-sans text-sm font-medium text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out group-hover:decoration-brand">
+                      {member.name}
+                      {member.href ? (
+                        <ArrowUpRightIcon className="size-3.5 shrink-0 text-text-muted opacity-0 transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-visible:opacity-100" />
+                      ) : null}
+                    </span>
+                    <span className="block font-mono text-xs text-text-muted">
+                      {member.meta}
+                    </span>
                   </span>
                 </>
               )
               const card =
-                'ring-elevation group flex h-full flex-col bg-surface p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
+                'ring-elevation group flex h-full flex-col overflow-hidden bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
               return (
                 <li key={member.name}>
                   {member.href ? (
