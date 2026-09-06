@@ -92,7 +92,9 @@ export const Route = createRootRoute({
 
 function RootError({ error }: { error: unknown }) {
   const message =
-    error instanceof Error ? error.message : 'The page failed to render.'
+    import.meta.env.DEV && error instanceof Error
+      ? error.message
+      : 'The page failed to render.'
   return (
     <main className="mx-auto max-w-xl px-4 py-24 sm:px-6">
       <h1 className="text-3xl font-semibold tracking-tight text-text">
