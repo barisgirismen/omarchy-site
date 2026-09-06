@@ -38,6 +38,7 @@ export function SectionHeading({
   level = 2,
   anchor,
   wide = false,
+  roomy = false,
 }: {
   title: string
   description?: ReactNode
@@ -45,11 +46,14 @@ export function SectionHeading({
   level?: 2 | 3
   anchor?: string
   wide?: boolean
+  /** A wider measure for a long description that a narrow action beside it
+   *  leaves room for, so it holds to two lines instead of three. */
+  roomy?: boolean
 }) {
   const Heading = level === 3 ? 'h3' : 'h2'
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className={wide ? 'min-w-0' : 'max-w-xl'}>
+      <div className={wide ? 'min-w-0' : roomy ? 'max-w-2xl' : 'max-w-xl'}>
         <Heading className="text-2xl font-semibold tracking-tight text-text sm:text-[1.75rem]">
           {anchor ? (
             <SectionAnchor anchor={anchor}>{title}</SectionAnchor>

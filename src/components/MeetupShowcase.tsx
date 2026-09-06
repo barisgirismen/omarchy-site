@@ -61,11 +61,12 @@ export function MeetupShowcase({ action }: { action?: ReactNode }) {
     <>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
+          roomy
           anchor="meetups"
           title="Share the love of beautiful, fun & agentic Linux"
           description="Get together with others who love computers as much as you do. Share plugins, present work, and help newcomers into the community."
           action={
-            <div className="flex items-center gap-6">
+            <div className="flex flex-col items-end gap-3">
               {action}
               {arrows}
             </div>
