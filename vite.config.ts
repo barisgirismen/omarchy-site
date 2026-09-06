@@ -52,7 +52,13 @@ function siteFiles(): Plugin {
       server.middlewares.use((req, res, next) => {
         const pathname = (req.url ?? '/').split(/[?#]/)[0]
         if (!isPassthrough(pathname)) return next()
-        let file = path.join(site, decodeURIComponent(pathname))
+        let decoded = pathname
+        try {
+          decoded = decodeURIComponent(pathname)
+        } catch {
+          return next()
+        }
+        let file = path.normalize(path.join(site, decoded))
         if (!file.startsWith(site + path.sep)) return next()
         if (existsSync(file) && statSync(file).isDirectory()) {
           file = path.join(file, 'index.html')
