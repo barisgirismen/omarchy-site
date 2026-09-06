@@ -88,7 +88,13 @@ const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
     siteFiles(),
-    devtools(),
+    // The devtools mirror the terminal into the browser console and the
+    // browser console into the terminal. Vite 8 does the second half itself
+    // whenever it detects an AI agent (Claude Code, Cursor, Codex, ...), and
+    // the two then echo each other's output forever, one prefix longer each
+    // round, twenty times a second. The panel keeps everything else; server
+    // output stays in the terminal, where it is anyway.
+    devtools({ consolePiping: { enabled: false } }),
     tailwindcss(),
     // The site ships as a folder of static files, the way omarchy.org is
     // hosted: every route is rendered at build time into dist/client, and
