@@ -705,7 +705,7 @@ function Home() {
           its own. */}
       <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
-          <SectionHeading title="What's been happening lately" action={allNews} />
+          <SectionHeading title="What's been happening" action={allNews} />
           {/* Two columns of three: six posts down one wide column read as a
               thin list. Each item draws its own line, so the rules meet
               across the gap where a divide-y would stagger. */}
