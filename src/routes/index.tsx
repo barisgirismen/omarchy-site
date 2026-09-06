@@ -867,9 +867,12 @@ function Home() {
  * reads as two lit pixels, which is the identity - and the inline quotes
  * stay dropped so the mark is the only punctuation dressing the words.
  */
+/** Where he said it: the Lex Fridman conversation, at the moment. */
+const DHH_QUOTE_URL = 'https://youtu.be/NYFGCESmikA?t=7104'
+
 function DhhQuote() {
   return (
-    <figure className="mt-12 max-w-md border border-border-subtle bg-surface p-7">
+    <figure className="group relative mt-12 max-w-md border border-border-subtle bg-surface p-7 transition-colors duration-150 ease-out hover:border-border-strong has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring">
       <div
         aria-hidden="true"
         className="h-10 font-sans text-6xl leading-none font-bold text-brand"
@@ -878,7 +881,10 @@ function DhhQuote() {
       </div>
       {/* Balanced, so the break lands at the comma between the two clauses
           instead of stranding "you should" on a line. */}
-      <blockquote className="font-sans text-xl leading-snug font-medium text-text [text-wrap:balance]">
+      <blockquote
+        cite={DHH_QUOTE_URL}
+        className="font-sans text-xl leading-snug font-medium text-text [text-wrap:balance]"
+      >
         When you can vibe code whatever app comes to your mind, you should be
         able to vibe code your operating system.
       </blockquote>
@@ -903,6 +909,17 @@ function DhhQuote() {
             Creator of Omarchy
           </span>
         </span>
+        {/* The whole card opens the moment he said it, through this link
+            stretched over it; the play mark is the only thing that shows. */}
+        <a
+          href={DHH_QUOTE_URL}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Watch him say it, on YouTube"
+          className="ml-auto text-text-muted transition-colors duration-150 ease-out group-hover:text-text focus-visible:outline-none before:absolute before:inset-0"
+        >
+          <PlayIcon className="size-5" />
+        </a>
       </figcaption>
     </figure>
   )
