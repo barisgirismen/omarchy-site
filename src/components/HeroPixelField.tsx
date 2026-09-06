@@ -459,16 +459,10 @@ export function HeroPixelField({
     let beatPulse = 0
 
     let effect = effectFromLocation()
-    /** 1 while the pointer rests on a lit pixel of the word (see below). */
-    let logoHoverTarget = 0
     const beginEtch = () => {
       const token = ++etchToken
       etch?.free()
       etch = null
-      // The hover lift is disarmed for the run, and comes back only with
-      // the next real mouse move: a finished word should not change colour
-      // under a pointer that has not moved since it clicked.
-      logoHoverTarget = 0
       void startEtch(
         glyph.rows,
         glyph.width,
@@ -521,7 +515,6 @@ export function HeroPixelField({
         beginEtch()
       }
       if (pickerOpen) {
-        logoHoverTarget = 0
         targetStrength = 0
         if (sectionEl) sectionEl.style.cursor = ''
       }
@@ -581,12 +574,12 @@ export function HeroPixelField({
     let targetStrength = 0
     let pings: Ping[] = []
     let holding: { x: number; y: number; start: number } | null = null
-    // The wordmark is a button: hovering any of its lit pixels raises the
-    // whole logo to the hover tint, and a click plays the word in again
-    // with another effect rather than firing a stamp. The 404 gives the
-    // press its own meaning (home). With motion reduced there is no effect
-    // to play, so the word is not a button there.
-    let logoHover = 0
+    // The wordmark is a button: the pointer turns to a hand over it, and a
+    // click plays the word in again with another effect rather than firing
+    // a stamp. The word keeps its bands under the pointer; only the cursor
+    // says it can be pressed. The 404 gives the press its own meaning
+    // (home). With motion reduced there is no effect to play, so the word
+    // is not a button there.
     let logoPending = false
     let pickerOpen = false
 
@@ -799,9 +792,6 @@ export function HeroPixelField({
       const strengthGoal =
         targetStrength + (wanderStrength - targetStrength) * wanderBlend
       strength += (strengthGoal - strength) * 0.3
-      logoHover = reducedMotion
-        ? logoHoverTarget
-        : logoHover + (logoHoverTarget - logoHover) * 0.25
 
       ctx.fillStyle = palette.bg
       ctx.fillRect(0, 0, width, height)
@@ -869,9 +859,6 @@ export function HeroPixelField({
         etch = null
       }
       const etching = etch !== null || awaitingFirstEtch
-      // While an effect is making the word, the hover lift stays out of
-      // it: the click was to watch the effect, in its own colours.
-      if (etching) logoHover = 0
 
       /** The strongest live stamp covering a device-px point, if any. */
       const stampAt = (cx: number, cy: number) => {
@@ -1018,8 +1005,8 @@ export function HeroPixelField({
 
       /**
        * The ink a wordmark cell takes at a device-px centre: lit at rest,
-       * lifted by a stamp washing over it, the cursor passing near it, or
-       * the whole word being hovered. Shared by the resting word and the
+       * lifted by a stamp washing over it or the cursor passing near it.
+       * Shared by the resting word and the
        * metal the laser has cut, so the word answers the pointer while it
        * is still being made.
        */
@@ -1035,13 +1022,6 @@ export function HeroPixelField({
             const hit = falloff * falloff * strength
             if (hit > crest) crest = hit
           }
-        }
-
-        // Hovering the logo lifts every one of its pixels to the hover
-        // tint; the cursor-local crest still brightens on top of it.
-        if (logoHover > 0.01) {
-          const floor = logoHover * 0.2
-          if (floor > crest) crest = floor
         }
 
         return crest > 0.45
@@ -1062,7 +1042,7 @@ export function HeroPixelField({
         const rowHeight = Math.round(yTop + wmCH) - y
 
         // At rest the whole row can go out as a few spans, in its own ink.
-        if (stamps.length === 0 && !cursorOnWordmark && logoHover < 0.01) {
+        if (stamps.length === 0 && !cursorOnWordmark) {
           ctx.fillStyle = restInks[row]
           let run = 0
           for (let col = 0; col <= glyph.width; col++) {
@@ -1260,13 +1240,12 @@ export function HeroPixelField({
       // matter where the cursor wanders; only a move after both are done
       // wakes it back up.
       if (!holding && !pickerOpen) targetStrength = inside ? level : 0
-      // While the picker is up, hovering is disarmed; the next real mouse
-      // move after it closes re-arms it. Without this, choosing a theme
-      // dropped you straight back into a hovered logo, since the pointer
-      // never left it.
+      // While the picker is up, the word is not pressable; the next real
+      // mouse move after it closes brings the hand cursor back. Without
+      // this, choosing a theme left you straight on a pressable logo, since
+      // the pointer never left it.
       const pressable = Boolean(press.current) || (isHero && !reducedMotion)
       const onLogo = pressable && !pickerOpen && inside && onLogoAt(x, y)
-      logoHoverTarget = onLogo ? 1 : 0
       if (sectionEl) sectionEl.style.cursor = onLogo ? 'pointer' : ''
       if (!inside) return
       pointer.x = x
