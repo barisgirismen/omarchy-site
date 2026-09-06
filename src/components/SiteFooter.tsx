@@ -188,8 +188,8 @@ export function SiteFooter() {
           </p>
           <p data-quiet>
             Partner inquiries:{' '}
-            <a href="mailto:david@omarchy.org" className={footerLink}>
-              david@omarchy.org
+            <a href="mailto:foundation@omarchy.org" className={footerLink}>
+              foundation@omarchy.org
             </a>
           </p>
         </div>
