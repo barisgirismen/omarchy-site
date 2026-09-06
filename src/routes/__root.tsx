@@ -154,9 +154,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <a
+          href="#main"
+          className="bg-bg text-text focus-visible:outline-ring absolute left-4 z-(--z-modal) -translate-y-[120%] px-3 py-2 text-sm font-medium underline outline-offset-2 focus:translate-y-4 focus-visible:outline-2"
+        >
+          Skip to content
+        </a>
         <div className="flex min-h-dvh flex-col">
           <SiteHeader />
-          <div className="relative z-10 min-h-dvh flex-1 bg-bg">{children}</div>
+          <div id="main" className="relative z-10 min-h-dvh flex-1 bg-bg">
+            {children}
+          </div>
           <SiteFooter />
         </div>
         <ThemePicker />
