@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import {
   BrushIcon,
   ChevronLeftIcon,
@@ -10,7 +11,7 @@ import {
   OPEN_PICKER_EVENT,
   PICKER_STATE_EVENT,
   SITE_THEMES,
-  applyTheme,
+  switchTheme,
   paintFavicon,
   watchChrome,
   readTheme,
@@ -27,8 +28,7 @@ import { cn } from '@/lib/utils'
  */
 /** A theme's desktop screenshot, the card it shows as in the deck. WebP,
  *  since twenty-two of them as PNG came to eight megabytes. */
-const previewSrc = (id: string) =>
-  `/assets/images/theme-previews/${id}.webp`
+const previewSrc = (id: string) => `/assets/images/theme-previews/${id}.webp`
 
 /** Omarchy's card slant: a 2.5% lean, top edge shifted right of the bottom. */
 const PARALLELOGRAM = 'polygon(2.5% 0%, 100% 0%, 97.5% 100%, 0% 100%)'
@@ -70,6 +70,10 @@ export function ThemePicker() {
   const restoreFocus = useRef<HTMLElement | null>(null)
   /** Whether the trigger was wearing a focus ring when it opened the picker. */
   const restoreRing = useRef(false)
+  // The frost holds the page for 160ms before the index commits, so the
+  // ref is the source of truth while a step is in flight. A render that
+  // still holds the old index must not rewind it.
+  const indexRef = useRef(0)
 
   const markHintSeen = useCallback(() => {
     setHint(false)
@@ -83,7 +87,9 @@ export function ThemePicker() {
   const openPicker = useCallback(() => {
     const current = readTheme()
     const at = SITE_THEMES.findIndex((t) => t.id === current)
-    setIndex(at >= 0 ? at : 0)
+    const i = at >= 0 ? at : 0
+    indexRef.current = i
+    setIndex(i)
     const trigger = document.activeElement as HTMLElement | null
     restoreFocus.current = trigger
     restoreRing.current = trigger?.matches(':focus-visible') ?? false
@@ -105,10 +111,11 @@ export function ThemePicker() {
   const swipe = useRef({ id: -1, from: 0, moved: 0 })
 
   const step = useCallback((delta: number) => {
-    setIndex((at) => {
-      const next = (at + delta + SITE_THEMES.length) % SITE_THEMES.length
-      applyTheme(SITE_THEMES[next].id)
-      return next
+    const next =
+      (indexRef.current + delta + SITE_THEMES.length) % SITE_THEMES.length
+    indexRef.current = next
+    switchTheme(SITE_THEMES[next].id, () => {
+      flushSync(() => setIndex(next))
     })
   }, [])
 

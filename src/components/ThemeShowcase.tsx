@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { SITE_THEMES, THEME_EVENT, applyTheme, readTheme } from '@/lib/theme'
+import { SITE_THEMES, THEME_EVENT, switchTheme, readTheme } from '@/lib/theme'
 import { cn } from '@/lib/utils'
 
 /** A theme's desktop screenshot, the same one the picker shows. */
@@ -33,7 +33,7 @@ export function ThemeShowcase() {
             <button
               type="button"
               aria-pressed={selected}
-              onClick={() => applyTheme(theme.id)}
+              onClick={() => switchTheme(theme.id)}
               className={cn(
                 'group flex w-full flex-col gap-2 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring',
                 selected ? 'text-brand' : 'text-text-secondary hover:text-text',
