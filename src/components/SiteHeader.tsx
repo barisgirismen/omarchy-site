@@ -713,11 +713,16 @@ export function HeroNavGhost() {
       aria-hidden="true"
       data-nav-ghost
       className="pointer-events-none fixed inset-x-0 top-0 z-(--z-nav) mix-blend-difference"
-      // opacity is declared, not left to the stylesheet, because the header
-      // hydrates before the hero does and its effect writes this very
-      // property onto this node in between; without it here React finds an
-      // inline opacity it never rendered and reports a hydration mismatch.
+      // The header hydrates before the hero does, and its effect writes this
+      // node's opacity in between - 1 with the hero up, 0 with the page
+      // reloaded further down, or the pointer already resting on the bar, or
+      // on a phone. React then hydrates this node against whichever value it
+      // found. Declaring the property keeps React from reporting an inline
+      // style it never rendered; suppressing the warning covers the loads
+      // where the effect's answer was 0. React does not patch attributes on
+      // a mismatch, so the effect's value, the right one, is what stays.
       style={{ paddingTop: 'env(safe-area-inset-top)', opacity: 1 }}
+      suppressHydrationWarning
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
         {/* Holds the mark's slot without painting it */}
