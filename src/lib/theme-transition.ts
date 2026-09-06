@@ -1,8 +1,8 @@
 /**
  * Frosted split-wipe used when the site changes theme.
  *
- * The live page frosts for 160ms, then a 10-degree parallelogram slit
- * opens over 400ms through the View Transitions API, the same transition
+ * The live page frosts for 80ms, then a 10-degree parallelogram slit
+ * opens over 200ms through the View Transitions API, the same transition
  * omarchy-www uses. Browsers without that API, and anyone who asked for
  * less motion, swap in one frame.
  */
@@ -13,7 +13,7 @@ export type ThemeTransitionDocument = {
 
 export const THEME_FROST_CLASS = 'theme-frost-layer'
 export const THEME_FROST_ON_CLASS = 'theme-frost-layer-on'
-export const THEME_FROST_MS = 160
+export const THEME_FROST_MS = 80
 
 export function prefersReducedMotion(
   media: Pick<MediaQueryList, 'matches'> = matchReducedMotion(),
