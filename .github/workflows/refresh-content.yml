@@ -53,6 +53,10 @@ jobs:
           # lives here and nowhere else; without it the public feed is read
           # instead, which has everything but the covers.
           LUMA_API_KEY: ${{ secrets.LUMA_API_KEY }}
+          # Cloudflare, for the ISO download figure: a token that can only
+          # read the iso.omarchy.org zone's analytics, and that zone's id.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: npm run refresh-data
 
       - name: Commit what changed

@@ -232,6 +232,128 @@ if (weeks.length === 52 && lastPage) {
   )
 }
 
+// -------------------------------------------------------------- downloads
+// The ISO download figure, counted from Cloudflare, which serves
+// iso.omarchy.org. The number the file starts from is the one quoted by
+// hand from the news; from the day counting begins, each run adds the
+// days since the last count, so the figure only ever moves forward and a
+// missed run is caught up. A day's downloads are the bytes the ISO files
+// sent that day divided by the ISO's size, so a browser's single request
+// and a download manager's many pieces count the same, and a download
+// given up half way counts as half. Countries are the ones that took at
+// least a whole ISO in a day. Needs a Cloudflare API token that can only
+// read the zone's analytics, and the zone's id, both from the
+// repository's secrets; without them the figure stays as it is.
+const CF_TOKEN = process.env.CLOUDFLARE_API_TOKEN
+const CF_ZONE = process.env.CLOUDFLARE_ZONE_ID
+/** How far back a catch-up may reach: the analytics keep about a month. */
+const DOWNLOADS_CATCH_UP_DAYS = 28
+
+const day = (d) => d.toISOString().slice(0, 10)
+const daysAgo = (n) => new Date(Date.now() - n * 864e5)
+
+/** Bytes the ISO files sent, per day and country, between two dates. */
+async function isoTraffic(start, end) {
+  const query = `query($zone: String!, $start: Date!, $end: Date!) {
+    viewer { zones(filter: { zoneTag: $zone }) {
+      httpRequestsAdaptiveGroups(limit: 10000, filter: {
+        date_geq: $start, date_leq: $end, clientRequestPath_like: "%.iso"
+      }) {
+        sum { edgeResponseBytes }
+        dimensions { date clientCountryName }
+      }
+    } }
+  }`
+  const res = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${CF_TOKEN}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables: { zone: CF_ZONE, start, end },
+    }),
+  })
+  if (!res.ok) throw new Error(`cloudflare analytics → ${res.status}`)
+  const body = await res.json()
+  if (body.errors?.length) throw new Error(body.errors[0].message)
+  return body.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups ?? []
+}
+
+if (CF_TOKEN && CF_ZONE) {
+  try {
+    const counting = momentum.downloads.counting ?? {
+      since: day(daysAgo(1)),
+      through: day(daysAgo(2)),
+      countries: [],
+    }
+    const yesterday = day(daysAgo(1))
+    const from = new Date(`${counting.through}T00:00:00Z`)
+    from.setUTCDate(from.getUTCDate() + 1)
+    const start = day(
+      from > daysAgo(DOWNLOADS_CATCH_UP_DAYS)
+        ? from
+        : daysAgo(DOWNLOADS_CATCH_UP_DAYS),
+    )
+    if (start <= yesterday) {
+      const head = await fetch(
+        `https://iso.omarchy.org/omarchy-${version}.iso`,
+        { method: 'HEAD' },
+      )
+      const isoBytes = Number(head.headers.get('content-length'))
+      if (!(isoBytes > 1e9)) throw new Error(`odd ISO size: ${isoBytes}`)
+      const rows = await isoTraffic(start, yesterday)
+      let bytes = 0
+      const countries = new Set(counting.countries)
+      const perCountryDay = new Map()
+      for (const row of rows) {
+        bytes += row.sum.edgeResponseBytes
+        const key = `${row.dimensions.date} ${row.dimensions.clientCountryName}`
+        perCountryDay.set(
+          key,
+          (perCountryDay.get(key) ?? 0) + row.sum.edgeResponseBytes,
+        )
+      }
+      for (const [key, sent] of perCountryDay) {
+        if (sent >= isoBytes) countries.add(key.split(' ')[1])
+      }
+      const added = Math.round(bytes / isoBytes)
+      momentum.downloads.total += added
+      momentum.downloads.countries = Math.max(
+        momentum.downloads.countries,
+        countries.size,
+      )
+      momentum.downloads.counting = {
+        since: counting.since,
+        through: yesterday,
+        lastAdded: added,
+        countries: [...countries].sort(),
+      }
+      momentum.checked = day(new Date())
+      await writeFile(
+        MOMENTUM,
+        await prettier.format(JSON.stringify(momentum), { parser: 'json' }),
+      )
+      console.log(
+        `momentum.json: ${added} ISO downloads ${start} to ${yesterday}, ${momentum.downloads.total} in all`,
+      )
+    } else {
+      console.log(
+        'momentum.json: ISO downloads already counted through yesterday',
+      )
+    }
+  } catch (error) {
+    console.warn(
+      `momentum.json: ISO downloads left as they were, ${error.message}`,
+    )
+  }
+} else {
+  console.log(
+    'momentum.json: ISO downloads left as they were, no Cloudflare token',
+  )
+}
+
 // ---------------------------------------------------------------- meetups
 // The Omarchy calendar on Luma. With a key, Luma's API lists every event
 // with its cover picture; the key is read and write for the whole calendar
