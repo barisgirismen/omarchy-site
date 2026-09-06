@@ -27,8 +27,8 @@ export function watchOutbound() {
     // Set before the default action runs, which reads it: the browser
     // opens the tab, so a modifier click or a middle click is untouched.
     a.target = '_blank'
-    if (!a.relList.contains('noopener') && !a.relList.contains('noreferrer'))
-      a.relList.add('noopener')
+    if (!a.relList.contains('noopener')) a.relList.add('noopener')
+    if (!a.relList.contains('noreferrer')) a.relList.add('noreferrer')
   }
   document.addEventListener('click', onClick, true)
   return () => document.removeEventListener('click', onClick, true)
