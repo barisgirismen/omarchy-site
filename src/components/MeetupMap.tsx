@@ -12,13 +12,14 @@ import { cn } from '@/lib/utils'
  * The map moves with the page: pick a region and it glides in on that
  * region, its countries lit; pick a country here or in the list and it
  * comes closer still. Rest on a dot and a card names the meetup; rest on a
- * card below and its dot answers; press a dot and the page goes to its
- * card. Lit dots arrive one after another when the page opens, then stand
- * still.
+ * card below and its dot answers; a dot is the meetup's own link, since
+ * whoever found it on the map has found it. Lit dots arrive one after
+ * another when the page opens, then stand still.
  */
 export type MapPin = {
   id: string
   title: string
+  url: string
   when: string
   where: string
   cover: string | null
@@ -91,7 +92,6 @@ export function MeetupMap({
   onPickCountry,
   active,
   onActive,
-  onPress,
   className,
 }: {
   pins: MapPin[]
@@ -107,8 +107,6 @@ export function MeetupMap({
   /** The meetup the reader is on, on the map or in the list. */
   active: string | null
   onActive: (id: string | null) => void
-  /** A press on a dot: the page goes to the meetup's card. */
-  onPress: (id: string) => void
   className?: string
 }) {
   const placed = pins.flatMap((pin) => {
@@ -190,8 +188,9 @@ export function MeetupMap({
             const delay = (orderOf.get(pin.id) ?? 0) * 35
             const r = (pin.past ? 2.2 : pin.shown ? 4 : 2.8) * k
             return (
-              <g
+              <a
                 key={pin.id}
+                href={pin.url}
                 className={cn(
                   'cursor-pointer outline-none',
                   arrival === 'playing' &&
@@ -203,20 +202,11 @@ export function MeetupMap({
                     ? { animationDelay: `${delay}ms` }
                     : undefined
                 }
-                tabIndex={0}
-                role="button"
-                aria-label={`${pin.title}, ${pin.when}`}
+                aria-label={`${pin.title}, ${pin.when}, on Luma`}
                 onMouseEnter={() => onActive(pin.id)}
                 onMouseLeave={() => onActive(null)}
                 onFocus={() => onActive(pin.id)}
                 onBlur={() => onActive(null)}
-                onClick={() => onPress(pin.id)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    onPress(pin.id)
-                  }
-                }}
               >
                 <circle
                   cx={pin.x}
@@ -236,7 +226,7 @@ export function MeetupMap({
                 {/* Room to land on around the dot, but not so much that
                     the next city's dot is under it. */}
                 <circle cx={pin.x} cy={pin.y} r={5.5 * k} fill="transparent" />
-              </g>
+              </a>
             )
           })}
           {hovered ? (
@@ -305,8 +295,7 @@ export function MeetupMap({
             </div>
           </div>
           <p className="border-t border-border-subtle px-3 py-1.5 font-mono text-[11px] text-text-muted">
-            {hovered.past ? 'Already happened' : 'Coming up'} · press to see it
-            below
+            {hovered.past ? 'Already happened' : 'Coming up'} · opens on Luma
           </p>
         </div>
       ) : null}

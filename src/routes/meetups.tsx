@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MeetupCover } from '@/components/MeetupCover'
 import { MeetupMap, PIN_AT, WHOLE_MAP, boxAround } from '@/components/MeetupMap'
 import { SectionActions } from '@/components/SectionHeading'
@@ -198,6 +198,7 @@ function MeetupsPage() {
   const pins = [...allUpcoming, ...past].map((event) => ({
     id: event.id,
     title: event.title,
+    url: event.url,
     when: `${inZone(event, { weekday: 'short', month: 'short', day: 'numeric' })} · ${inZone(event, { hour: 'numeric', minute: '2-digit' })}`,
     where: whereOf(event),
     cover: event.cover,
@@ -219,15 +220,8 @@ function MeetupsPage() {
     setCountry(null)
   }
 
-  // The meetup the reader is on, on the map or in the list; a press on a
-  // dot takes the page to its card.
+  // The meetup the reader is on, on the map or in the list.
   const [active, setActive] = useState<string | null>(null)
-  const goTo = useCallback((id: string) => {
-    const card = document.getElementById(`meetup-${id}`)
-    if (!card) return
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    card.querySelector('a')?.focus({ preventScroll: true })
-  }, [])
 
   // Upcoming meetups by month, in the order they come.
   const months: { name: string; id: string; meetups: Meetup[] }[] = []
@@ -291,7 +285,6 @@ function MeetupsPage() {
         }}
         active={active}
         onActive={setActive}
-        onPress={goTo}
         className="mt-10"
       />
 
