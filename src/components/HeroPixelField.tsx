@@ -97,8 +97,8 @@ const SPRITE_STRENGTH = 0.7
  * different amount, so they come in different sizes, and the pause
  * between them varies so they never fall into a beat. */
 /** Seconds the sprite flies before its first stamp, and between stamps. */
-const SPRITE_FIRST_STAMP_WAIT = [1.5, 2.5] as const
-const SPRITE_STAMP_WAIT = [3, 6] as const
+const SPRITE_FIRST_STAMP_WAIT = [1, 2] as const
+const SPRITE_STAMP_WAIT = [2, 3] as const
 /** How much of the sprite's glow stays while it charges a stamp. A press
  * hushes the pointer's glow outright, but there the pointer is still on
  * screen; the sprite has nothing but its glow, so it dims rather than
