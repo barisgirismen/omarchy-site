@@ -3,4 +3,4 @@ Expires: 2027-08-29T23:59:59Z
 Preferred-Languages: en
 Canonical: https://omarchy.org/.well-known/security.txt
 Policy: https://omarchy.org/security
-Acknowledgments: https://omarchy.org/security/credits
+Acknowledgments: https://omarchy.org/security/#credits
