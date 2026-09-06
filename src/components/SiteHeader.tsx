@@ -19,7 +19,9 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { to: '/manual/', label: 'Manual' },
-  { to: '/plugins/', label: 'Plugins' },
+  // Plugins points at the standalone directory for launch; the built-in
+  // pages stay routable but unlinked.
+  { href: 'https://plugins.omarchy.org', label: 'Plugins' },
   { to: '/themes/', label: 'Themes' },
   { to: '/news/', label: 'News' },
 ] as const
@@ -526,16 +528,26 @@ export function SiteHeader() {
           {glyph}
 
           <nav aria-label="Main" className="hidden items-center sm:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                activeProps={{ className: 'text-text bg-surface-2' }}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              'href' in link ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  activeProps={{ className: 'text-text bg-surface-2' }}
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
           </nav>
 
           <div className="ml-auto flex items-center gap-2.5">
@@ -598,17 +610,28 @@ export function SiteHeader() {
           aria-label="Main pages"
           className="mx-auto flex max-w-6xl flex-col px-4 py-2"
         >
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setMenuOpen(false)}
-              className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              activeProps={{ className: 'text-text font-medium' }}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            'href' in link ? (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.label}
+                to={link.to}
+                onClick={() => setMenuOpen(false)}
+                className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                activeProps={{ className: 'text-text font-medium' }}
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
           <button
             type="button"
             onClick={() => {
@@ -705,7 +728,7 @@ export function HeroNavGhost() {
         <span className="hidden items-center sm:flex">
           {navLinks.map((link) => (
             <span
-              key={link.to}
+              key={link.label}
               className="px-3 py-1.5 text-sm whitespace-nowrap"
               style={{ color: 'var(--t-hdr-text-2)' }}
             >
