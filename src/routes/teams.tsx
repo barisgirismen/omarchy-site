@@ -62,9 +62,9 @@ function TeamNote({
 const noteLink =
   'text-text underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:decoration-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
 
-/** The jump links scroll the page themselves, smoothly and clear of the
+/** The jump links scroll the page themselves, instantly and clear of the
  *  bar, the way the home page's anchors do; the site leaves the browser's
- *  own anchor jump alone so a /teams#team-core URL opens in place. */
+ *  own anchor jump alone so a /teams/#core URL opens in place. */
 function useJumpLink(id: string) {
   const navigate = useNavigate()
   return (event: React.MouseEvent) => {
@@ -82,7 +82,7 @@ function useJumpLink(id: string) {
     if (!target) return
     event.preventDefault()
     claimNextHashScroll()
-    scrollToAnchor(target, true)
+    scrollToAnchor(target)
     void navigate({
       to: '/teams/',
       hash: id,
@@ -93,10 +93,10 @@ function useJumpLink(id: string) {
 }
 
 function TeamJump({ team }: { team: (typeof teams)[number] }) {
-  const jump = useJumpLink(`team-${team.id}`)
+  const jump = useJumpLink(team.id)
   return (
     <a
-      href={`#team-${team.id}`}
+      href={`#${team.id}`}
       onClick={jump}
       className="group flex items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
@@ -160,10 +160,16 @@ function TeamsPage() {
       {teams.map((team) => (
         <section
           key={team.id}
-          id={`team-${team.id}`}
+          id={team.id}
           aria-labelledby={`team-${team.id}-name`}
-          className="mt-12 scroll-mt-[calc(var(--nav-h)+2rem)] border-t border-border-subtle pt-8 first-of-type:mt-10"
+          className="relative mt-12 scroll-mt-[calc(var(--nav-h)+2rem)] border-t border-border-subtle pt-8 first-of-type:mt-10"
         >
+          {/* Preserve links shared with the redesign's original IDs. */}
+          <span
+            id={`team-${team.id}`}
+            aria-hidden="true"
+            className="absolute top-0 scroll-mt-[calc(var(--nav-h)+2rem)]"
+          />
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <h2
               id={`team-${team.id}-name`}
@@ -175,12 +181,9 @@ function TeamsPage() {
               {team.description}
             </p>
           </div>
-          {/* As many across as fit at a hand's width each, the way the page
-              always read; each person a card like the plugins and themes,
-              so the page has the same surface as the rest of the site. */}
-          {/* Cards at least 12rem wide: five to a row on a wide screen, not
-              six, so a long name and the arrow beside it keep to one line. */}
-          <ul className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(12rem,1fr))]">
+          {/* Compact portraits keep the people prominent without
+              turning each member into a full-width card. */}
+          <ul className="mt-7 grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-[repeat(auto-fill,9rem)]">
             {team.members.map((member) => {
               const face = (
                 <>
@@ -192,15 +195,10 @@ function TeamsPage() {
                       height={240}
                       loading="lazy"
                       decoding="async"
-                      className="img-outlined aspect-square w-full object-cover"
+                      className="aspect-square h-auto w-35 max-w-full shrink-0 object-cover ring-1 ring-border-subtle"
                     />
                   ) : null}
-                  {/* The photo runs to the card's edge; only the words
-                      under it get the padding. Underlined from the start in
-                      nothing, so the hover is a colour arriving rather than
-                      a line, and the whole record carries it - the same as
-                      the name under a cluster on the home page. */}
-                  <span className="block p-3">
+                  <span className="block">
                     <span className="flex items-center gap-1 font-sans text-sm font-medium text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out group-hover:decoration-brand">
                       {member.name}
                       {member.href ? (
@@ -213,19 +211,16 @@ function TeamsPage() {
                   </span>
                 </>
               )
-              const card =
-                'ring-elevation group flex h-full flex-col overflow-hidden bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
+              const profile =
+                'group flex h-full flex-col items-start gap-3 rounded-xl py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
               return (
                 <li key={member.name}>
                   {member.href ? (
-                    <a
-                      href={member.href}
-                      className={`${card} ring-elevation-hover`}
-                    >
+                    <a href={member.href} className={profile}>
                       {face}
                     </a>
                   ) : (
-                    <div className={card}>{face}</div>
+                    <div className={profile}>{face}</div>
                   )}
                 </li>
               )

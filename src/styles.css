@@ -963,10 +963,10 @@
   box-sizing: border-box;
 }
 
-/* Deliberately not `scroll-behavior: smooth`. Set globally it also animates
-   the browser's own jump to an anchor on load, so opening or refreshing a
-   /#install URL scrolled the whole page down in front of the reader instead
-   of simply being there. The links that want a smooth scroll ask for one. */
+/* Anchor links jump immediately, including native links in article content. */
+html {
+  scroll-behavior: auto;
+}
 
 /* One focus ring for the whole site, in the theme's accent. Utilities still
    win over this (they sit in a later layer), so a component can still say

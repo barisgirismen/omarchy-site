@@ -2,9 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { OmarchyWordmark } from '@/components/Brand'
 import { PixelBackdrop } from '@/components/HeroShader'
 import {
-  BasecampMark,
   CloudflareMark,
-  HeyMark,
   ThirtySevenSignalsMark,
 } from '@/components/PartnerLogos'
 import { useTopLink } from '@/lib/hash-scroll'
@@ -77,10 +75,7 @@ export function SiteFooter() {
 
       <div className="footer-rise relative mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between">
-          {/* Wide enough to hold "Incubated at 37signals, makers of Basecamp
-              and HEY" on one line; at 20rem it broke with "and HEY" alone on
-              the second. */}
-          <div className="max-w-sm">
+          <div className="w-full shrink-0 sm:w-max lg:w-96">
             {/* The way back up: home, at the top, like the mark in the bar.
                 Hovering lifts it to the exact colour the hero's pixels rise
                 to, since that is the tint the field uses for a hovered
@@ -96,14 +91,17 @@ export function SiteFooter() {
             </Link>
             <p
               data-quiet
-              className="mt-4 text-sm leading-relaxed text-text-muted"
+              className="mt-4 text-sm leading-relaxed text-text-muted [text-wrap:pretty]"
             >
               <span className="block">
-                Beautiful, fun &amp; agentic Linux by{' '}
-                <a href="https://dhh.dk" className={footerLink}>
-                  DHH
-                </a>
-                .
+                Beautiful, fun &amp; agentic Linux{' '}
+                <span className="whitespace-nowrap">
+                  by{' '}
+                  <a href="https://dhh.dk" className={footerLink}>
+                    DHH
+                  </a>
+                  .
+                </span>
               </span>
               <span className="block">
                 The malleable OS for the age of agents.
@@ -124,19 +122,9 @@ export function SiteFooter() {
                   <ThirtySevenSignalsMark className="mr-[3px] inline-block size-4 shrink-0 align-[-0.28em]" />
                   37signals
                 </a>
-                , makers of{' '}
-                <a href="https://basecamp.com" className={creditLink}>
-                  <BasecampMark className="mr-[5px] inline-block h-4 w-auto align-[-0.28em]" />
-                  Basecamp
-                </a>{' '}
-                and{' '}
-                <a href="https://hey.com" className={creditLink}>
-                  <HeyMark className="mr-[5px] inline-block h-4 w-auto align-[-0.28em]" />
-                  HEY
-                </a>
               </p>
               <p data-quiet>
-                Sponsored hosting by{' '}
+                Hosting by{' '}
                 <a href="https://cloudflare.com" className={creditLink}>
                   <CloudflareMark className="mr-[5px] inline-block h-3 w-auto shrink-0 align-[-0.15em]" />
                   Cloudflare
@@ -145,7 +133,7 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
+          <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 xl:gap-x-10">
             {columns.map((col) => (
               <nav key={col.title} data-quiet aria-label={col.title}>
                 <h2 className="font-sans text-xs tracking-widest text-text-muted uppercase">

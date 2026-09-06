@@ -105,6 +105,10 @@ const ISO_URL = release.isoUrl
 const noteLink =
   'text-text-secondary underline decoration-border-strong underline-offset-4 transition-colors duration-150 ease-out hover:text-text hover:decoration-brand'
 
+// Section navigation stays light, with a full-height target for touch and focus.
+const sectionLink =
+  'inline-flex min-h-10 shrink-0 items-center justify-center gap-2 py-2 text-sm font-medium whitespace-nowrap text-text underline-offset-4 transition-colors duration-150 hover:text-brand hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring [&_svg]:size-5 [&_svg]:shrink-0'
+
 function ManualLink({
   slug,
   children,
@@ -260,70 +264,49 @@ function Home() {
   // Each of these renders twice: in the heading row on a wide screen, at the
   // end of its section on a narrow one.
   const allPlugins = (
-    <Button
-      variant="outline"
-      nativeButton={false}
-      render={<a href="https://plugins.omarchy.org" />}
-    >
+    <a href="https://plugins.omarchy.org" className={sectionLink}>
       All plugins
-      <ArrowRightIcon data-icon="inline-end" />
-    </Button>
+      <ArrowRightIcon />
+    </a>
   )
   const extraThemes = (
-    <Button
-      variant="outline"
-      nativeButton={false}
-      render={<Link to="/themes/" />}
-    >
+    <Link to="/themes/" className={sectionLink}>
       Extra themes
-      <ArrowRightIcon data-icon="inline-end" />
-    </Button>
+      <ArrowRightIcon />
+    </Link>
   )
   const allNews = (
-    <Button
-      variant="outline"
-      nativeButton={false}
-      render={<Link to="/news/" />}
-    >
+    <Link to="/news/" className={sectionLink}>
       All news
-      <ArrowRightIcon data-icon="inline-end" />
-    </Button>
+      <ArrowRightIcon />
+    </Link>
   )
   const installGuide = (
-    <Button
-      variant="outline"
-      nativeButton={false}
-      render={<Link to="/manual/$slug/" params={{ slug: 'getting-started' }} />}
+    <Link
+      to="/manual/$slug/"
+      params={{ slug: 'getting-started' }}
+      className={sectionLink}
     >
       Read the install guide
-      <ArrowRightIcon data-icon="inline-end" />
-    </Button>
+      <ArrowRightIcon />
+    </Link>
   )
   const moreOnX = (
-    <Button
-      variant="outline"
-      nativeButton={false}
-      render={
-        <a
-          href="https://x.com/search?q=omarchy&f=live"
-          target="_blank"
-          rel="noopener noreferrer"
-        />
-      }
+    <a
+      href="https://x.com/search?q=omarchy&f=live"
+      target="_blank"
+      rel="noopener noreferrer"
+      className={sectionLink}
     >
-      More on <XIcon className="size-5" aria-label="X" />
-      <ArrowUpRightIcon data-icon="inline-end" />
-    </Button>
+      More on <XIcon aria-label="X" />
+      <ArrowUpRightIcon />
+    </a>
   )
   const allTeams = (
-    <Button
-      variant="outline"
-      nativeButton={false}
-      render={<Link to="/teams/" />}
-    >
+    <Link to="/teams/" className={sectionLink}>
       All teams
-      <ArrowRightIcon data-icon="inline-end" />
-    </Button>
+      <ArrowRightIcon />
+    </Link>
   )
 
   return (
@@ -539,12 +522,7 @@ function Home() {
           data-ground
           className="border-y border-border-subtle bg-bg-deep py-24"
         >
-          <VideoCarousel
-            level={3}
-            title="See it in action"
-            description="The introduction from DHH, and what the Linux YouTube circuit made of it."
-            videos={videos}
-          />
+          <VideoCarousel level={3} title="See it in action" videos={videos} />
         </div>
 
         <div id="install" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">

@@ -5,11 +5,6 @@ import type { AnyRouter } from '@tanstack/react-router'
  * where scroll restoration puts the reader wherever they actually were.
  */
 
-/** Whether the reader asked for less movement. */
-const still = () =>
-  typeof window !== 'undefined' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 /** Where the anchor asks to be: its own top, held clear of the bar by the
  *  scroll-margin the stylesheet already gives every [id]. */
 const anchorTop = (el: Element) => {
@@ -17,14 +12,14 @@ const anchorTop = (el: Element) => {
   return el.getBoundingClientRect().top + window.scrollY - margin
 }
 
-export function scrollToAnchor(el: Element, smooth: boolean) {
+export function scrollToAnchor(el: Element) {
   window.scrollTo({
     top: Math.max(0, anchorTop(el)),
-    behavior: smooth && !still() ? 'smooth' : 'auto',
+    behavior: 'instant',
   })
 }
 
-/** A caller about to run its own anchor scroll - the smooth in-page links -
+/** A caller about to run its own anchor scroll - the in-page links -
  *  says so, and the navigation it also issues is then left alone instead of
  *  being finished a second time with an instant jump. */
 let claimed = false
@@ -102,13 +97,13 @@ export function watchHashScrolls(router: AnyRouter) {
         return
       }
       const top = Math.max(0, anchorTop(el))
-      if (own) window.scrollTo({ top })
+      if (own) window.scrollTo({ top, behavior: 'instant' })
       let holds = 12
       settle = window.setInterval(() => {
         if (holds-- <= 0) return clearInterval(settle)
         const want = Math.max(0, anchorTop(el))
         if (Math.abs(window.scrollY - want) > 1) {
-          window.scrollTo({ top: want })
+          window.scrollTo({ top: want, behavior: 'instant' })
         }
       }, 100)
     }

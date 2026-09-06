@@ -172,16 +172,31 @@ export const getPlugin = createServerFn({ method: 'GET' })
     return { plugin: withStats([plugin], stats)[0], related }
   })
 
+// Editorial order for the homepage. Competition podium, August 28, 2026:
+// /news/2026/08/the-first-plugin-competition-winners/
+const FEATURED_PLUGIN_IDS = [
+  'akshar.radio-atlas',
+  'slcode777.omagotchi',
+  'io.github.thisisgm.omapods',
+  // DHH's X picks, verified in indexed copies of the posts:
+  // Omasweeper: https://zamantika.com/ar/profile/DJMenig
+  'jankeesvw.omasweeper',
+  // Time Machine: https://www6.twstalker.com/Kemdirim
+  'jankeesvw.time-machine',
+  // Omarchy Pets: https://community.twstalker.com/Zachary_haha
+  'raiden-meixelysia.omarchy-pets',
+]
+
 export const getPluginHighlights = createServerFn({ method: 'GET' })
   .middleware([staticFunctionMiddleware])
   .handler(async () => {
     const [all, stats] = await Promise.all([loadCatalog(), loadStats()])
-    const top = withStats(
-      all
-        .filter((p) => p.thumb && p.sourceType === 'community')
-        .sort((a, b) => b.stars - a.stars)
-        .slice(0, 6),
-      stats,
-    ).map(toCatalogueEntry)
+    const featured = FEATURED_PLUGIN_IDS.map((id) => {
+      const plugin = all.find((p) => p.id === id)
+      if (!plugin)
+        throw new Error(`Featured plugin missing from catalogue: ${id}`)
+      return plugin
+    })
+    const top = withStats(featured, stats).map(toCatalogueEntry)
     return { top, total: all.length }
   })
