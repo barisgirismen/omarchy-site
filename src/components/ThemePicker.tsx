@@ -107,7 +107,9 @@ export function ThemePicker() {
   const step = useCallback((delta: number) => {
     setIndex((at) => {
       const next = (at + delta + SITE_THEMES.length) % SITE_THEMES.length
-      applyTheme(SITE_THEMES[next].id)
+      const theme = SITE_THEMES[next]
+      if (!theme) return at
+      applyTheme(theme.id)
       return next
     })
   }, [])
@@ -229,6 +231,8 @@ export function ThemePicker() {
 
   useEffect(() => {
     if (!open) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     dialogRef.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
       // IE/embedded WebViews deliver the legacy names, so accept both.
@@ -244,7 +248,10 @@ export function ThemePicker() {
       }
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previous
+      window.removeEventListener('keydown', onKeyDown)
+    }
   }, [open, step, close])
 
   if (!open) {
