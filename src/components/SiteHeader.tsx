@@ -22,7 +22,6 @@ import {
 import { useHashLink, useTopLink } from '@/lib/hash-scroll'
 import { OPEN_PICKER_EVENT, THEME_EVENT, groundOf } from '@/lib/theme'
 import { OPEN_SEARCH_EVENT } from '@/lib/search'
-import { useIsNarrow } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
 
 function NavTooltip({
@@ -222,7 +221,6 @@ function useNavSurface(
   /** The blended ghost is up behind the bar, so the real labels stand aside. */
   blended: boolean,
   bar: RefObject<HTMLElement | null>,
-  flat: boolean,
   /** Re-surveyed on arrival at a new page, whose sections are its own. */
   pathname: string,
 ) {
@@ -234,6 +232,13 @@ function useNavSurface(
     if (!el) return
     const justClosed = wasOpen.current && !sheetOpen
     wasOpen.current = sheetOpen
+    // Closing the sheet over the hero hands the labels back to the ghost.
+    // The toggle's bars are still folding back out of their cross at that
+    // moment, and blending the real one away at once cut the fold short:
+    // the ghost's still bars took over mid-turn. So the real one stays
+    // painted until the fold is done, and the two swap showing the same
+    // picture.
+    let holding = blended && justClosed
 
     // Exactly one of the two label layers is ever painted. They are never
     // cross-faded: two copies of the same word at partial opacity, one blended
@@ -244,29 +249,11 @@ function useNavSurface(
       // first paint is already the state this would have settled into: it
       // used to take until the effect ran, and for those frames both layers
       // of every label were painted at once.
+      if (!on && holding) return
       if (on) el.removeAttribute('data-nav-blend')
       else el.setAttribute('data-nav-blend', '')
       const ghost = document.querySelector<HTMLElement>('[data-nav-ghost]')
       if (ghost) ghost.style.opacity = on ? '0' : '1'
-    }
-
-    // A phone has no bar: no fill, nothing to fade in, the way it looks at the
-    // top of the page all the way down it. The controls carry their own ground
-    // instead, so there is something behind them and not behind the whole
-    // width of the screen.
-    if (flat) {
-      el.style.setProperty('--nav-surface', '0')
-      // Closing the sheet hands the labels back to the ghost. The toggle's
-      // bars are still folding back out of their cross at that moment, and
-      // blending the real one away at once cut the fold short: the ghost's
-      // still bars took over mid-turn. So the real one stays painted until
-      // the fold is done, and the two swap showing the same picture.
-      if (blended && justClosed) {
-        const swap = window.setTimeout(() => solid(false), MENU_BARS_FOLD_MS)
-        return () => window.clearTimeout(swap)
-      }
-      solid(!blended)
-      return
     }
 
     /**
@@ -293,7 +280,12 @@ function useNavSurface(
     // its blended state under a pointer that was already there, and the ghost
     // would go on painting labels through a hover chip it was never
     // compensated against, which is to say invisibly.
-    let hovering = el.matches(':hover')
+    // Only a mouse rests on the bar. A finger's tap leaves the element
+    // marked as hovered too, and there is no leaving event for that to
+    // ever clear it, so a phone would hand the labels over and never take
+    // them back.
+    let hovering =
+      window.matchMedia('(hover: hover)').matches && el.matches(':hover')
 
     const survey = () => {
       // Keep the size watcher pointed at whichever <main> is actually
@@ -371,11 +363,20 @@ function useNavSurface(
       solid(sheetOpen || !blended || hovering)
     }
 
-    const onEnter = () => {
+    const hold = holding
+      ? window.setTimeout(() => {
+          holding = false
+          paint()
+        }, MENU_BARS_FOLD_MS)
+      : 0
+
+    const onEnter = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return
       hovering = true
       paint()
     }
-    const onLeave = () => {
+    const onLeave = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return
       hovering = false
       paint()
     }
@@ -426,6 +427,7 @@ function useNavSurface(
     return () => {
       cancelAnimationFrame(probe)
       window.clearTimeout(settle)
+      window.clearTimeout(hold)
       arrivals.disconnect()
       sizes.disconnect()
       el.removeEventListener('pointerenter', onEnter)
@@ -434,7 +436,7 @@ function useNavSurface(
       window.removeEventListener('resize', relayout)
       window.removeEventListener(THEME_EVENT, relayout)
     }
-  }, [sheetOpen, blended, bar, flat, pathname])
+  }, [sheetOpen, blended, bar, pathname])
 }
 
 export function SiteHeader() {
@@ -445,12 +447,7 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const installLink = useHashLink('install')
   const homeLink = useTopLink()
-  const narrow = useIsNarrow()
   const transparent = heroInView
-  // Past the hero there is no blended ghost to carry the controls and no bar
-  // behind them, so on a phone they take the same ground a press gives them.
-  // With the sheet open the bar has a surface again and they do not need one.
-  const chip = narrow && !menuOpen && !transparent
 
   // Following a link or hitting Escape closes it; leaving it open across a
   // navigation would cover the page you just asked for.
@@ -479,8 +476,10 @@ export function SiteHeader() {
   // background until the observer noticed the hero and rebuilt the ramp, a
   // few frames later. An open sheet still gets its bar back - a menu hanging
   // off nothing, with the page running up between it and the logo, reads as a
-  // mistake.
-  useNavSurface(menuOpen, transparent, bar, narrow && !menuOpen, pathname)
+  // mistake. A phone gets the same bar as everything else: it used to go
+  // without one past the hero, with only the menu button carrying a ground,
+  // and the mark sat straight on whatever heading scrolled under it.
+  useNavSurface(menuOpen, transparent, bar, pathname)
 
   const glyph = (
     <Link
@@ -638,10 +637,7 @@ export function SiteHeader() {
               variant="ghost"
               size="icon"
               data-nav-toggle
-              className={cn(
-                'relative size-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 sm:hidden',
-                chip && 'bg-surface-2',
-              )}
+              className="relative size-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 sm:hidden"
               aria-expanded={menuOpen}
               aria-controls="site-menu"
               aria-label={menuOpen ? 'Close menu' : 'Menu'}
@@ -655,13 +651,16 @@ export function SiteHeader() {
       {/* Tapping the page behind the sheet closes it. The header is an
           inline-size container, so it is the containing block for fixed
           children as well - bottom-0 would resolve to the bar's own 56px, and
-          the scrim is sized explicitly instead. */}
+          the scrim is sized explicitly instead. Dimmed and blurred the way
+          the search and the theme picker dim the page, so the three open
+          alike; a wash of the page's own colour barely showed on a dark
+          theme. */}
       {menuOpen ? (
         <div
           data-menu-scrim
           aria-hidden="true"
           onClick={() => setMenuOpen(false)}
-          className="absolute inset-x-0 top-(--nav-h) h-svh bg-bg/40 sm:hidden"
+          className="absolute inset-x-0 top-(--nav-h) h-svh bg-black/55 supports-backdrop-filter:backdrop-blur-xs sm:hidden"
         />
       ) : null}
 
