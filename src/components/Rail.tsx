@@ -137,6 +137,35 @@ export function useRail<T extends HTMLElement = HTMLDivElement>({
   }
 
   /**
+   * The slides that sit wholly inside the content column once the rail is
+   * scrolled to `scrollLeft`. The column runs from the rail's padding to
+   * the same distance short of its far edge.
+   */
+  const columnAt = (el: HTMLElement, scrollLeft: number) => {
+    const first = el.children[0] as HTMLElement | undefined
+    const pad = first?.offsetLeft ?? 0
+    const left = scrollLeft + pad - 1
+    const right = scrollLeft + el.clientWidth - pad + 1
+    const inside = new Set<number>()
+    for (let i = 0; i < el.children.length; i++) {
+      const child = el.children[i] as HTMLElement
+      if (
+        child.offsetLeft >= left &&
+        child.offsetLeft + child.clientWidth <= right
+      )
+        inside.add(i)
+    }
+    return inside
+  }
+
+  const showColumn = (next: Set<number>) =>
+    setInColumn((was) =>
+      was && was.size === next.size && [...next].every((i) => was.has(i))
+        ? was
+        : next,
+    )
+
+  /**
    * Sizes and places the thumb, and notes whether the rail is at either
    * end. The rail is full-bleed, so its own scrollbar would stretch the
    * whole window; the one drawn in the content column mirrors the rail's
@@ -158,26 +187,9 @@ export function useRail<T extends HTMLElement = HTMLDivElement>({
     setEdges((was) =>
       was.start === start && was.end === end ? was : { start, end },
     )
-    // The column runs from the rail's padding to the same distance short of
-    // its far edge; a slide is in it when both its edges are.
-    const first = el.children[0] as HTMLElement | undefined
-    const pad = first?.offsetLeft ?? 0
-    const left = el.scrollLeft + pad - 1
-    const right = el.scrollLeft + el.clientWidth - pad + 1
-    const now = new Set<number>()
-    for (let i = 0; i < el.children.length; i++) {
-      const child = el.children[i] as HTMLElement
-      if (
-        child.offsetLeft >= left &&
-        child.offsetLeft + child.clientWidth <= right
-      )
-        now.add(i)
-    }
-    setInColumn((was) => {
-      if (was && was.size === now.size && [...now].every((i) => was.has(i)))
-        return was
-      return now
-    })
+    // A glide has already said where it is going; the slides passing
+    // through the column on the way there are not news.
+    if (!glide.current) showColumn(columnAt(el, el.scrollLeft))
   }, [])
 
   /**
@@ -196,6 +208,9 @@ export function useRail<T extends HTMLElement = HTMLDivElement>({
       setIndex(i)
       const from = el.scrollLeft
       const to = targetFor(el, slide)
+      // The slides arriving in the column light up as the motion starts,
+      // so the fade runs with the glide rather than after it.
+      showColumn(columnAt(el, to))
       const still = window.matchMedia(
         '(prefers-reduced-motion: reduce)',
       ).matches
