@@ -55,7 +55,7 @@ export function ManualLayout({
                 <li key={entry.slug}>
                   <Link
                     {...chapterLink(entry.slug)}
-                    className="block truncate px-2 py-1.5 text-[13px] leading-snug text-text-secondary transition-colors duration-150 ease-out hover:bg-surface-2 hover:text-text"
+                    className="block truncate px-2 py-1.5 text-[13px] leading-snug text-text-secondary transition-colors duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     activeProps={{
                       className: 'bg-surface-2 text-text font-medium',
                     }}
