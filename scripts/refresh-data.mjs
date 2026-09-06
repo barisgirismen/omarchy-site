@@ -11,6 +11,7 @@
  * Run: node scripts/refresh-data.mjs   (npm run refresh-data)
  * CI runs it on a schedule and commits what changed.
  */
+import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -229,4 +230,173 @@ if (weeks.length === 52 && lastPage) {
     'momentum.json: the commit stats never arrived, so the previous figures ' +
       `stand (checked ${momentum.checked})`,
   )
+}
+
+// ---------------------------------------------------------------- meetups
+// The Omarchy calendar on Luma. With a key, Luma's API lists every event
+// with its cover picture; the key is read and write for the whole calendar
+// and Luma makes no read-only kind, so it lives only in the repository's
+// secrets, never in a file, and only the list is ever read here. Without
+// a key the calendar's public feed gives everything but the covers, so the
+// page can be built and checked with real events either way. The covers
+// are saved small, next to the plugin map, rather than hotlinked.
+const LUMA_CALENDAR = 'cal-SDGGMsEps9ExsrT'
+const MEETUPS = path.join(OUT, 'meetups.json')
+const COVERS = path.join(ROOT, 'public/images/meetups')
+const MEETUPS_SINCE = new Date(Date.now() - 400 * 864e5)
+
+/** A date in one of the feed's shapes, as an ISO string in UTC. */
+function icsDate(value) {
+  const m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?)?(Z?)$/.exec(
+    value,
+  )
+  if (!m) return null
+  const [, y, mo, d, h = '00', mi = '00', s = '00'] = m
+  return new Date(`${y}-${mo}-${d}T${h}:${mi}:${s}Z`).toISOString()
+}
+
+/** The calendar's public feed, as events in the site's shape. */
+async function meetupsFromFeed() {
+  const text = await fetchText(
+    `https://api.lu.ma/ics/get?entity=calendar&id=${LUMA_CALENDAR}`,
+  )
+  // Long lines are folded onto the next with a leading space.
+  const lines = text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/)
+  const events = []
+  let cur = null
+  for (const line of lines) {
+    if (line === 'BEGIN:VEVENT') cur = {}
+    else if (line === 'END:VEVENT') {
+      if (cur) events.push(cur)
+      cur = null
+    } else if (cur) {
+      const at = line.indexOf(':')
+      if (at < 0) continue
+      const [name] = line.slice(0, at).split(';')
+      cur[name] = line
+        .slice(at + 1)
+        .replaceAll('\\n', '\n')
+        .replaceAll('\\,', ',')
+        .replaceAll('\;', ';')
+    }
+  }
+  return events.map((e) => {
+    const id = (e.UID ?? '').replace(/@.*$/, '')
+    const info = /https:\/\/luma\.com\/\S+/.exec(e.DESCRIPTION ?? '')?.[0]
+    const hosted = /Hosted by (.+)$/m.exec(e.DESCRIPTION ?? '')?.[1]
+    // A location that is a link is one the calendar keeps for guests, not
+    // an online event; the feed does not say which events are online.
+    const location = e.LOCATION ?? ''
+    const address = location.startsWith('https://') ? null : location || null
+    const [lat, lon] = (e.GEO ?? '').split(';').map(Number)
+    return {
+      id,
+      title: noEmDash(e.SUMMARY ?? ''),
+      url:
+        info ??
+        (location.startsWith('https://') ? location : `https://luma.com/${id}`),
+      start: icsDate(e.DTSTART ?? ''),
+      end: icsDate(e.DTEND ?? ''),
+      timezone: null,
+      address,
+      city: null,
+      country: address ? address.split(',').pop().trim() : null,
+      online: null,
+      geo: Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null,
+      hosts: hosted ? hosted.split(/\s*[&,]\s*/).filter(Boolean) : [],
+      cover: null,
+    }
+  })
+}
+
+/** Luma's API, page by page, as events in the site's shape. */
+async function meetupsFromApi(key) {
+  const events = []
+  let cursor = null
+  for (;;) {
+    const url = new URL('https://public-api.luma.com/v1/calendar/list-events')
+    url.searchParams.set('after', MEETUPS_SINCE.toISOString())
+    url.searchParams.set('pagination_limit', '100')
+    url.searchParams.set('sort_column', 'start_at')
+    url.searchParams.set('sort_direction', 'asc')
+    if (cursor) url.searchParams.set('pagination_cursor', cursor)
+    const res = await fetch(url, { headers: { 'x-luma-api-key': key } })
+    if (!res.ok) throw new Error(`${url.pathname} → ${res.status}`)
+    const page = await res.json()
+    for (const entry of page.entries ?? []) {
+      const ev = entry.event ?? entry
+      const geo = ev.geo_address_json ?? {}
+      events.push({
+        id: ev.api_id ?? entry.api_id,
+        title: noEmDash(ev.name ?? ''),
+        url: ev.url ?? `https://luma.com/${ev.api_id}`,
+        start: ev.start_at ?? null,
+        end: ev.end_at ?? null,
+        timezone: ev.timezone ?? null,
+        address: geo.full_address ?? geo.address ?? null,
+        city: geo.city ?? geo.city_state ?? null,
+        country: geo.country ?? null,
+        online: !geo.full_address && Boolean(ev.meeting_url),
+        geo:
+          Number.isFinite(geo.latitude) && Number.isFinite(geo.longitude)
+            ? { lat: geo.latitude, lon: geo.longitude }
+            : null,
+        hosts: (entry.hosts ?? []).map((h) => h.name).filter(Boolean),
+        cover: ev.cover_url ?? null,
+      })
+    }
+    if (!page.has_more || !page.next_cursor) break
+    cursor = page.next_cursor
+  }
+  return events
+}
+
+/** Saves an event's cover as a small webp, once; the site links the file. */
+async function saveCover(event) {
+  if (!event.cover) return null
+  const file = path.join(COVERS, `${event.id}.webp`)
+  const rel = `/images/meetups/${event.id}.webp`
+  if (existsSync(file)) return rel
+  const res = await fetch(event.cover)
+  if (!res.ok) return null
+  const sharp = (await import('sharp')).default
+  await mkdir(COVERS, { recursive: true })
+  await sharp(Buffer.from(await res.arrayBuffer()))
+    .resize(800, 450, { fit: 'cover' })
+    .webp({ quality: 80 })
+    .toFile(file)
+  return rel
+}
+
+try {
+  const key = process.env.LUMA_API_KEY
+  const source = key ? 'luma-api' : 'luma-feed'
+  const found = key ? await meetupsFromApi(key) : await meetupsFromFeed()
+  const events = []
+  for (const event of found.filter((e) => e.id && e.title && e.start)) {
+    if (new Date(event.start) < MEETUPS_SINCE) continue
+    events.push({ ...event, cover: await saveCover(event) })
+  }
+  events.sort((a, b) => a.start.localeCompare(b.start))
+  await writeFile(
+    MEETUPS,
+    await prettier.format(
+      JSON.stringify({
+        source,
+        calendar: 'https://luma.com/omarchy',
+        refreshed: new Date().toISOString().slice(0, 10),
+        events,
+      }),
+      { parser: 'json' },
+    ),
+  )
+  const upcoming = events.filter((e) => new Date(e.start) > new Date()).length
+  console.log(
+    `meetups.json: ${events.length} events, ${upcoming} upcoming, from the ${
+      key ? 'API' : 'public feed'
+    }`,
+  )
+} catch (error) {
+  // The page keeps the last good list; say so, since nothing else would.
+  console.warn(`meetups.json: left as it was, ${error.message}`)
 }

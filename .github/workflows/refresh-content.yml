@@ -49,11 +49,15 @@ jobs:
         # thousand an hour for this repository and costs nothing.
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # The Luma calendar. Read and write for the whole calendar, so it
+          # lives here and nowhere else; without it the public feed is read
+          # instead, which has everything but the covers.
+          LUMA_API_KEY: ${{ secrets.LUMA_API_KEY }}
         run: npm run refresh-data
 
       - name: Commit what changed
         run: |
-          git add src/data public/data
+          git add src/data public/data public/images/meetups
           if git diff --cached --quiet; then
             echo "Nothing changed upstream."
             exit 0
