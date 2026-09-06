@@ -42,7 +42,7 @@ function Preview({ id, name }: { id: string; name: string }) {
   )
 }
 
-/** The selected desktop above a compact grid of theme alternatives. */
+/** The selected desktop above a compact list of theme alternatives. */
 export function ThemeShowcase() {
   const worn = useWornTheme()
   const [shown, setShown] = useState<string[]>([])
@@ -66,38 +66,32 @@ export function ThemeShowcase() {
           ))}
         </div>
       </figure>
-      <ul className="mt-4 grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 lg:mt-6 lg:grid-cols-6">
-        {SITE_THEMES.map((theme) => {
+      <ul
+        className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1 font-mono text-sm leading-relaxed lg:mt-6"
+        aria-label="Choose a theme"
+      >
+        {SITE_THEMES.map((theme, index) => {
           const selected = theme.id === worn
           return (
-            <li key={theme.id}>
+            <li key={theme.id} className="inline-flex items-baseline gap-2">
               <button
                 type="button"
                 aria-pressed={selected}
                 onClick={() => applyTheme(theme.id)}
                 className={cn(
-                  'group flex w-full flex-col gap-2 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring',
+                  'whitespace-nowrap underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring',
                   selected
-                    ? 'text-brand'
+                    ? 'text-brand underline'
                     : 'text-text-secondary hover:text-text',
                 )}
               >
-                <img
-                  src={previewSrc(theme.id)}
-                  alt=""
-                  width={1200}
-                  height={675}
-                  loading="lazy"
-                  decoding="async"
-                  className={cn(
-                    'aspect-video w-full object-cover ring-1 transition-shadow duration-150 group-hover:ring-brand',
-                    selected ? 'ring-2 ring-brand' : 'ring-border-subtle',
-                  )}
-                />
-                <span className="text-[11px] leading-snug sm:text-xs">
-                  {theme.name}
-                </span>
+                {theme.name}
               </button>
+              {index < SITE_THEMES.length - 1 && (
+                <span aria-hidden="true" className="text-text-muted">
+                  /
+                </span>
+              )}
             </li>
           )
         })}
