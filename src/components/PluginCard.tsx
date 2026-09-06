@@ -1,5 +1,5 @@
-import { Link } from '@tanstack/react-router'
 import { HeartIcon, StarIcon, VerifiedIcon } from '@/components/icons'
+import { pluginUrl } from '@/lib/plugins'
 import type { CatalogueEntry } from '@/lib/plugins'
 import { cn } from '@/lib/utils'
 
@@ -43,15 +43,14 @@ export function PluginCard({ plugin }: { plugin: CatalogueEntry }) {
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <div className="flex items-center gap-1.5">
           <h3 className="min-w-0 truncate text-sm font-medium text-text">
-            <Link
-              to="/plugins/$pluginId/"
-              params={{ pluginId: plugin.id }}
+            <a
+              href={pluginUrl(plugin.id)}
               className="focus-visible:outline-none"
             >
               {/* Stretched link: the whole card is the hit area */}
               <span className="absolute inset-0" aria-hidden="true" />
               {plugin.name}
-            </Link>
+            </a>
           </h3>
           {plugin.verified ? (
             <VerifiedIcon

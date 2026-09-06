@@ -13,11 +13,16 @@
  *
  *   OMARCHY_SITE_DIR   the checkout to copy from; defaults to this repository
  */
-import { cp, mkdir, readdir, stat, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { ASSETS_ONLY, REDIRECTS, WHOLE } from './site-passthrough.mjs'
+import {
+  ASSETS_ONLY,
+  PLUGINS_SITE,
+  REDIRECTS,
+  WHOLE,
+} from './site-passthrough.mjs'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SITE = path.resolve(process.env.OMARCHY_SITE_DIR ?? ROOT)
@@ -63,8 +68,24 @@ async function copyAssets(rel) {
 
 for (const rel of ASSETS_ONLY) await copyAssets(rel)
 
-// Redirect pages for the addresses the redesign folded into other pages.
-for (const [from, to] of Object.entries(REDIRECTS)) {
+// Redirect pages for the addresses the redesign folded into other pages,
+// and for the plugin directory, which lives on its own site for launch:
+// the listing, its three sub pages, and a page per plugin, all forwarded.
+const { plugins } = JSON.parse(
+  await readFile(new URL('../src/data/plugins.json', import.meta.url), 'utf8'),
+)
+const redirects = {
+  ...REDIRECTS,
+  '/plugins/': `${PLUGINS_SITE}/`,
+  '/plugins/explore/': `${PLUGINS_SITE}/explore.html`,
+  '/plugins/develop/': `${PLUGINS_SITE}/develop.html`,
+  '/plugins/publish/': `${PLUGINS_SITE}/publish.html`,
+  ...Object.fromEntries(
+    plugins.map((p) => [`/plugins/${p.id}/`, `${PLUGINS_SITE}/#catalog`]),
+  ),
+}
+for (const [from, to] of Object.entries(redirects)) {
+  const canonical = to.startsWith('http') ? to : `https://omarchy.org${to}`
   const file = path.join(OUT, from, 'index.html')
   await mkdir(path.dirname(file), { recursive: true })
   await writeFile(
@@ -75,7 +96,7 @@ for (const [from, to] of Object.entries(REDIRECTS)) {
 <meta charset="utf-8">
 <title>Redirecting to ${to}</title>
 <meta http-equiv="refresh" content="0;url=${to}">
-<link rel="canonical" href="https://omarchy.org${to}">
+<link rel="canonical" href="${canonical}">
 <meta name="robots" content="noindex">
 <script>window.location.replace(${JSON.stringify(to)})</script>
 </head>

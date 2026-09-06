@@ -4,6 +4,11 @@ import { staticFunctionMiddleware } from '@tanstack/start-static-server-function
 import { DEFAULT_QUERY, listPlugins, toCatalogueEntry } from './plugin-filter'
 import type { Engagement } from './plugin-filter'
 
+/** Where the plugin directory lives for launch: its own site. There is no
+ *  page per plugin there, so a plugin points at the catalogue. */
+export const PLUGINS_SITE = 'https://plugins.omarchy.org'
+export const pluginUrl = (_id: string) => `${PLUGINS_SITE}/#catalog`
+
 export type Plugin = {
   id: string
   name: string

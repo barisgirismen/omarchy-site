@@ -35,6 +35,9 @@ export const ASSETS_ONLY = ['news', 'manual', 'omakub', 'brand']
  * other pages. GitHub Pages cannot redirect, so each gets a page that does
  * - the same way the site's own /discord/ has always worked.
  */
+/** Where the plugin directory lives for launch: its own site. */
+export const PLUGINS_SITE = 'https://plugins.omarchy.org'
+
 export const REDIRECTS = {
   '/manual/toc/': '/manual/',
   '/security/credits/': '/security/#credits',

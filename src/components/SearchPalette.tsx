@@ -5,6 +5,7 @@ import type { SearchEntry } from '@/lib/content'
 import { getSearchIndex } from '@/lib/content'
 import type { SearchHit } from '@/lib/search'
 import { KIND_LABEL, OPEN_SEARCH_EVENT, searchAll } from '@/lib/search'
+import { pluginUrl } from '@/lib/plugins'
 
 /**
  * Search the manual from anywhere, as a palette rather than a field in the
@@ -138,10 +139,8 @@ export function SearchPalette() {
       return
     }
     if (hit.kind === 'plugin') {
-      void navigate({
-        to: '/plugins/$pluginId/',
-        params: { pluginId: hit.slug },
-      })
+      // The directory is its own site now; a new tab, like every link out.
+      window.open(pluginUrl(hit.slug), '_blank', 'noopener')
       return
     }
     void navigate({ to: '/themes/' })

@@ -80,13 +80,6 @@ function portedPages() {
   )
 }
 
-function pluginPages() {
-  const { plugins } = JSON.parse(
-    readFileSync(new URL('./src/data/plugins.json', import.meta.url), 'utf8'),
-  ) as { plugins: Array<{ id: string }> }
-  return plugins.map((p) => ({ path: `/plugins/${p.id}/` }))
-}
-
 const config = defineConfig({
   // Bound to every interface, not just loopback: this is checked on a phone
   // on the same network as often as it is in a desktop browser, and passing
@@ -125,7 +118,6 @@ const config = defineConfig({
           const owned = [
             '/manual',
             '/news',
-            '/plugins',
             '/themes',
             '/404',
             '/air',
@@ -168,11 +160,6 @@ const config = defineConfig({
           path: '/404/',
           prerender: { enabled: true, outputPath: '/404.html' },
         },
-        // Every plugin page, by name. The crawl only follows links, and the
-        // listing's second page onward sits behind a query string the crawl
-        // does not carry, so all but the first page's plugins would be left
-        // unrendered. The catalogue knows them all.
-        ...pluginPages(),
         // Every ported page, by name, for the same reason: a page nothing
         // links to - the potato page, the server teaser - is still a page
         // omarchy.org answers for, and the crawl alone would never reach it.

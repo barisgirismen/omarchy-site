@@ -18,11 +18,6 @@ import { Route as ThemesRouteImport } from './routes/themes'
 import { Route as ManualIndexRouteImport } from './routes/manual.index'
 import { Route as ManualSlugRouteImport } from './routes/manual.$slug'
 import { Route as NewsIndexRouteImport } from './routes/news.index'
-import { Route as PluginsIndexRouteImport } from './routes/plugins.index'
-import { Route as PluginsPluginIdRouteImport } from './routes/plugins.$pluginId'
-import { Route as PluginsDevelopRouteImport } from './routes/plugins.develop'
-import { Route as PluginsExploreRouteImport } from './routes/plugins.explore'
-import { Route as PluginsPublishRouteImport } from './routes/plugins.publish'
 import { Route as NewsYearMonthSlugRouteImport } from './routes/news.$year.$month.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -70,31 +65,6 @@ const NewsIndexRoute = NewsIndexRouteImport.update({
   path: '/news/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PluginsIndexRoute = PluginsIndexRouteImport.update({
-  id: '/plugins/',
-  path: '/plugins/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PluginsPluginIdRoute = PluginsPluginIdRouteImport.update({
-  id: '/plugins/$pluginId',
-  path: '/plugins/$pluginId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PluginsDevelopRoute = PluginsDevelopRouteImport.update({
-  id: '/plugins/develop',
-  path: '/plugins/develop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PluginsExploreRoute = PluginsExploreRouteImport.update({
-  id: '/plugins/explore',
-  path: '/plugins/explore',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PluginsPublishRoute = PluginsPublishRouteImport.update({
-  id: '/plugins/publish',
-  path: '/plugins/publish',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NewsYearMonthSlugRoute = NewsYearMonthSlugRouteImport.update({
   id: '/news/$year/$month/$slug',
   path: '/news/$year/$month/$slug',
@@ -109,13 +79,8 @@ export interface FileRoutesByFullPath {
   '/teams': typeof TeamsRoute
   '/themes': typeof ThemesRoute
   '/manual/$slug': typeof ManualSlugRoute
-  '/plugins/$pluginId': typeof PluginsPluginIdRoute
-  '/plugins/develop': typeof PluginsDevelopRoute
-  '/plugins/explore': typeof PluginsExploreRoute
-  '/plugins/publish': typeof PluginsPublishRoute
   '/manual/': typeof ManualIndexRoute
   '/news/': typeof NewsIndexRoute
-  '/plugins/': typeof PluginsIndexRoute
   '/news/$year/$month/$slug': typeof NewsYearMonthSlugRoute
 }
 export interface FileRoutesByTo {
@@ -125,13 +90,8 @@ export interface FileRoutesByTo {
   '/teams': typeof TeamsRoute
   '/themes': typeof ThemesRoute
   '/manual/$slug': typeof ManualSlugRoute
-  '/plugins/$pluginId': typeof PluginsPluginIdRoute
-  '/plugins/develop': typeof PluginsDevelopRoute
-  '/plugins/explore': typeof PluginsExploreRoute
-  '/plugins/publish': typeof PluginsPublishRoute
   '/manual': typeof ManualIndexRoute
   '/news': typeof NewsIndexRoute
-  '/plugins': typeof PluginsIndexRoute
   '/news/$year/$month/$slug': typeof NewsYearMonthSlugRoute
 }
 export interface FileRoutesById {
@@ -143,13 +103,8 @@ export interface FileRoutesById {
   '/teams': typeof TeamsRoute
   '/themes': typeof ThemesRoute
   '/manual/$slug': typeof ManualSlugRoute
-  '/plugins/$pluginId': typeof PluginsPluginIdRoute
-  '/plugins/develop': typeof PluginsDevelopRoute
-  '/plugins/explore': typeof PluginsExploreRoute
-  '/plugins/publish': typeof PluginsPublishRoute
   '/manual/': typeof ManualIndexRoute
   '/news/': typeof NewsIndexRoute
-  '/plugins/': typeof PluginsIndexRoute
   '/news/$year/$month/$slug': typeof NewsYearMonthSlugRoute
 }
 export interface FileRouteTypes {
@@ -162,13 +117,8 @@ export interface FileRouteTypes {
     | '/teams'
     | '/themes'
     | '/manual/$slug'
-    | '/plugins/$pluginId'
-    | '/plugins/develop'
-    | '/plugins/explore'
-    | '/plugins/publish'
     | '/manual/'
     | '/news/'
-    | '/plugins/'
     | '/news/$year/$month/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -178,13 +128,8 @@ export interface FileRouteTypes {
     | '/teams'
     | '/themes'
     | '/manual/$slug'
-    | '/plugins/$pluginId'
-    | '/plugins/develop'
-    | '/plugins/explore'
-    | '/plugins/publish'
     | '/manual'
     | '/news'
-    | '/plugins'
     | '/news/$year/$month/$slug'
   id:
     | '__root__'
@@ -195,13 +140,8 @@ export interface FileRouteTypes {
     | '/teams'
     | '/themes'
     | '/manual/$slug'
-    | '/plugins/$pluginId'
-    | '/plugins/develop'
-    | '/plugins/explore'
-    | '/plugins/publish'
     | '/manual/'
     | '/news/'
-    | '/plugins/'
     | '/news/$year/$month/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -212,12 +152,7 @@ export interface RootRouteChildren {
   ManualRoute: typeof ManualRouteWithChildren
   TeamsRoute: typeof TeamsRoute
   ThemesRoute: typeof ThemesRoute
-  PluginsPluginIdRoute: typeof PluginsPluginIdRoute
-  PluginsDevelopRoute: typeof PluginsDevelopRoute
-  PluginsExploreRoute: typeof PluginsExploreRoute
-  PluginsPublishRoute: typeof PluginsPublishRoute
   NewsIndexRoute: typeof NewsIndexRoute
-  PluginsIndexRoute: typeof PluginsIndexRoute
   NewsYearMonthSlugRoute: typeof NewsYearMonthSlugRoute
 }
 
@@ -286,41 +221,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/plugins/': {
-      id: '/plugins/'
-      path: '/plugins'
-      fullPath: '/plugins/'
-      preLoaderRoute: typeof PluginsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/plugins/$pluginId': {
-      id: '/plugins/$pluginId'
-      path: '/plugins/$pluginId'
-      fullPath: '/plugins/$pluginId'
-      preLoaderRoute: typeof PluginsPluginIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/plugins/develop': {
-      id: '/plugins/develop'
-      path: '/plugins/develop'
-      fullPath: '/plugins/develop'
-      preLoaderRoute: typeof PluginsDevelopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/plugins/explore': {
-      id: '/plugins/explore'
-      path: '/plugins/explore'
-      fullPath: '/plugins/explore'
-      preLoaderRoute: typeof PluginsExploreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/plugins/publish': {
-      id: '/plugins/publish'
-      path: '/plugins/publish'
-      fullPath: '/plugins/publish'
-      preLoaderRoute: typeof PluginsPublishRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/news/$year/$month/$slug': {
       id: '/news/$year/$month/$slug'
       path: '/news/$year/$month/$slug'
@@ -351,12 +251,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManualRoute: ManualRouteWithChildren,
   TeamsRoute: TeamsRoute,
   ThemesRoute: ThemesRoute,
-  PluginsPluginIdRoute: PluginsPluginIdRoute,
-  PluginsDevelopRoute: PluginsDevelopRoute,
-  PluginsExploreRoute: PluginsExploreRoute,
-  PluginsPublishRoute: PluginsPublishRoute,
   NewsIndexRoute: NewsIndexRoute,
-  PluginsIndexRoute: PluginsIndexRoute,
   NewsYearMonthSlugRoute: NewsYearMonthSlugRoute,
 }
 export const routeTree = rootRouteImport
