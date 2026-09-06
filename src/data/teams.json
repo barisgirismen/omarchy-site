@@ -119,6 +119,12 @@
     "meta": "Chile",
     "href": "https://x.com/avillagran",
     "avatar": "/assets/images/team/andres-villagran.webp"
+   },
+   {
+    "name": "Niklas Jul",
+    "meta": "Denmark",
+    "href": "https://github.com/SirJul1337",
+    "avatar": "/assets/images/team/niklas-jul.webp"
    }
   ],
   "note": null
