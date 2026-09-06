@@ -11,10 +11,10 @@ const columns = [
   {
     title: 'Explore',
     links: [
+      { label: 'News', to: '/news/' },
       { label: 'Manual', to: '/manual/' },
       { label: 'Plugins', href: 'https://plugins.omarchy.org' },
       { label: 'Themes', to: '/themes/' },
-      { label: 'News', to: '/news/' },
     ],
   },
   {
@@ -28,8 +28,8 @@ const columns = [
   },
   {
     title: 'Foundation',
-    splat: 'foundation',
     links: [
+      { label: 'About', splat: 'foundation' },
       { label: 'Patrons', splat: 'patrons' },
       { label: 'Sponsorships', splat: 'sponsorships' },
       { label: 'Artists in Residence', splat: 'air' },
@@ -45,7 +45,6 @@ const columns = [
         label: 'Merch',
         href: 'https://supply.37signals.com/collections/omarchy',
       },
-      { label: 'Omakub', splat: 'omakub' },
     ],
   },
 ] as const
@@ -134,17 +133,7 @@ export function SiteFooter() {
             {columns.map((col) => (
               <nav key={col.title} data-quiet aria-label={col.title}>
                 <h2 className="font-sans text-xs tracking-widest text-text-muted uppercase">
-                  {'splat' in col ? (
-                    <Link
-                      to="/$/"
-                      params={{ _splat: col.splat }}
-                      className={focusRing}
-                    >
-                      {col.title}
-                    </Link>
-                  ) : (
-                    col.title
-                  )}
+                  {col.title}
                 </h2>
                 <ul className="mt-3.5 flex flex-col gap-2.5">
                   {col.links.map((link) => (
