@@ -4,6 +4,29 @@ Beautiful, Fun & Agentic Linux by DHH.
 
 See https://github.com/omacom/omarchy for more.
 
+## Working on the site
+
+Run `npm ci`, then `npm run dev` (or `bin/serve`) to preview the React site.
+`npm run build` produces the static site in `dist/client`; `npm run parity`
+checks its page URLs and verifies that passthrough files are unchanged.
+
+The HTML under the standalone page directories, `themes/`, `manual/`, and
+dated `news/` directories is **content input**, not a second site design.
+`scripts/port_content.py` extracts it into `src/data` on every build. Keep
+layout, navigation, and styling in `src/`; preview through the dev server.
+After editing content inputs, run `npm run port` to refresh the dev data.
+
+- Edit standalone page content in its existing `index.html`.
+- Edit the homepage announcement in `src/data/banner.json` (`null` hides it).
+- Run `bin/build-news` after editing Markdown in `content/news/`; it updates
+  article inputs, images, and the RSS feed.
+- Run `bin/build-manual [path/to/omarchy/manual]` to refresh manual inputs and
+  images. The React site builds its table of contents and search index.
+
+The screensaver, patron badges, and Discord redirect are still served
+directly. Their styles, fonts, and scripts remain under `assets/`, alongside
+shared images and public downloads.
+
 ## Adding your theme
 
 Community themes are listed on [omarchy.org/themes](https://omarchy.org/themes/).

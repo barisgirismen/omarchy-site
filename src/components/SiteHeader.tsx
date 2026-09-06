@@ -2,13 +2,14 @@ import { Link, useLocation } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import {
-  BrushIcon,
   DownloadIcon,
   GithubIcon,
   MenuBarsIcon,
+  PaletteIcon,
   SearchIcon,
 } from '@/components/icons'
 import { OmarchyMarkDrawn } from '@/components/Brand'
+import { MusicMenuControl } from '@/components/MusicControl'
 import { Button } from '@/components/ui/button'
 import { useHashLink, useTopLink } from '@/lib/hash-scroll'
 import { OPEN_PICKER_EVENT, THEME_EVENT, groundOf } from '@/lib/theme'
@@ -18,7 +19,9 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { to: '/manual/', label: 'Manual' },
-  { to: '/plugins/', label: 'Plugins' },
+  // Plugins points at the standalone directory for launch; the built-in
+  // pages stay routable but unlinked.
+  { href: 'https://plugins.omarchy.org', label: 'Plugins' },
   { to: '/themes/', label: 'Themes' },
   { to: '/news/', label: 'News' },
 ] as const
@@ -457,8 +460,7 @@ export function SiteHeader() {
     </Button>
   )
 
-  /** The same brush the picker's own hint card shows, so the thing that
-   *  teaches the shortcut and the thing that opens it are one mark. */
+  /** The palette, filled, for the theme picker. */
   const theme = (
     <Button
       variant="ghost"
@@ -468,7 +470,7 @@ export function SiteHeader() {
       className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
       onClick={() => window.dispatchEvent(new CustomEvent(OPEN_PICKER_EVENT))}
     >
-      <BrushIcon className="size-5" />
+      <PaletteIcon className="size-5" />
     </Button>
   )
 
@@ -526,16 +528,26 @@ export function SiteHeader() {
           {glyph}
 
           <nav aria-label="Main" className="hidden items-center sm:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                activeProps={{ className: 'text-text bg-surface-2' }}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              'href' in link ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  className="px-3 py-1.5 text-sm whitespace-nowrap text-text-secondary transition-[background-color] duration-150 ease-out hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  activeProps={{ className: 'text-text bg-surface-2' }}
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
           </nav>
 
           <div className="ml-auto flex items-center gap-2.5">
@@ -598,17 +610,28 @@ export function SiteHeader() {
           aria-label="Main pages"
           className="mx-auto flex max-w-6xl flex-col px-4 py-2"
         >
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setMenuOpen(false)}
-              className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              activeProps={{ className: 'text-text font-medium' }}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            'href' in link ? (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.label}
+                to={link.to}
+                onClick={() => setMenuOpen(false)}
+                className="py-3 text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                activeProps={{ className: 'text-text font-medium' }}
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
           <button
             type="button"
             onClick={() => {
@@ -628,9 +651,12 @@ export function SiteHeader() {
             }}
             className="flex items-center gap-2.5 py-3 text-left text-[15px] text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            <BrushIcon className="size-5" />
+            <PaletteIcon className="size-5" />
             Change the theme
           </button>
+          {/* On a phone the sound control lives here rather than as a card
+              over the hero, where it covered a good part of the screen. */}
+          <MusicMenuControl open={menuOpen} />
           <div className="mt-2 flex items-center gap-2.5 border-t border-border-subtle pt-4 pb-2">
             <Button
               className="flex-1"
@@ -702,7 +728,7 @@ export function HeroNavGhost() {
         <span className="hidden items-center sm:flex">
           {navLinks.map((link) => (
             <span
-              key={link.to}
+              key={link.label}
               className="px-3 py-1.5 text-sm whitespace-nowrap"
               style={{ color: 'var(--t-hdr-text-2)' }}
             >
@@ -720,7 +746,7 @@ export function HeroNavGhost() {
               <SearchIcon className="size-5" />
             </span>
             <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
-              <BrushIcon className="size-5" />
+              <PaletteIcon className="size-5" />
             </span>
             <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
               <GithubIcon className="size-5" />

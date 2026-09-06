@@ -1,11 +1,19 @@
 import { useEffect, useRef } from 'react'
-import { OPEN_PICKER_EVENT, PICKER_STATE_EVENT, THEME_EVENT } from '@/lib/theme'
+import { PICKER_STATE_EVENT, THEME_EVENT } from '@/lib/theme'
 import { GRID_CLEAR_EVENT, GRID_EVENT } from '@/lib/pixel-grid'
 import {
   WORDMARK_HEIGHT,
   WORDMARK_ROWS,
   WORDMARK_WIDTH,
 } from '@/data/wordmark-bitmap'
+import {
+  ETCH_EVENT,
+  effectFromLocation,
+  resolveEffect,
+  startEtch,
+} from '@/lib/etch'
+import { BANDS, loadMusic, music } from '@/lib/music'
+import type { Etch } from '@/lib/etch'
 
 /**
  * A word drawn on the field's own lattice. The hero wears the wordmark; the
@@ -58,6 +66,94 @@ const NOISE_SIZE = 128
 const CELLS_PER_NOISE = 9
 /** Cursor reach, in grid cells. */
 const CURSOR_CELLS = 12
+
+/* The track. From the first paint, the field itself listens: each column of
+ * cells belongs to a band of the spectrum, mirrored about the middle with
+ * the bass at the outer edges where the resting field is densest and the
+ * treble towards the centre, and the band's loudness decides how far up
+ * from the bottom that column's dither thickens. Nothing is drawn on top
+ * of the field; the same cells, the same dither, a different reason to
+ * light. The ramp still keeps the middle clear for the word and the copy.
+ * Beats push the glows out for a moment. The logo stamp stays a press's,
+ * and the sprite's below. */
+/** How much of the field's height the loudest band may climb. */
+const SPECTRUM_REACH = 0.92
+/** How dense a column gets, and how much of it wears the main ink. */
+const SPECTRUM_DENSITY = 0.7
+const SPECTRUM_HEAT = 0.5
+/** Below this a band is resting and its column shows nothing extra. */
+const SPECTRUM_FLOOR = 0.08
+/* The sprite. A second glow flies the field by itself the whole time,
+ * along a slow looping path, whatever the pointer is doing, so the hero
+ * is never sitting still and nobody has to find the field's tricks by
+ * hand. It is a little quieter than the pointer's glow, still hushes
+ * near the copy, and fades in over the first moment. The pointer keeps a
+ * glow of its own; where the two overlap, the brighter wins. */
+/** How bright the sprite's glow is, against the pointer's. */
+const SPRITE_STRENGTH = 0.7
+/* The sprite stamps too. As it flies it charges a logo where it is, the
+ * way a held press does, lets it go, and flies on, so the stamp is seen
+ * by people who never think to click the field. Each stamp is charged a
+ * different amount, so they come in different sizes, and the pause
+ * between them varies so they never fall into a beat. */
+/** Seconds the sprite flies before its first stamp, and between stamps. */
+const SPRITE_FIRST_STAMP_WAIT = [1.5, 2.5] as const
+const SPRITE_STAMP_WAIT = [3, 6] as const
+/** How much of the sprite's glow stays while it charges a stamp. A press
+ * hushes the pointer's glow outright, but there the pointer is still on
+ * screen; the sprite has nothing but its glow, so it dims rather than
+ * vanishes. */
+const SPRITE_CHARGE_GLOW = 0.4
+/** How far the sprite charges a stamp, as a share of a full hold: from
+ * a bare tap to the biggest bloom a hold can make, any of it. */
+const SPRITE_STAMP_CHARGE = [0, 1] as const
+/**
+ * Whether the head script kept the server-rendered word out of sight for
+ * an effect to make it. Read from the mark the script leaves, not from the
+ * hiding class, since the page lets that class go as soon as the word's own
+ * hidden class is in place, and this field may well arrive later than that
+ * when its chunk comes over the network. Read once, so the answer holds
+ * for the page however many times the field is set up.
+ */
+let heldAnswer: boolean | null = null
+function wordWasHeld() {
+  if (heldAnswer === null)
+    heldAnswer = document.documentElement.hasAttribute('data-etch-held')
+  return heldAnswer
+}
+
+/**
+ * The word at rest wears the gradient the laser leaves it with: ttfx's
+ * own ending, white at the top through cyan to purple at the foot, as it
+ * lands on the theme's five inks row by row. Fixed here as the bands it
+ * makes, so every theme wears the same bands and the server-rendered word
+ * can wear them too (see the hero's OmarchyWordmark).
+ */
+const LASER_BANDS = [
+  'crest',
+  'crest',
+  'crest',
+  'crest',
+  'crest',
+  'hover',
+  'hover',
+  'lit',
+  'lit',
+  'lit',
+  'lit',
+  'mid',
+  'mid',
+  'mid',
+  'dim',
+  'dim',
+  'dim',
+  'dim',
+  'dim',
+] as const
+
+/** How much of a band's height a beat adds, and how fast that fades. */
+const BEAT_REACH = 0.8
+const BEAT_DECAY = 0.84
 
 /**
  * The square-spiral logo glyph as a 15x15 bitmap, taken from
@@ -279,16 +375,160 @@ export function HeroPixelField({
     // Re-read the palette when the theme changes; the next frame paints in
     // the new colors. Reduced motion repaints once, immediately.
     let palette = readPalette()
+
+    /** A CSS colour as [r, g, b], or null if it is not a plain hex/rgb. */
+    const parse = (css: string): [number, number, number] | null => {
+      const hex = /^#([0-9a-f]{6})$/i.exec(css.trim())
+      if (hex) {
+        const n = parseInt(hex[1], 16)
+        return [n >> 16, (n >> 8) & 255, n & 255]
+      }
+      const rgb = /^rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/i.exec(css.trim())
+      return rgb ? [+rgb[1], +rgb[2], +rgb[3]] : null
+    }
+    const luma = ([r, g, b]: [number, number, number]) =>
+      (r * 299 + g * 587 + b * 114) / 255000
+    // The theme's inks for the word, sorted by brightness, so any colour
+    // an effect paints - its own blues, oranges, whites - lands on the
+    // nearest ink of the theme instead. Rebuilt when the theme changes.
+    let inks: { css: string; rgb: [number, number, number]; l: number }[] = []
+    const buildRamp = () => {
+      inks = []
+      for (const css of [
+        palette.dim,
+        palette.mid,
+        palette.lit,
+        palette.hover,
+        palette.crest,
+      ]) {
+        const rgb = parse(css)
+        if (rgb) inks.push({ css, rgb, l: luma(rgb) })
+      }
+      inks.sort((a, b) => a.l - b.l)
+    }
+    buildRamp()
+    /** The theme ink nearest in brightness to a packed 0xRRGGBB. */
+    const themeInk = (packed: number) => {
+      if (inks.length === 0) return palette.lit
+      const l = luma([packed >> 16, (packed >> 8) & 255, packed & 255])
+      let best = inks[0]
+      for (const ink of inks)
+        if (Math.abs(ink.l - l) < Math.abs(best.l - l)) best = ink
+      return best.css
+    }
+    /** The resting ink of each row of the word, in this theme. A word of
+     *  another height (the 404's) takes the bands in proportion. */
+    let restInks: string[] = []
+    const buildRestInks = () => {
+      restInks = []
+      for (let row = 0; row < glyph.height; row++) {
+        const band = Math.floor((row / glyph.height) * LASER_BANDS.length)
+        restInks.push(palette[LASER_BANDS[band]])
+      }
+    }
+    buildRestInks()
+    /** The resting ink at a device-px height within the word. */
+    const restInkAt = (cy: number) => {
+      const row = Math.floor((cy - wmY) / wmCH)
+      return restInks[Math.max(0, Math.min(restInks.length - 1, row))]
+    }
+    /** A colour part way from one CSS colour to another. */
+    const mix = (from: string, to: string, t: number) => {
+      if (t <= 0) return from
+      if (t >= 1) return to
+      const a = parse(from)
+      const b = parse(to)
+      if (!a || !b) return t < 0.5 ? from : to
+      const c = a.map((v, i) => Math.round(v + (b[i] - v) * t))
+      return `rgb(${c[0]},${c[1]},${c[2]})`
+    }
+
+    // The word is cut into the field by ttfx's laser (see lib/etch): once
+    // when the field first paints, and again after a theme is taken. While
+    // the laser runs, the wordmark's cells are its to paint; when it is
+    // done, the word is drawn here as ever, and hover and the ripple carry
+    // on. Walking the deck changes the theme with the picker still up, so
+    // the cut waits for the picker to close and then plays once, in the
+    // inks that were taken.
+    let etch: Etch | null = null
+    let etchPending = false
+    // The entrance plays only if the word has been kept out of sight since
+    // the first paint (see etchInitScript). If the scripts arrived so late
+    // that the word had to be shown already, there is nothing to reveal,
+    // and the effects wait for a theme change instead. Answered once for
+    // the page: this setup runs again whenever the home page re-renders.
+    const held = wordWasHeld()
+    /** Until the first cut has begun, the word's cells stay dark. */
+    let awaitingFirstEtch = isHero && !reducedMotion && held
+    let etchToken = 0
+    let disposed = false
+    // The music: it is moving from the first paint, muted, off the track's
+    // timeline, and live once the sound is on. The bands are smoothed with
+    // a quick rise and a slow fall so peaks snap and tails linger, and the
+    // beat pulse decays frame by frame. Only the hero listens, and never
+    // under reduced motion.
+    const spectrumOn = isHero && !reducedMotion
+    if (spectrumOn) void loadMusic()
+    const bandsNow = new Float32Array(BANDS)
+    let beatPulse = 0
+
+    let effect = effectFromLocation()
+    const beginEtch = () => {
+      const token = ++etchToken
+      etch?.free()
+      etch = null
+      void startEtch(
+        glyph.rows,
+        glyph.width,
+        glyph.height,
+        [palette.lit, palette.hover, palette.crest],
+        resolveEffect(effect),
+      )
+        .then((next) => {
+          if (token !== etchToken || disposed) {
+            next.free()
+            return
+          }
+          etch = next
+          awaitingFirstEtch = false
+        })
+        .catch((error: unknown) => {
+          // No engine, no laser: the word simply is.
+          console.warn('etch: not played', error)
+          awaitingFirstEtch = false
+        })
+    }
+    if (awaitingFirstEtch) beginEtch()
+
+    // Picking an effect plays it at once, whatever the picker is doing.
+    const onEtch = (event: Event) => {
+      const wanted = (event as CustomEvent<string>).detail
+      if (!isHero || reducedMotion || typeof wanted !== 'string') return
+      effect = wanted
+      etchPending = false
+      beginEtch()
+    }
+    window.addEventListener(ETCH_EVENT, onEtch)
+
     const onTheme = () => {
       palette = readPalette()
+      buildRamp()
+      buildRestInks()
       if (reducedMotion) draw(lastDraw)
+      else if (isHero) {
+        if (pickerOpen) etchPending = true
+        else beginEtch()
+      }
     }
     window.addEventListener(THEME_EVENT, onTheme)
 
     const onPickerState = (event: Event) => {
       pickerOpen = Boolean((event as CustomEvent).detail?.open)
+      if (!pickerOpen && etchPending) {
+        etchPending = false
+        beginEtch()
+      }
       if (pickerOpen) {
-        logoHoverTarget = 0
         targetStrength = 0
         if (sectionEl) sectionEl.style.cursor = ''
       }
@@ -337,16 +577,28 @@ export function HeroPixelField({
     // the pointer cursor belongs to while it is over the word.
     const sectionEl = host.closest<HTMLElement>('section, main')
     const pointer = { x: -1e4, y: -1e4 }
+    /** The sprite: where it is and how brightly it glows this frame. */
+    const sprite = { x: -1e4, y: -1e4, strength: 0 }
     let visible = true
     let strength = 0
     let targetStrength = 0
     let pings: Ping[] = []
     let holding: { x: number; y: number; start: number } | null = null
-    // The wordmark doubles as the theme button: hovering any of its lit
-    // pixels raises the whole logo to the hover tint, and a click opens
-    // the picker rather than firing a stamp.
-    let logoHover = 0
-    let logoHoverTarget = 0
+    /** A stamp the sprite is charging: where, since when, and how far. */
+    let spriteHold: {
+      x: number
+      y: number
+      start: number
+      charge: number
+    } | null = null
+    /** When the sprite next starts charging a stamp. */
+    let spriteStampAt = Infinity
+    // The wordmark is a button: the pointer turns to a hand over it, and a
+    // click plays the word in again with another effect rather than firing
+    // a stamp. The word keeps its bands under the pointer; only the cursor
+    // says it can be pressed. The 404 gives the press its own meaning
+    // (home). With motion reduced there is no effect to play, so the word
+    // is not a button there.
     let logoPending = false
     let pickerOpen = false
 
@@ -368,13 +620,40 @@ export function HeroPixelField({
      * them. Hovering is unaffected - the hero still lights up under its own
      * buttons, which is the part worth keeping.
      */
+    // A press that belongs to something else is not a press on the field:
+    // any link, button or form control, anything in the site header, and
+    // anything that marks itself out (the music card, the dev panel).
     const onControl = (target: EventTarget | null) =>
       target instanceof Element &&
-      target.closest('a, button, [role="button"]') !== null
+      target.closest(
+        'a, button, input, select, textarea, label, [role="button"], header, [data-no-stamp]',
+      ) !== null
 
     /** 0..1: how far a held press has charged. */
     const chargeOf = (now: number, start: number) =>
       Math.min((now - start) / 1000 / CHARGE_TIME, 1)
+
+    /** Launches a stamp at a point from a charge. The launch continues
+     * from the charged size: bigger charges bloom further and take longer
+     * to dissolve. The uncharged tap stays small; the extra reach is mostly
+     * bought by holding. The queue stays short so a mash stays legible. */
+    const launch = (x: number, y: number, charge: number, now: number) => {
+      const from = CHARGE_FROM + CHARGE_GROWTH * charge
+      pings = [
+        ...pings.slice(-3),
+        {
+          x,
+          y,
+          born: now,
+          from,
+          to: (from + 1.0 + 3.2 * charge) * (0.92 + Math.random() * 0.16),
+          life: (0.65 + 0.55 * charge) * (0.92 + Math.random() * 0.16),
+        },
+      ]
+    }
+
+    const between = ([lo, hi]: readonly [number, number]) =>
+      lo + Math.random() * (hi - lo)
 
     const measure = () => {
       const box = host.getBoundingClientRect()
@@ -512,20 +791,99 @@ export function HeroPixelField({
     const draw = (time: number) => {
       const t = reducedMotion ? 0 : time / 1000
 
+      // The sprite flies whatever the pointer does. Its path is a brisk
+      // figure that covers the whole field, two swings at different
+      // tempos so it never quite repeats, with a wobble on top. Near the
+      // copy the glow hushes itself as it always has.
+      let spriteGoal = 0
+      if (isHero && !reducedMotion) {
+        const ts = time / 1000
+        const wobble = 0.05 * Math.sin(ts * 2.2 + 0.6)
+        sprite.x = width * (0.5 + (0.44 + wobble) * Math.sin(ts * 0.65))
+        sprite.y = height * (0.48 + (0.38 - wobble) * Math.sin(ts * 0.39 + 1.1))
+        const box = host.getBoundingClientRect()
+        spriteGoal =
+          strengthAt(box.left + sprite.x / dpr, box.top + sprite.y / dpr) *
+          SPRITE_STRENGTH
+
+        // As it flies it stamps: it charges a logo under itself, as a held
+        // press would, and lets go at its chosen charge. The charge rides
+        // with the sprite, so the stamp is always where the sprite is when
+        // it fires; the sprite only dims while charging so the growing
+        // glyph reads clean.
+        if (spriteStampAt === Infinity)
+          spriteStampAt = time + between(SPRITE_FIRST_STAMP_WAIT) * 1000
+        if (!spriteHold && time >= spriteStampAt) {
+          spriteHold = {
+            x: sprite.x,
+            y: sprite.y,
+            start: time,
+            charge: between(SPRITE_STAMP_CHARGE),
+          }
+        }
+        if (spriteHold) {
+          spriteHold.x = sprite.x
+          spriteHold.y = sprite.y
+          spriteGoal *= SPRITE_CHARGE_GLOW
+          if (chargeOf(time, spriteHold.start) >= spriteHold.charge) {
+            launch(spriteHold.x, spriteHold.y, spriteHold.charge, time)
+            spriteHold = null
+            spriteStampAt = time + between(SPRITE_STAMP_WAIT) * 1000
+          }
+        }
+      }
+      // The sprite's glow eases slower than the pointer's, so it arrives
+      // as a glide and its dimming while charging reads as breath.
+      sprite.strength += (spriteGoal - sprite.strength) * 0.08
+
       // The pointer itself is never smoothed: the cells under the cursor are
       // the cells that light. Only the fade in and out of the field's
       // response is eased.
       strength += (targetStrength - strength) * 0.3
-      logoHover = reducedMotion
-        ? logoHoverTarget
-        : logoHover + (logoHoverTarget - logoHover) * 0.25
 
       ctx.fillStyle = palette.bg
       ctx.fillRect(0, 0, width, height)
 
+      // What the speakers are doing this frame. Bands rise fast and fall
+      // slowly, so a hit lands at once and its tail lingers.
+      let beatNow = 0
+      let listening = false
+      if (spectrumOn) {
+        const heard = music.sample(time)
+        for (let i = 0; i < BANDS; i++) {
+          const rise = heard.bands[i] > bandsNow[i]
+          bandsNow[i] += (heard.bands[i] - bandsNow[i]) * (rise ? 0.7 : 0.14)
+          if (bandsNow[i] > 0.01) listening = true
+        }
+        beatNow = heard.beat
+        beatPulse = Math.max(beatPulse * BEAT_DECAY, beatNow)
+        if (beatPulse < 0.005) beatPulse = 0
+      }
+
       // The reach follows the strength, so a quiet response is a smaller
-      // patch as well as a fainter one.
-      const reach = CURSOR_CELLS * wmCW * (0.45 + 0.55 * strength)
+      // patch as well as a fainter one. A beat pushes it out.
+      const reachOf = (level: number) =>
+        CURSOR_CELLS *
+        wmCW *
+        (0.45 + 0.55 * level) *
+        (1 + BEAT_REACH * beatPulse)
+      /** The glows alive this frame: the pointer's and the sprite's. */
+      const glows: { x: number; y: number; strength: number; reach: number }[] =
+        []
+      if (strength > 0.01)
+        glows.push({
+          x: pointer.x,
+          y: pointer.y,
+          strength,
+          reach: reachOf(strength),
+        })
+      if (sprite.strength > 0.01)
+        glows.push({
+          x: sprite.x,
+          y: sprite.y,
+          strength: sprite.strength,
+          reach: reachOf(sprite.strength),
+        })
 
       // Resolve each live click stamp once per frame, not once per cell.
       const stamps: {
@@ -550,16 +908,23 @@ export function HeroPixelField({
       }
       // A held press renders as a steady stamp growing under the pointer,
       // so you can watch what you are charging before you let it go.
-      if (holding) {
+      for (const charging of [holding, spriteHold]) {
+        if (!charging) continue
         stamps.push({
-          x: holding.x,
-          y: holding.y,
+          x: charging.x,
+          y: charging.y,
           cellPx:
             wmCW *
-            (CHARGE_FROM + CHARGE_GROWTH * chargeOf(time, holding.start)),
+            (CHARGE_FROM + CHARGE_GROWTH * chargeOf(time, charging.start)),
           amp: 0.9,
         })
       }
+
+      if (etch && !etch.advance(time)) {
+        etch.free()
+        etch = null
+      }
+      const etching = etch !== null || awaitingFirstEtch
 
       /** The strongest live stamp covering a device-px point, if any. */
       const stampAt = (cx: number, cy: number) => {
@@ -623,24 +988,53 @@ export function HeroPixelField({
           const cx = xLeft + wmCW / 2
 
           let glowAmount = 0
-          if (strength > 0.01) {
-            const dx = cx - pointer.x
-            const dy = cy - pointer.y
+          for (const glow of glows) {
+            const dx = cx - glow.x
+            const dy = cy - glow.y
             const dist = Math.sqrt(dx * dx + dy * dy)
-            if (dist < reach) {
+            if (dist < glow.reach) {
               // Squared falloff: the reach is wide but only the middle of it
               // lights densely, so a bigger area responds without the
               // pointer dragging a solid blob of pixels around.
-              const falloff = 1 - dist / reach
-              glowAmount = falloff * falloff * strength
-              lum += glowAmount * 0.6
+              const falloff = 1 - dist / glow.reach
+              const amount = falloff * falloff * glow.strength
+              if (amount > glowAmount) glowAmount = amount
             }
           }
+          lum += glowAmount * 0.6
 
           let waveAmount = 0
           if (stamps.length > 0) {
             waveAmount = stampAt(cx, cy)
             lum += waveAmount * 1.15
+          }
+
+          // The spectrum: this column's band, blended with its neighbour
+          // so the bands do not read as bars, thickening the dither from
+          // the bottom up to as high as the band is loud, densest low and
+          // thinning towards the top. Gated by the ramp, so the word and
+          // the copy keep their clear ground.
+          let specAmount = 0
+          if (listening && shade > 0.002) {
+            const across = (c + 0.5) / cols
+            const side = Math.abs(across - 0.5) * 2
+            const bandPos = (1 - side) * BANDS - 0.5
+            const b0 = Math.max(0, Math.min(BANDS - 1, Math.floor(bandPos)))
+            const b1 = Math.min(BANDS - 1, b0 + 1)
+            const mixB = Math.max(0, Math.min(1, bandPos - b0))
+            const raw = bandsNow[b0] * (1 - mixB) + bandsNow[b1] * mixB
+            const level = Math.max(
+              0,
+              (raw - SPECTRUM_FLOOR) / (1 - SPECTRUM_FLOOR),
+            )
+            const fromBottom = rows - 1 - r
+            const tall = level * rows * SPECTRUM_REACH
+            if (level > 0 && fromBottom < tall) {
+              // Eases off towards the top rather than thinning in a straight
+              // line, so the body of a column stays full higher up.
+              specAmount = level * (1 - fromBottom / tall) ** 0.85
+              lum += specAmount * SPECTRUM_DENSITY * Math.min(1, shade * 3)
+            }
           }
 
           // Pure Bayer would light the same low-index cells everywhere and
@@ -652,7 +1046,11 @@ export function HeroPixelField({
             0.22 * jitter[(row & 63) * 64 + (col & 63)]
           if (lum <= threshold) continue
 
-          const heat = Math.max(glowAmount, waveAmount)
+          const heat = Math.max(
+            glowAmount,
+            waveAmount,
+            specAmount * SPECTRUM_HEAT,
+          )
           ctx.fillStyle =
             heat > 0.34 ? palette.lit : heat > 0.1 ? palette.mid : palette.dim
           const x = Math.round(xLeft)
@@ -664,27 +1062,58 @@ export function HeroPixelField({
       // dissolves. What touches it is the pointer passing over it and a
       // click ripple washing across: both recolor the pixels they reach and
       // leave them exactly where they were. Sharing a grid allows that.
-      const cursorOnWordmark =
-        isHero &&
-        strength > 0.01 &&
-        pointer.x > wmX - reach &&
-        pointer.x < wmX + glyph.width * wmCW + reach &&
-        pointer.y > wmY - reach &&
-        pointer.y < wmY + glyph.height * wmCH + reach
+      const glowsOnWordmark = isHero
+        ? glows.filter(
+            (glow) =>
+              glow.x > wmX - glow.reach &&
+              glow.x < wmX + glyph.width * wmCW + glow.reach &&
+              glow.y > wmY - glow.reach &&
+              glow.y < wmY + glyph.height * wmCH + glow.reach,
+          )
+        : []
+      const cursorOnWordmark = glowsOnWordmark.length > 0
+
+      /**
+       * The ink a wordmark cell takes at a device-px centre: lit at rest,
+       * lifted by a stamp washing over it or the cursor passing near it.
+       * Shared by the resting word and the
+       * metal the laser has cut, so the word answers the pointer while it
+       * is still being made.
+       */
+      const wordmarkInk = (cx: number, cy: number) => {
+        let crest = stamps.length > 0 ? stampAt(cx, cy) : 0
+
+        for (const glow of glowsOnWordmark) {
+          const dx = cx - glow.x
+          const dy = cy - glow.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < glow.reach) {
+            const falloff = 1 - dist / glow.reach
+            const hit = falloff * falloff * glow.strength
+            if (hit > crest) crest = hit
+          }
+        }
+
+        return crest > 0.45
+          ? palette.crest
+          : crest > 0.12
+            ? palette.hover
+            : restInkAt(cy)
+      }
 
       // Cell edges snap to whole device px with rounding against the shared
       // fractional grid, so adjacent cells always meet exactly: no seams
       // inside letters, and the outer edge lands on the same pixels as the
       // SSR fallback the canvas replaces.
-      for (let row = 0; isHero && row < glyph.height; row++) {
+      for (let row = 0; isHero && !etching && row < glyph.height; row++) {
         const bits = glyph.rows[row]
         const yTop = wmY + row * wmCH
         const y = Math.round(yTop)
         const rowHeight = Math.round(yTop + wmCH) - y
 
-        // At rest the whole row can go out as a few spans.
-        if (stamps.length === 0 && !cursorOnWordmark && logoHover < 0.01) {
-          ctx.fillStyle = palette.lit
+        // At rest the whole row can go out as a few spans, in its own ink.
+        if (stamps.length === 0 && !cursorOnWordmark) {
+          ctx.fillStyle = restInks[row]
           let run = 0
           for (let col = 0; col <= glyph.width; col++) {
             if (bits[col] === '1') {
@@ -708,33 +1137,95 @@ export function HeroPixelField({
           const cx = xLeft + wmCW / 2
           const cy = yTop + wmCH / 2
 
-          let crest = stamps.length > 0 ? stampAt(cx, cy) : 0
-
-          if (cursorOnWordmark) {
-            const dx = cx - pointer.x
-            const dy = cy - pointer.y
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            if (dist < reach) {
-              const falloff = 1 - dist / reach
-              const hit = falloff * falloff * strength
-              if (hit > crest) crest = hit
-            }
-          }
-
-          // Hovering the logo lifts every one of its pixels to the hover
-          // tint; the cursor-local crest still brightens on top of it.
-          if (logoHover > 0.01) {
-            const floor = logoHover * 0.2
-            if (floor > crest) crest = floor
-          }
-
-          ctx.fillStyle =
-            crest > 0.45
-              ? palette.crest
-              : crest > 0.12
-                ? palette.hover
-                : palette.lit
+          ctx.fillStyle = wordmarkInk(cx, cy)
           ctx.fillRect(x, y, Math.round(xLeft + wmCW) - x, rowHeight)
+        }
+      }
+
+      // The effect's frame on the lattice. A block is a whole cell in the
+      // word's own ink, answering the pointer like the resting word. A line
+      // is drawn thin, corner to corner so rows join. Any other character is
+      // a smaller square, sized by the ink the character carries. Colours
+      // for everything but blocks are the effect's, built from the theme's
+      // inks. Marks land on the field around the word too; those cells are
+      // simply painted over.
+      if (etch) {
+        const stroke = Math.max(1, Math.round(wmCW / 5))
+        const settle = etch.settle()
+        ctx.lineCap = 'butt'
+        for (const cell of etch.cells()) {
+          const xLeft = wmX + cell.col * wmCW
+          const yTop = wmY + cell.row * wmCH
+          const x = Math.round(xLeft)
+          const y = Math.round(yTop)
+          const cw = Math.round(xLeft + wmCW) - x
+          const ch = Math.round(yTop + wmCH) - y
+          // Effects colour the word too - a highlight sweeping across it,
+          // a shift of tone - so a block wears the effect's ink, mapped to
+          // the theme, unless the pointer or a ripple has lifted it. When
+          // the effect is over, the frame settles into the resting word.
+          const rest = restInkAt(yTop + wmCH / 2)
+          const resting = wordmarkInk(xLeft + wmCW / 2, yTop + wmCH / 2)
+          const effectInk = themeInk(cell.rgb)
+          const ink =
+            cell.kind === 'block' && resting !== rest
+              ? resting
+              : mix(effectInk, cell.kind === 'block' ? rest : effectInk, settle)
+          if (cell.kind === 'block') {
+            ctx.fillStyle = ink
+            ctx.fillRect(x, y, cw, ch)
+            continue
+          }
+          if (settle > 0) continue
+          if (cell.kind === 'line') {
+            ctx.strokeStyle = ink
+            ctx.lineWidth = stroke
+            ctx.beginPath()
+            if (cell.line === 'bar') {
+              ctx.moveTo(x + cw / 2, y)
+              ctx.lineTo(x + cw / 2, y + ch)
+            } else if (cell.line === 'dash') {
+              ctx.moveTo(x, y + ch / 2)
+              ctx.lineTo(x + cw, y + ch / 2)
+            } else if (cell.line === 'down') {
+              ctx.moveTo(x, y)
+              ctx.lineTo(x + cw, y + ch)
+            } else {
+              ctx.moveTo(x, y + ch)
+              ctx.lineTo(x + cw, y)
+            }
+            ctx.stroke()
+            continue
+          }
+          ctx.fillStyle = ink
+          if (cell.kind === 'part' && cell.parts) {
+            // A block element: exact rectangles of the cell, edges snapped
+            // to device px so an eighth is never a blurred sliver.
+            for (const [px, py, pw, ph] of cell.parts) {
+              const x0 = Math.round(xLeft + px * wmCW)
+              const y0 = Math.round(yTop + py * wmCH)
+              ctx.fillRect(
+                x0,
+                y0,
+                Math.max(1, Math.round(xLeft + (px + pw) * wmCW) - x0),
+                Math.max(1, Math.round(yTop + (py + ph) * wmCH) - y0),
+              )
+            }
+            continue
+          }
+          // A mark: a square sized by the character's weight. A comma or a
+          // dot sits low, an apostrophe high, the way the glyph does.
+          const sym = cell.symbol
+          const size = Math.max(1, Math.round(cw * Math.sqrt(cell.weight)))
+          const low = sym === 0x2c || sym === 0x2e || sym === 0x5f
+          const high = sym === 0x27 || sym === 0x60 || sym === 0x22
+          const sx = x + Math.round((cw - size) / 2)
+          const sy = low
+            ? y + ch - size
+            : high
+              ? y
+              : y + Math.round((ch - size) / 2)
+          ctx.fillRect(sx, sy, size, size)
         }
       }
 
@@ -818,12 +1309,12 @@ export function HeroPixelField({
       // matter where the cursor wanders; only a move after both are done
       // wakes it back up.
       if (!holding && !pickerOpen) targetStrength = inside ? level : 0
-      // While the picker is up, hovering is disarmed; the next real mouse
-      // move after it closes re-arms it. Without this, choosing a theme
-      // dropped you straight back into a hovered logo, since the pointer
-      // never left it.
-      const onLogo = !pickerOpen && inside && onLogoAt(x, y)
-      logoHoverTarget = onLogo ? 1 : 0
+      // While the picker is up, the word is not pressable; the next real
+      // mouse move after it closes brings the hand cursor back. Without
+      // this, choosing a theme left you straight on a pressable logo, since
+      // the pointer never left it.
+      const pressable = Boolean(press.current) || (isHero && !reducedMotion)
+      const onLogo = pressable && !pickerOpen && inside && onLogoAt(x, y)
       if (sectionEl) sectionEl.style.cursor = onLogo ? 'pointer' : ''
       if (!inside) return
       pointer.x = x
@@ -837,7 +1328,7 @@ export function HeroPixelField({
       if (!inside) return
       pointer.x = x
       pointer.y = y
-      // A press on the wordmark is a theme-picker click, not a stamp.
+      // A press on the wordmark plays the word in again, not a stamp.
       if (onLogoAt(x, y)) {
         logoPending = true
         return
@@ -856,7 +1347,7 @@ export function HeroPixelField({
         const { inside, x, y } = locate(event)
         if (inside && onLogoAt(x, y)) {
           if (press.current) press.current()
-          else window.dispatchEvent(new CustomEvent(OPEN_PICKER_EVENT))
+          else if (isHero && !reducedMotion) beginEtch()
         }
         return
       }
@@ -867,24 +1358,7 @@ export function HeroPixelField({
         targetStrength = inside ? level : 0
       }
       const now = performance.now()
-      const charge = chargeOf(now, holding.start)
-      const from = CHARGE_FROM + CHARGE_GROWTH * charge
-      // Keep the stamp queue short so a mash of clicks stays legible.
-      pings = [
-        ...pings.slice(-3),
-        {
-          x: holding.x,
-          y: holding.y,
-          born: now,
-          from,
-          // The launch continues from the charged size: bigger charges
-          // bloom further and take longer to dissolve.
-          // The uncharged tap stays small; the extra reach is mostly
-          // bought by holding.
-          to: (from + 1.0 + 3.2 * charge) * (0.92 + Math.random() * 0.16),
-          life: (0.65 + 0.55 * charge) * (0.92 + Math.random() * 0.16),
-        },
-      ]
+      launch(holding.x, holding.y, chargeOf(now, holding.start), now)
       holding = null
     }
 
@@ -953,10 +1427,14 @@ export function HeroPixelField({
     if (slot) observer.observe(slot)
 
     return () => {
+      disposed = true
+      etch?.free()
+      etch = null
       cancelAnimationFrame(frame)
       observer.disconnect()
       visibility.disconnect()
       window.removeEventListener(THEME_EVENT, onTheme)
+      window.removeEventListener(ETCH_EVENT, onEtch)
       window.removeEventListener(PICKER_STATE_EVENT, onPickerState)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerdown', onPointerDown)

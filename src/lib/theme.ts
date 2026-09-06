@@ -1,8 +1,8 @@
 /**
- * Site themes: the six built-in Omarchy themes, applied the way Omarchy
- * applies them. There is no light/dark switch; there are themes, opened
- * with T (Omarchy's own chord still works, but Hyprland eats it before the
- * browser sees it), and every token in styles.css resolves per theme.
+ * Site themes: the stock Omarchy themes, applied the way Omarchy applies
+ * them. There is no light/dark switch; there are themes, opened with T
+ * (Omarchy's own chord still works, but Hyprland eats it before the browser
+ * sees it), and every token in styles.css resolves per theme.
  */
 
 import { OMARCHY_MARK_PATH } from '@/components/Brand'
@@ -15,11 +15,27 @@ export type SiteTheme = {
 }
 
 export const SITE_THEMES: SiteTheme[] = [
-  { id: 'tokyo-night', name: 'Tokyo Night' },
   { id: 'catppuccin', name: 'Catppuccin' },
+  { id: 'catppuccin-latte', name: 'Catppuccin Latte', light: true },
+  { id: 'ethereal', name: 'Ethereal' },
+  { id: 'everforest', name: 'Everforest' },
+  { id: 'flexoki-light', name: 'Flexoki Light', light: true },
   { id: 'gruvbox', name: 'Gruvbox' },
+  { id: 'hackerman', name: 'Hackerman' },
+  { id: 'kanagawa', name: 'Kanagawa' },
+  { id: 'last-horizon', name: 'Last Horizon' },
+  { id: 'lumon', name: 'Lumon' },
+  { id: 'lupine', name: 'Lupine', light: true },
   { id: 'matte-black', name: 'Matte Black' },
+  { id: 'miasma', name: 'Miasma' },
+  { id: 'nord', name: 'Nord' },
+  { id: 'osaka-jade', name: 'Osaka Jade' },
+  { id: 'retro-82', name: 'Retro 82' },
+  { id: 'ristretto', name: 'Ristretto' },
   { id: 'rose-pine', name: 'Rosé Pine', light: true },
+  { id: 'solitude', name: 'Solitude' },
+  { id: 'tokyo-night', name: 'Tokyo Night' },
+  { id: 'vantablack', name: 'Vantablack' },
   { id: 'white', name: 'White', light: true },
 ]
 
@@ -37,7 +53,10 @@ export const HINT_KEY = 'omarchy-theme-hint-seen'
 /**
  * Pre-paint script injected into <head>: stamps <html data-theme> from
  * localStorage before first paint, so there is never a flash of the wrong
- * theme. Unknown or missing values fall back to Tokyo Night.
+ * theme. A first visit has nothing stored, and gets one of the themes at
+ * random, kept from then on so every page of the visit wears the same one
+ * and the picker can change it like any other choice. Only when storage
+ * itself is unavailable does the page fall back to Tokyo Night.
  *
  * The tab icon is created here too, outside React. paintFavicon() replaces
  * that same tagged link; it must not touch a <link> React owns, or React
@@ -45,7 +64,7 @@ export const HINT_KEY = 'omarchy-theme-hint-seen'
  */
 export const themeInitScript = `(function(){try{var t=localStorage.getItem('${THEME_KEY}');var ok=${JSON.stringify(
   SITE_THEMES.map((t) => t.id),
-)};document.documentElement.dataset.theme=ok.indexOf(t)>=0?t:'${DEFAULT_THEME}'}catch(e){document.documentElement.dataset.theme='${DEFAULT_THEME}'}if(!document.querySelector('link[rel="icon"][data-theme-icon]')){var l=document.createElement('link');l.rel='icon';l.type='image/svg+xml';l.href='/brand/omarchy-logo.svg';l.setAttribute('data-theme-icon','');document.head.appendChild(l)}})()`
+)};if(ok.indexOf(t)<0){t=ok[Math.floor(Math.random()*ok.length)];localStorage.setItem('${THEME_KEY}',t)}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme='${DEFAULT_THEME}'}if(!document.querySelector('link[rel="icon"][data-theme-icon]')){var l=document.createElement('link');l.rel='icon';l.type='image/svg+xml';l.href='/brand/omarchy-logo.svg';l.setAttribute('data-theme-icon','');document.head.appendChild(l)}})()`
 
 export function readTheme(): string {
   try {
@@ -198,7 +217,7 @@ function topColor() {
 /**
  * Keeps the browser's own chrome on the colour the page is showing it. Safari
  * tints the strip behind the status bar with this, so a value baked in at
- * build time left five of the six themes framed in a sixth one's background,
+ * build time left every other theme framed in Tokyo Night's background,
  * and a single value per theme left every section but one framed in another
  * section's. It follows the scroll instead.
  */

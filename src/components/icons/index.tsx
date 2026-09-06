@@ -200,6 +200,57 @@ export function DownloadIcon(props: IconProps) {
   )
 }
 
+/** IconVolumeFull from the square outlined set. */
+export function VolumeIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M19.2478 4.75216C21.1027 6.60704 22.25 9.16954 22.25 12C22.25 14.8305 21.1027 17.393 19.2478 19.2478M15.8891 8.11091C16.8844 9.10622 17.5 10.4812 17.5 12C17.5 13.5188 16.8844 14.8938 15.8891 15.8891M1.75 7.75H6L12.25 4.25V19.75L6 16.25H1.75V7.75Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </svg>
+  )
+}
+
+/** IconVolumeOff from the square outlined set. */
+export function VolumeOffIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M21.5 10L19.3787 12.1213M19.3787 12.1213L17.2574 14.2426M19.3787 12.1213L17.2574 10M19.3787 12.1213L21.5 14.2426M1.75 7.75H6L12.25 4.25V19.75L6 16.25H1.75V7.75Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="square"
+      />
+    </svg>
+  )
+}
+
+/** IconColorPalette from the square filled set. */
+export function PaletteIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2 12C2 6.71457 6.51697 2.5 12 2.5C17.483 2.5 22 6.71457 22 12C22 13.8878 21.4937 15.1519 20.4345 15.8123C19.4491 16.4266 18.2002 16.3605 17.1496 16.2236C16.7813 16.1757 16.397 16.1121 16.0307 16.0515C15.8617 16.0235 15.6965 15.9962 15.5384 15.9713C15.0184 15.8895 14.5499 15.8295 14.1335 15.8234C13.298 15.8112 12.8925 16.0091 12.671 16.4526C12.539 16.7171 12.5395 17.0363 12.6858 17.4705C12.8149 17.8538 13.0214 18.2277 13.2435 18.63C13.2828 18.7012 13.3226 18.7734 13.3626 18.8465C13.4857 19.0721 13.6169 19.3217 13.7077 19.5624C13.7926 19.7875 13.8875 20.117 13.8161 20.466C13.7303 20.8858 13.4434 21.1713 13.0891 21.3241C12.7768 21.4588 12.3992 21.5 12 21.5C6.51697 21.5 2 17.2854 2 12ZM10.25 6.25C9.42157 6.25 8.75 6.92157 8.75 7.75C8.75 8.57843 9.42157 9.25 10.25 9.25C11.0784 9.25 11.75 8.57843 11.75 7.75C11.75 6.92157 11.0784 6.25 10.25 6.25ZM7.25 10.5C6.42157 10.5 5.75 11.1716 5.75 12C5.75 12.8284 6.42157 13.5 7.25 13.5C8.07843 13.5 8.75 12.8284 8.75 12C8.75 11.1716 8.07843 10.5 7.25 10.5ZM15.25 7.75C14.4216 7.75 13.75 8.42157 13.75 9.25C13.75 10.0784 14.4216 10.75 15.25 10.75C16.0784 10.75 16.75 10.0784 16.75 9.25C16.75 8.42157 16.0784 7.75 15.25 7.75Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** IconPause from the square filled set, the pair of the play mark. */
+export function PauseIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 3V21H10V3H4Z" fill="currentColor" />
+      <path d="M14 3V21H20V3H14Z" fill="currentColor" />
+    </svg>
+  )
+}
+
 /** IconUsb from the square outlined set. */
 export function UsbIcon(props: IconProps) {
   return (
@@ -306,6 +357,63 @@ export function GithubIcon(props: IconProps) {
   )
 }
 
+/** IconApple from the square filled set. */
+export function AppleIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M15.0993 3.35783C14.3953 4.21083 13.2038 4.8472 12.256 4.8472C12.1477 4.8472 12.0394 4.83366 11.9717 4.82012C11.9581 4.76596 11.931 4.60348 11.931 4.44101C11.931 3.35783 12.4862 2.27466 13.0819 1.59768C13.8401 0.704062 15.1129 0.040619 16.1689 0C16.196 0.121857 16.2096 0.270793 16.2096 0.419729C16.2096 1.5029 15.7492 2.57253 15.0993 3.35783ZM15.844 5.07737C16.4397 5.07737 18.5925 5.13153 20.0007 7.16248C19.8788 7.25725 17.7395 8.46228 17.7395 11.1567C17.7395 14.2708 20.461 15.381 20.5423 15.4081C20.5287 15.4758 20.109 16.911 19.107 18.3868C18.2134 19.6731 17.2657 20.9729 15.844 20.9729C14.4088 20.9729 14.0432 20.1335 12.4049 20.1335C10.7937 20.1335 10.225 21 8.92523 21C7.61188 21 6.70473 19.795 5.66217 18.3327C4.44361 16.5996 3.46875 13.9188 3.46875 11.3733C3.46875 7.29787 6.12252 5.13153 8.73567 5.13153C10.1167 5.13153 11.2676 6.03868 12.1477 6.03868C12.9736 6.03868 14.2599 5.07737 15.844 5.07737Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** IconLayoutWindow from the square filled set, four panes, for Windows.
+ *  Redrawn on whole pixels for the 20px the buttons show it at: 2px in,
+ *  7px panes, a 2px gap, so the four come out equal instead of rounding
+ *  apart the way the set's 8.25-unit panes did. */
+/** IconLayoutWindow from the square filled set, four panes, for Windows.
+ *  Redrawn on whole pixels for the 20px the buttons show it at: 2px in,
+ *  7px panes, a 1px gap, so the four come out equal instead of rounding
+ *  apart the way the set's 8.25-unit panes did. */
+export function WindowsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)} shapeRendering="crispEdges">
+      <rect x="2.4" y="2.4" width="8.4" height="8.4" fill="currentColor" />
+      <rect x="12" y="2.4" width="8.4" height="8.4" fill="currentColor" />
+      <rect x="2.4" y="12" width="8.4" height="8.4" fill="currentColor" />
+      <rect x="12" y="12" width="8.4" height="8.4" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** IconX from the square filled set: the X mark, for posts quoted from there. */
+export function XIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M17.5652 3.25H20.5319L14.0505 10.6628L21.6753 20.75H15.7052L11.0291 14.6322L5.67867 20.75H2.71017L9.64264 12.8212L2.32812 3.25H8.44986L12.6766 8.84192L17.5652 3.25ZM16.524 18.9731H18.1679L7.55662 4.93359H5.79256L16.524 18.9731Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** IconRssFeed from the square filled set, with the box corners squared off. */
+export function RssIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.75 2.75H21.25V21.25H2.75V2.75ZM7.61831 17.8418C8.42492 17.8418 9.0788 17.1879 9.0788 16.3813C9.0788 15.5747 8.42492 14.9208 7.61831 14.9208C6.8117 14.9208 6.15782 15.5747 6.15782 16.3813C6.15782 17.1879 6.8117 17.8418 7.61831 17.8418ZM11.9998 17.8418C11.9998 14.6153 9.38425 11.9998 6.15782 11.9998V10.0525C10.4597 10.0525 13.9471 13.5398 13.9471 17.8418H11.9998ZM6.15782 8.10514C11.5352 8.10514 15.8944 12.4644 15.8944 17.8418H17.8418C17.8418 11.3889 12.6107 6.15782 6.15782 6.15782V8.10514Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
 export function CalendarIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
@@ -391,6 +499,54 @@ export function StoreIcon(props: IconProps) {
         d="M20.1734 3.75H14.6182L14.8568 8.43099C14.9373 10.0106 16.2415 11.25 17.8232 11.25C19.6315 11.25 21.0203 9.64764 20.7632 7.85761L20.1734 3.75Z"
         stroke="currentColor"
         strokeWidth="1.5"
+      />
+    </svg>
+  )
+}
+
+/** IconCalendar1 from the square filled set. */
+export function CalendarFilledIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M8.5 2V4H15.5V2H17V4H21V9H3V4H7V2H8.5Z" fill="currentColor" />
+      <path d="M3 10.5V21H21V10.5H3Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** IconPencilSparkle from the square filled set. */
+export function PencilSparkleIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M9.0014 11.6897L19.5342 2.47351L22.5265 5.46581L13.3103 15.9986C12.7671 13.8907 11.1093 12.2329 9.0014 11.6897Z"
+        fill="currentColor"
+      />
+      <path
+        d="M7.5 13C5.01472 13 3 15.0147 3 17.5V22H7.5C9.98528 22 12 19.9853 12 17.5C12 17.3896 11.996 17.2801 11.9882 17.1715C11.8273 14.9476 10.0524 13.1727 7.82852 13.0118C7.71991 13.004 7.61036 13 7.5 13Z"
+        fill="currentColor"
+      />
+      <path
+        d="M4.33333 7.33333L5.5 5L6.66667 7.33333L9 8.5L6.66667 9.66667L5.5 12L4.33333 9.66667L2 8.5L4.33333 7.33333Z"
+        fill="currentColor"
+      />
+      <path
+        d="M8.66667 3.66667L9.5 2L10.3333 3.66667L12 4.5L10.3333 5.33333L9.5 7L8.66667 5.33333L7 4.5L8.66667 3.66667Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** IconFashion from the square filled set. */
+export function FashionIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M9.64338 3.53004L9.38601 2.69141L0.820312 6.8698L2.85636 11.5996L5.00139 10.6181V21.0001H19.0014V10.6181L21.1464 11.5996L23.1825 6.8698L14.6168 2.69141L14.3594 3.53004C13.953 4.85441 12.9516 5.44842 12.0014 5.44842C11.0512 5.44842 10.0498 4.85441 9.64338 3.53004Z"
+        fill="currentColor"
       />
     </svg>
   )
