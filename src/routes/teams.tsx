@@ -178,7 +178,9 @@ function TeamsPage() {
           {/* As many across as fit at a hand's width each, the way the page
               always read; each person a card like the plugins and themes,
               so the page has the same surface as the rest of the site. */}
-          <ul className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+          {/* Cards at least 12rem wide: five to a row on a wide screen, not
+              six, so a long name and the arrow beside it keep to one line. */}
+          <ul className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(12rem,1fr))]">
             {team.members.map((member) => {
               const face = (
                 <>
