@@ -49,12 +49,12 @@
   to the lines.
 
   The picker is its own layer (view-transition-name: theme-picker), so
-  the page's snapshot is the page alone. That snapshot is frosted here
-  with the same 4px the picker's dimmer gives the live page, since the
-  dimmer's backdrop blur is not carried into snapshots; the picker's
-  layer, dimmer tint and cards, sits on top sharp, as on screen. Both
-  open along the same slit. A filter is applied before the mask, so the
-  blades stay sharp.
+  the page's snapshot is the page under the dimmer's tint, with the
+  dimmer's blur left out, since a backdrop blur is not carried into
+  snapshots. That snapshot is frosted here with the same 4px the dimmer
+  gives the live page; the picker's layer, the cards alone, sits on top
+  sharp, as on screen. Both open along the same slit. A filter is
+  applied before the mask, so the blades stay sharp.
 */
 ::view-transition-old(root),
 ::view-transition-old(theme-picker) {

@@ -311,170 +311,178 @@ export function ThemePicker() {
   }
 
   return (
-    <div
-      ref={dialogRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Theme picker"
-      tabIndex={-1}
-      // Swipe walks the deck. Touch only: a mouse drag across the dimmer is
-      // how someone closes this, and stepping the cards instead would be a
-      // surprise. A swipe that has travelled is not a tap, so the click it
-      // ends with is swallowed rather than allowed to take a theme and close.
-      onPointerDown={(event) => {
-        if (event.pointerType !== 'touch') return
-        swipe.current = { id: event.pointerId, from: event.clientX, moved: 0 }
-      }}
-      onPointerMove={(event) => {
-        const drag = swipe.current
-        if (event.pointerId !== drag.id) return
-        drag.moved = event.clientX - drag.from
-      }}
-      onPointerUp={(event) => {
-        const drag = swipe.current
-        if (event.pointerId !== drag.id) return
-        swipe.current = { ...drag, id: -1 }
-        if (Math.abs(drag.moved) > 44) step(drag.moved < 0 ? 1 : -1)
-      }}
-      onClickCapture={(event) => {
-        if (Math.abs(swipe.current.moved) <= 44) return
-        swipe.current.moved = 0
-        event.preventDefault()
-        event.stopPropagation()
-      }}
-      // touch-none: a swipe across the deck is otherwise a pan gesture for
-      // the page underneath as well, which shifted it sideways on phones
-      // and could cancel the picker's own pointer events midway.
-      className="fixed inset-0 z-(--z-modal) flex touch-none flex-col items-center justify-center outline-none"
-      // Its own layer in the theme wipe (see theme-transition.css): kept out
-      // of the page's snapshot so the page can be frosted as it is on
-      // screen while the cards stay sharp, and both open along the slit.
-      style={{ viewTransitionName: 'theme-picker' }}
-    >
+    <>
       {/* Dimmer, not a curtain: the page behind stays on the theme you
           arrived with until you take one. It wears the same blur and fade
           the site's dialogs do, so opening the picker feels like opening
-          any other layer here. */}
+          any other layer here. It sits outside the dialog on purpose: the
+          dialog is a named layer in the theme wipe, and a named element is
+          the backdrop root for everything inside it, so a backdrop blur in
+          there could only sample the dialog's own paint, which is nothing,
+          and only the tint showed. Out here it blurs the page. */}
       <div
         aria-hidden="true"
-        onClick={close}
-        className={cn(
-          'absolute inset-0 isolate bg-black/55 supports-backdrop-filter:backdrop-blur-xs',
-        )}
+        className="fixed inset-0 z-(--z-modal) isolate bg-black/55 supports-backdrop-filter:backdrop-blur-xs"
       />
-
-      {/* The deck arrives a beat after the dimmer and leaves with
-          everything else. */}
       <div
-        className={cn(
-          'pointer-events-none relative flex w-full items-center justify-center',
-        )}
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Theme picker"
+        tabIndex={-1}
+        // Swipe walks the deck. Touch only: a mouse drag across the dimmer is
+        // how someone closes this, and stepping the cards instead would be a
+        // surprise. A swipe that has travelled is not a tap, so the click it
+        // ends with is swallowed rather than allowed to take a theme and close.
+        onPointerDown={(event) => {
+          if (event.pointerType !== 'touch') return
+          swipe.current = { id: event.pointerId, from: event.clientX, moved: 0 }
+        }}
+        onPointerMove={(event) => {
+          const drag = swipe.current
+          if (event.pointerId !== drag.id) return
+          drag.moved = event.clientX - drag.from
+        }}
+        onPointerUp={(event) => {
+          const drag = swipe.current
+          if (event.pointerId !== drag.id) return
+          swipe.current = { ...drag, id: -1 }
+          if (Math.abs(drag.moved) > 44) step(drag.moved < 0 ? 1 : -1)
+        }}
+        onClickCapture={(event) => {
+          if (Math.abs(swipe.current.moved) <= 44) return
+          swipe.current.moved = 0
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+        // touch-none: a swipe across the deck is otherwise a pan gesture for
+        // the page underneath as well, which shifted it sideways on phones
+        // and could cancel the picker's own pointer events midway.
+        className="fixed inset-0 z-(--z-modal) flex touch-none flex-col items-center justify-center outline-none"
+        // Its own layer in the theme wipe (see theme-transition.css): kept out
+        // of the page's snapshot so the page can be frosted as it is on
+        // screen while the cards stay sharp, and both open along the slit.
+        style={{ viewTransitionName: 'theme-picker' }}
       >
-        {SITE_THEMES.map((theme, i) => {
-          // Signed distance from the front card, wrapped so the fan is
-          // symmetric around the front of the deck.
-          const raw = i - index
-          const half = SITE_THEMES.length / 2
-          const offset =
-            raw > half
-              ? raw - SITE_THEMES.length
-              : raw < -half
-                ? raw + SITE_THEMES.length
-                : raw
-          const depth = Math.abs(offset)
-          if (depth > 2) return null
-          // Neighbours tuck in close behind the front card and stay solid,
-          // just darkened, the way the OS stacks its deck. The first term
-          // compensates for the front card being scale 1 against the sides'
-          // 0.88, so every card's visible sliver comes out the same width;
-          // a flat step per depth did not, the outer gaps ran wider.
-          const shift = offset === 0 ? 0 : Math.sign(offset) * (6 + depth * 12)
-          return (
-            <div
-              key={theme.id}
-              aria-hidden={offset !== 0}
-              className="absolute w-[min(68vw,46rem)] sm:w-[min(72vw,46rem)]"
-              style={{
-                transform: `translateX(${shift}%) scale(${depth === 0 ? 1 : 0.88})`,
-                zIndex: 10 - depth,
-              }}
-            >
-              {/* The deck is a control, not a picture: a neighbour's visible
+        {/* A click on the dimmer closes the picker. The dimmer itself is
+          drawn above, outside the dialog; this is only its click target. */}
+        <div aria-hidden="true" onClick={close} className="absolute inset-0" />
+
+        {/* The deck arrives a beat after the dimmer and leaves with
+          everything else. */}
+        <div
+          className={cn(
+            'pointer-events-none relative flex w-full items-center justify-center',
+          )}
+        >
+          {SITE_THEMES.map((theme, i) => {
+            // Signed distance from the front card, wrapped so the fan is
+            // symmetric around the front of the deck.
+            const raw = i - index
+            const half = SITE_THEMES.length / 2
+            const offset =
+              raw > half
+                ? raw - SITE_THEMES.length
+                : raw < -half
+                  ? raw + SITE_THEMES.length
+                  : raw
+            const depth = Math.abs(offset)
+            if (depth > 2) return null
+            // Neighbours tuck in close behind the front card and stay solid,
+            // just darkened, the way the OS stacks its deck. The first term
+            // compensates for the front card being scale 1 against the sides'
+            // 0.88, so every card's visible sliver comes out the same width;
+            // a flat step per depth did not, the outer gaps ran wider.
+            const shift =
+              offset === 0 ? 0 : Math.sign(offset) * (6 + depth * 12)
+            return (
+              <div
+                key={theme.id}
+                aria-hidden={offset !== 0}
+                className="absolute w-[min(68vw,46rem)] sm:w-[min(72vw,46rem)]"
+                style={{
+                  transform: `translateX(${shift}%) scale(${depth === 0 ? 1 : 0.88})`,
+                  zIndex: 10 - depth,
+                }}
+              >
+                {/* The deck is a control, not a picture: a neighbour's visible
                   sliver walks the deck to it, and the front card takes that
                   theme and closes. The stack itself stays click-through so
                   the space around the cards still reaches the dimmer. The
                   arrows and Esc do all of this too, which is why these carry
                   no tab stop of their own. */}
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-hidden={offset !== 0}
-                aria-label={
-                  offset === 0 ? `Use ${theme.name}` : `Show ${theme.name}`
-                }
-                onClick={() => (offset === 0 ? choose() : step(offset))}
-                className="pointer-events-auto block w-full cursor-pointer [--card-dim:0.55] hover:[--card-dim:0.78]"
-              >
-                {/* The parallelogram is the card's shape, not a shear of the
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  aria-hidden={offset !== 0}
+                  aria-label={
+                    offset === 0 ? `Use ${theme.name}` : `Show ${theme.name}`
+                  }
+                  onClick={() => (offset === 0 ? choose() : step(offset))}
+                  className="pointer-events-auto block w-full cursor-pointer [--card-dim:0.55] hover:[--card-dim:0.78]"
+                >
+                  {/* The parallelogram is the card's shape, not a shear of the
                   screenshot. Frame and image share the outer transform, so
                   they travel as one piece when the deck steps. */}
-                <div
-                  className={
-                    'shadow-2xl ' + (depth === 0 ? 'bg-brand' : 'bg-zinc-500')
-                  }
-                  style={{ clipPath: PARALLELOGRAM }}
-                >
                   <div
-                    className="bg-black"
-                    style={{
-                      clipPath: parallelogramInset(depth === 0 ? '3px' : '1px'),
-                    }}
+                    className={
+                      'shadow-2xl ' + (depth === 0 ? 'bg-brand' : 'bg-zinc-500')
+                    }
+                    style={{ clipPath: PARALLELOGRAM }}
                   >
-                    <img
-                      src={previewSrc(theme.id)}
-                      alt={`${theme.name} theme preview`}
-                      width={1800}
-                      height={1012}
-                      draggable={false}
-                      // A dropped request on a flaky connection left the
-                      // frame broken until a reload; one retry with a
-                      // cache-buster heals it, and giving up after that
-                      // keeps a dead connection from looping.
-                      onError={(event) => {
-                        const img = event.currentTarget
-                        if (img.dataset.retried) return
-                        img.dataset.retried = ''
-                        window.setTimeout(() => {
-                          img.src = `${previewSrc(theme.id)}?retry`
-                        }, 1000)
-                      }}
-                      className="w-full select-none object-cover"
+                    <div
+                      className="bg-black"
                       style={{
-                        aspectRatio: portrait ? '4 / 5' : '1800 / 1012',
-                        // The dim lives on the screenshot alone so the frame
-                        // around a neighbour keeps its full strength, and it
-                        // reads from a variable the card raises on hover, so
-                        // pointing at a neighbour lights it toward the front.
-                        filter:
-                          depth === 0
-                            ? undefined
-                            : 'brightness(var(--card-dim))',
+                        clipPath: parallelogramInset(
+                          depth === 0 ? '3px' : '1px',
+                        ),
                       }}
-                    />
+                    >
+                      <img
+                        src={previewSrc(theme.id)}
+                        alt={`${theme.name} theme preview`}
+                        width={1800}
+                        height={1012}
+                        draggable={false}
+                        // A dropped request on a flaky connection left the
+                        // frame broken until a reload; one retry with a
+                        // cache-buster heals it, and giving up after that
+                        // keeps a dead connection from looping.
+                        onError={(event) => {
+                          const img = event.currentTarget
+                          if (img.dataset.retried) return
+                          img.dataset.retried = ''
+                          window.setTimeout(() => {
+                            img.src = `${previewSrc(theme.id)}?retry`
+                          }, 1000)
+                        }}
+                        className="w-full select-none object-cover"
+                        style={{
+                          aspectRatio: portrait ? '4 / 5' : '1800 / 1012',
+                          // The dim lives on the screenshot alone so the frame
+                          // around a neighbour keeps its full strength, and it
+                          // reads from a variable the card raises on hover, so
+                          // pointing at a neighbour lights it toward the front.
+                          filter:
+                            depth === 0
+                              ? undefined
+                              : 'brightness(var(--card-dim))',
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              </button>
-            </div>
-          )
-        })}
-        {/* Spacer that gives the absolute stack its height */}
-        <div
-          className="invisible w-[min(68vw,46rem)] sm:w-[min(72vw,46rem)]"
-          style={{ aspectRatio: portrait ? '4 / 5' : '1800 / 1012' }}
-        />
-      </div>
+                </button>
+              </div>
+            )
+          })}
+          {/* Spacer that gives the absolute stack its height */}
+          <div
+            className="invisible w-[min(68vw,46rem)] sm:w-[min(72vw,46rem)]"
+            style={{ aspectRatio: portrait ? '4 / 5' : '1800 / 1012' }}
+          />
+        </div>
 
-      {/* The name is the plainest way to take the theme you are looking at:
+        {/* The name is the plainest way to take the theme you are looking at:
           the front card takes it and closes too, but the name is what you
           are reading when you decide, and on a phone it is the one target
           that is never half-covered by a neighbouring card. No plate: a
@@ -484,61 +492,62 @@ export function ThemePicker() {
           dark theme that is text on ground; on a light theme it is the
           the page's cream or white, edged in the theme's text colour, since
           dark letters would sink into the dimmer. */}
-      <button
-        type="button"
-        tabIndex={-1}
-        aria-label={`Use ${SITE_THEMES[index].name}`}
-        onClick={choose}
-        className={cn(
-          'relative mt-1.5 cursor-pointer px-4 py-3.5 text-center transition-[filter] duration-150 ease-out hover:brightness-125',
-        )}
-      >
-        {/* The name wears the inks of the theme it names, not the page's:
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label={`Use ${SITE_THEMES[index].name}`}
+          onClick={choose}
+          className={cn(
+            'relative mt-1.5 cursor-pointer px-4 py-3.5 text-center transition-[filter] duration-150 ease-out hover:brightness-125',
+          )}
+        >
+          {/* The name wears the inks of the theme it names, not the page's:
             the page keeps its theme while the deck is walked, so the
             label carries its theme's tokens itself, the way the whole page
             did when every step re-themed it. The raw theme tokens, since
             the mapped colours are fixed at the root and would not follow. */}
-        <span
-          data-theme={SITE_THEMES[index].id}
-          className="block font-sans text-2xl font-semibold tracking-tight"
-          style={{
-            color: SITE_THEMES[index].light ? 'var(--t-bg)' : 'var(--t-text)',
-            WebkitTextStroke: SITE_THEMES[index].light
-              ? '2px var(--t-text)'
-              : '2px var(--t-bg)',
-            paintOrder: 'stroke fill',
-          }}
-        >
-          {SITE_THEMES[index].name}
-        </span>
-      </button>
+          <span
+            data-theme={SITE_THEMES[index].id}
+            className="block font-sans text-2xl font-semibold tracking-tight"
+            style={{
+              color: SITE_THEMES[index].light ? 'var(--t-bg)' : 'var(--t-text)',
+              WebkitTextStroke: SITE_THEMES[index].light
+                ? '2px var(--t-text)'
+                : '2px var(--t-bg)',
+              paintOrder: 'stroke fill',
+            }}
+          >
+            {SITE_THEMES[index].name}
+          </span>
+        </button>
 
-      <button
-        type="button"
-        aria-label="Previous theme"
-        onClick={(e) => {
-          e.stopPropagation()
-          step(-1)
-        }}
-        className={cn(
-          'absolute left-3 top-1/2 flex size-11 cursor-pointer -translate-y-1/2 items-center justify-center border border-border-subtle bg-bg text-text transition-colors duration-150 ease-out hover:bg-surface-2 sm:left-6',
-        )}
-      >
-        <ChevronLeftIcon className="size-5" />
-      </button>
-      <button
-        type="button"
-        aria-label="Next theme"
-        onClick={(e) => {
-          e.stopPropagation()
-          step(1)
-        }}
-        className={cn(
-          'absolute right-3 top-1/2 flex size-11 cursor-pointer -translate-y-1/2 items-center justify-center border border-border-subtle bg-bg text-text transition-colors duration-150 ease-out hover:bg-surface-2 sm:right-6',
-        )}
-      >
-        <ChevronRightIcon className="size-5" />
-      </button>
-    </div>
+        <button
+          type="button"
+          aria-label="Previous theme"
+          onClick={(e) => {
+            e.stopPropagation()
+            step(-1)
+          }}
+          className={cn(
+            'absolute left-3 top-1/2 flex size-11 cursor-pointer -translate-y-1/2 items-center justify-center border border-border-subtle bg-bg text-text transition-colors duration-150 ease-out hover:bg-surface-2 sm:left-6',
+          )}
+        >
+          <ChevronLeftIcon className="size-5" />
+        </button>
+        <button
+          type="button"
+          aria-label="Next theme"
+          onClick={(e) => {
+            e.stopPropagation()
+            step(1)
+          }}
+          className={cn(
+            'absolute right-3 top-1/2 flex size-11 cursor-pointer -translate-y-1/2 items-center justify-center border border-border-subtle bg-bg text-text transition-colors duration-150 ease-out hover:bg-surface-2 sm:right-6',
+          )}
+        >
+          <ChevronRightIcon className="size-5" />
+        </button>
+      </div>
+    </>
   )
 }
