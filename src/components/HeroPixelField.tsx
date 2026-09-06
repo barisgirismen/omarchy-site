@@ -791,18 +791,19 @@ export function HeroPixelField({
     const draw = (time: number) => {
       const t = reducedMotion ? 0 : time / 1000
 
-      // The sprite flies whatever the pointer does. Its path is a smooth
-      // ellipse round the field, breathing a little in each axis at its
-      // own slow tempo so no two laps are the same. Near the copy the
-      // glow hushes itself as it always has.
+      // The sprite flies whatever the pointer does. Its path is two smooth
+      // swings at different tempos, a loose figure that roams the whole
+      // field and never quite repeats, with each swing breathing a little
+      // at its own slow pace. Nothing quick rides on top of it: the path
+      // is all long curves, so the eye can follow it without effort. Near
+      // the copy the glow hushes itself as it always has.
       let spriteGoal = 0
       if (isHero && !reducedMotion) {
         const ts = time / 1000
-        const angle = ts * 0.75
-        const rx = 0.44 * (1 + 0.08 * Math.sin(ts * 0.23))
-        const ry = 0.38 * (1 + 0.08 * Math.sin(ts * 0.17 + 2))
-        sprite.x = width * (0.5 + rx * Math.cos(angle))
-        sprite.y = height * (0.48 + ry * Math.sin(angle))
+        const rx = 0.44 * (1 + 0.1 * Math.sin(ts * 0.11))
+        const ry = 0.38 * (1 + 0.1 * Math.sin(ts * 0.09 + 2))
+        sprite.x = width * (0.5 + rx * Math.sin(ts * 0.65))
+        sprite.y = height * (0.48 + ry * Math.sin(ts * 0.39 + 1.1))
         const box = host.getBoundingClientRect()
         spriteGoal =
           strengthAt(box.left + sprite.x / dpr, box.top + sprite.y / dpr) *
