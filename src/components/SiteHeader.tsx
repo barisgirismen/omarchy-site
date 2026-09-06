@@ -628,6 +628,7 @@ export function SiteHeader() {
                 chip && 'bg-surface-2',
               )}
               aria-expanded={menuOpen}
+              aria-haspopup="true"
               aria-controls="site-menu"
               aria-label={menuOpen ? 'Close menu' : 'Menu'}
               onClick={() => setMenuOpen((open) => !open)}
