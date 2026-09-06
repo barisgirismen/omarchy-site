@@ -734,15 +734,15 @@ function Home() {
         </div>
       </section>
 
-      <section id="gaming" className="border-t border-border-subtle bg-bg-deep">
+      <section id="developers" className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
-          <GamingShowcase />
+          <DeveloperShowcase />
         </div>
       </section>
 
-      <section id="developers" className="border-t border-border-subtle">
+      <section id="gaming" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
-          <DeveloperShowcase />
+          <GamingShowcase />
         </div>
       </section>
 
