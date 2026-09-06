@@ -52,6 +52,11 @@ const PORTED: Partial<Record<string, { title: string; description: string }>> =
       description:
         'The people and companies funding the Omacom Foundation. Founding patrons contribute $1,000,000 to the mission; distinguished patrons, $100,000.',
     },
+    'patrons/badges': {
+      title: 'Patron badges - Omarchy',
+      description:
+        'Every patron of the Omacom Foundation gets a digital rally credential: a badge, a social card, and wallpapers, in four classes, one for each tier of patronage.',
+    },
     potato: {
       title: 'Ancient Hardware - Omarchy',
       description: 'Omarchy runs great on ancient hardware.',
@@ -80,6 +85,7 @@ const PORTED: Partial<Record<string, { title: string; description: string }>> =
 /** The pages that read best on the news column's measure: prose and short
  *  lists, no galleries or member grids to give the room to. */
 const NARROW = new Set([
+  'patrons/badges',
   'server',
   'meetups',
   'air',

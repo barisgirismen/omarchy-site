@@ -1603,6 +1603,65 @@ h6 {
     grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   }
 }
+/* The patron badges: one class after another, each its art, name, tier,
+   a line about it and its four downloads, centred like a card would be. */
+.ported .badges {
+  display: grid;
+  gap: 3.5rem;
+}
+.ported .badges__lede,
+.ported .badges__outro {
+  margin: 0;
+  text-align: center;
+  text-wrap: pretty;
+}
+.ported .badge {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  text-align: center;
+}
+.ported .badge + .badge {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 3.5rem;
+}
+.ported .badge__art {
+  display: block;
+  width: min(100%, 20rem);
+}
+.ported .badge__art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: opacity 150ms ease-out;
+}
+@media (hover: hover) {
+  .ported .badge__art:hover img {
+    opacity: 0.8;
+  }
+}
+.ported .badge__name {
+  margin: 1rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+.ported .badge__tier {
+  margin: -0.5rem 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+.ported .badge__body {
+  margin: 0;
+  max-width: 40em;
+}
+.ported .badge > p:last-child {
+  margin: 0;
+  font-size: 13px;
+}
 .ported .patrons__aside {
   margin: 2rem 0 0;
   color: var(--color-text-muted);

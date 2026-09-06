@@ -147,7 +147,6 @@ const config = defineConfig({
             )
           )
             return false
-          if (clean.startsWith('/patrons/badges')) return false
           if (clean === '/news/rss.xml') return false
           return owned.some((o) => clean === o || clean.startsWith(o + '/'))
         },

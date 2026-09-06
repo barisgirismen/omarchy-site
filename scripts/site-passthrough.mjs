@@ -22,7 +22,6 @@ export const WHOLE = [
   // Not yet redesigned: served as they are until each is absorbed.
   'screensaver',
   'discord',
-  'patrons/badges',
 ]
 
 /** Copied except for the rendered pages, which the app now produces: the

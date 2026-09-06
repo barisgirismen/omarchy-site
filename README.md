@@ -23,7 +23,7 @@ After editing content inputs, run `npm run port` to refresh the dev data.
 - Run `bin/build-manual [path/to/omarchy/manual]` to refresh manual inputs and
   images. The React site builds its table of contents and search index.
 
-The screensaver, patron badges, and Discord redirect are still served
+The screensaver and the Discord redirect are still served
 directly. Their styles, fonts, and scripts remain under `assets/`, alongside
 shared images and public downloads.
 
