@@ -98,7 +98,7 @@ const SPRITE_STRENGTH = 0.7
  * between them varies so they never fall into a beat. */
 /** Seconds the sprite flies before its first stamp, and between stamps. */
 const SPRITE_FIRST_STAMP_WAIT = [1.5, 2.5] as const
-const SPRITE_STAMP_WAIT = [4, 8] as const
+const SPRITE_STAMP_WAIT = [3, 6] as const
 /** How much of the sprite's glow stays while it charges a stamp. A press
  * hushes the pointer's glow outright, but there the pointer is still on
  * screen; the sprite has nothing but its glow, so it dims rather than
@@ -791,17 +791,16 @@ export function HeroPixelField({
     const draw = (time: number) => {
       const t = reducedMotion ? 0 : time / 1000
 
-      // The sprite flies whatever the pointer does. Its path is a slow
-      // swing over the top of the field and down either side, an arc that
-      // stays clear of the copy below, where the glow would only be
-      // hushed, and wobbles so it never quite repeats.
+      // The sprite flies whatever the pointer does. Its path is a brisk
+      // figure that covers the whole field, two swings at different
+      // tempos so it never quite repeats, with a wobble on top. Near the
+      // copy the glow hushes itself as it always has.
       let spriteGoal = 0
       if (isHero && !reducedMotion) {
         const ts = time / 1000
-        const angle = -Math.PI / 2 + 1.45 * Math.sin(ts * 0.12)
-        const wobble = 1 + 0.07 * Math.sin(ts * 0.29 + 1.7)
-        sprite.x = width * (0.5 + 0.44 * wobble * Math.cos(angle))
-        sprite.y = height * (0.46 + 0.36 * wobble * Math.sin(angle))
+        const wobble = 0.05 * Math.sin(ts * 1.9 + 0.6)
+        sprite.x = width * (0.5 + (0.44 + wobble) * Math.sin(ts * 0.52))
+        sprite.y = height * (0.48 + (0.38 - wobble) * Math.sin(ts * 0.31 + 1.1))
         const box = host.getBoundingClientRect()
         spriteGoal =
           strengthAt(box.left + sprite.x / dpr, box.top + sprite.y / dpr) *
