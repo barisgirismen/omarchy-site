@@ -10,7 +10,7 @@ import {
   DiscordIcon,
   DisplayIcon,
   DownloadIcon,
-  FashionIcon,
+  GithubIcon,
   UsbIcon,
   PlayIcon,
   WindowsIcon,
@@ -174,18 +174,18 @@ const communityCards = [
     cta: 'Find a meetup',
   },
   {
+    icon: GithubIcon,
+    title: 'Contribute',
+    body: 'File issues, fix bugs, and submit features.',
+    href: 'https://github.com/omacom-io/omarchy',
+    cta: 'Contribute on GitHub',
+  },
+  {
     icon: BankIcon,
     title: 'Donate',
     body: 'Help fund the people and projects making Omarchy better for everyone.',
     href: 'https://donate.omarchy.org',
     cta: 'Become a patron',
-  },
-  {
-    icon: FashionIcon,
-    title: 'Merch',
-    body: 'Wear the word. Official Omarchy gear from the 37signals supply store.',
-    href: 'https://supply.37signals.com/collections/omarchy',
-    cta: 'Browse the store',
   },
 ]
 
@@ -230,7 +230,7 @@ function HeroCallout({ href, html }: { href: string; html: string }) {
 }
 
 function Home() {
-  const { top, total, news } = Route.useLoaderData()
+  const { top, news } = Route.useLoaderData()
   const device = useTryDevice()
   const [intro, setIntro] = useState(false)
   const installLink = useHashLink('install')
@@ -407,7 +407,7 @@ function Home() {
                 The malleable OS for the age of agents.
               </span>
               <span className="block [text-wrap:balance]">
-                Vibe your way through every alteration, tweak, and desire.
+                Vibe your way through every alteration, tweak, or trouble.
               </span>
             </p>
 
@@ -494,16 +494,13 @@ function Home() {
                 </a>
               </h2>
               <p className="mt-6 max-w-[35.5rem] text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                Linux on the desktop has always asked for a weekend before it
-                gave anything back: a window manager to pick, a terminal to
-                theme, a hundred small decisions between you and a machine you
-                like using. Omarchy answers those decisions with taste, and then
-                leaves every one of them open.
+                Linux used to be a chore to setup, difficult to debug, and full of confusing upfront choices. Omarchy solves all of it with a lightning fast installation, agents that debug all issues, and fantastic defaults that give you a fully functioning system that looks amazing out of the box.
               </p>
               <p className="mt-5 max-w-[35.5rem] text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
-                The name says as much. Oma is for omakase, chef's choice: the
-                chef picks the courses, and you are still free to send anything
-                back.
+                Oma is for omakase, chef's choice: the chef picks the courses, but you are always free to send anything back. Omarchy lets you take an exquisite baseline and then make it your own.
+              </p>
+              <p className="mt-5 max-w-[35.5rem] text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
+                It's not perfect... yet. But we can fix everything now. So it will be.
               </p>
 
               {/* A quote marked as one by being one: bigger type, real
@@ -670,7 +667,7 @@ function Home() {
         <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="A plugin for every dream, every desire"
-            description={`${total.toLocaleString('en-US')} community plugins for the Quattro shell: bars, widgets, overlays, and services, each one a single command away.`}
+            description="Thousands of community plugins are available for Omarchy. Don't find what you need? Just put your agent on the job, then share when done."
             action={allPlugins}
           />
           <CardRail className="mt-6 lg:mt-10 sm:grid-cols-2 lg:grid-cols-3">
