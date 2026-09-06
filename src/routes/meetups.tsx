@@ -258,12 +258,82 @@ function MeetupsPage() {
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-text-secondary [text-wrap:pretty]">
             Omarchy meetups are popping up around the world. Find one near you,
-            or start one. Every one of them is on the Omarchy calendar on Luma,
-            and this page follows it.
+            or start one. They all live on the Omarchy calendar on Luma.
           </p>
         </div>
         <div className="hidden shrink-0 sm:block">{calendar}</div>
       </header>
+
+      {/* The regions as chips, a legend for the map and a filter for the
+          cards in one, with the countries of the chosen region under
+          them. Each chip carries its count. */}
+      <nav aria-label="Filter the meetups by region" className="mt-10">
+        <ul className="flex flex-wrap gap-2">
+          {[null, ...regions].map((r) => {
+            const on = region === r
+            const count = r
+              ? allUpcoming.filter((e) => regionOf(e.country) === r).length
+              : allUpcoming.length
+            return (
+              <li key={r ?? 'all'}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => pickRegion(r)}
+                  className={cn(
+                    'inline-flex min-h-11 items-center gap-2 border px-3 text-sm transition-colors sm:min-h-9 duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                    on
+                      ? 'border-brand bg-brand text-brand-ink'
+                      : 'border-border-strong bg-surface text-text hover:bg-surface-2',
+                  )}
+                >
+                  {r ?? 'Everywhere'}
+                  <span
+                    className={cn(
+                      'font-mono text-xs',
+                      on ? 'text-brand-ink/70' : 'text-text-muted',
+                    )}
+                  >
+                    {count}
+                  </span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+        {/* The countries of the chosen region. The row keeps its height
+            when there is nothing in it, so picking a region does not push
+            the map down a line. */}
+        <ul className="mt-3 flex min-h-11 flex-wrap gap-x-4 gap-y-2 sm:min-h-9">
+          {countries.length > 1 ? (
+            <>
+              {countries.map((code) => {
+                const on = country === code
+                return (
+                  <li key={code}>
+                    <button
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => setCountry(on ? null : code)}
+                      className={cn(
+                        'min-h-11 text-sm underline-offset-4 transition-colors sm:min-h-9 duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                        on
+                          ? 'text-brand underline decoration-current'
+                          : 'text-text-secondary hover:text-text',
+                      )}
+                    >
+                      {countryOf(code)}
+                      <span className="ml-1.5 font-mono text-xs text-text-muted">
+                        {allUpcoming.filter((e) => e.country === code).length}
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </>
+          ) : null}
+        </ul>
+      </nav>
 
       <MeetupMap
         pins={pins}
@@ -285,74 +355,8 @@ function MeetupsPage() {
         }}
         active={active}
         onActive={setActive}
-        className="mt-10"
+        className="mt-6"
       />
-
-      {/* The regions as chips, a legend for the map and a filter for the
-          cards in one, with the countries of the chosen region under
-          them. Each chip carries its count. */}
-      <nav aria-label="Filter the meetups by region" className="mt-6">
-        <ul className="flex flex-wrap gap-2">
-          {[null, ...regions].map((r) => {
-            const on = region === r
-            const count = r
-              ? allUpcoming.filter((e) => regionOf(e.country) === r).length
-              : allUpcoming.length
-            return (
-              <li key={r ?? 'all'}>
-                <button
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => pickRegion(r)}
-                  className={cn(
-                    'inline-flex min-h-9 items-center gap-2 border px-3 text-sm transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                    on
-                      ? 'border-brand bg-brand text-brand-ink'
-                      : 'border-border-strong bg-surface text-text hover:bg-surface-2',
-                  )}
-                >
-                  {r ?? 'Everywhere'}
-                  <span
-                    className={cn(
-                      'font-mono text-xs',
-                      on ? 'text-brand-ink/70' : 'text-text-muted',
-                    )}
-                  >
-                    {count}
-                  </span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-        {countries.length > 1 ? (
-          <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-            {countries.map((code) => {
-              const on = country === code
-              return (
-                <li key={code}>
-                  <button
-                    type="button"
-                    aria-pressed={on}
-                    onClick={() => setCountry(on ? null : code)}
-                    className={cn(
-                      'min-h-9 text-sm underline-offset-4 transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                      on
-                        ? 'text-brand underline decoration-current'
-                        : 'text-text-secondary hover:text-text',
-                    )}
-                  >
-                    {countryOf(code)}
-                    <span className="ml-1.5 font-mono text-xs text-text-muted">
-                      {allUpcoming.filter((e) => e.country === code).length}
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        ) : null}
-      </nav>
 
       {months.length === 0 ? (
         <p className="mt-10 text-[15px] text-text-secondary">
@@ -449,7 +453,7 @@ function MeetupsPage() {
                         <MeetupCover />
                       )}
                     </div>
-                    <p className="mt-2 font-mono text-[11px] text-text-muted">
+                    <p className="mt-2 font-mono text-xs text-text-muted">
                       <time dateTime={meetup.start}>
                         {inZone(meetup, { month: 'short', day: 'numeric' })}
                       </time>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import mapData from '@/data/meetup-map.json'
 import { cn } from '@/lib/utils'
 
@@ -137,16 +137,46 @@ export function MeetupMap({
   const litPins = placed.filter((p) => p.shown && !p.past)
   const orderOf = new Map(litPins.map((p, i) => [p.id, i]))
 
+  // How big a map unit is on screen, so a dot's target can be sized in
+  // pixels: on a phone the whole map is a few hundred pixels wide and a
+  // target sized in map units would be a few pixels across. On a finger
+  // the target is at least 44px; a pointer keeps the city-sized one, so
+  // neighbouring cities stay their own.
+  const frame = useRef<HTMLDivElement>(null)
+  const [pxPerUnit, setPxPerUnit] = useState(1)
+  const [coarse, setCoarse] = useState(false)
+  useEffect(() => {
+    const el = frame.current
+    if (!el) return
+    const measure = () => setPxPerUnit(el.clientWidth / W)
+    measure()
+    const watch = new ResizeObserver(measure)
+    watch.observe(el)
+    const pointer = window.matchMedia('(pointer: coarse)')
+    setCoarse(pointer.matches)
+    const onPointer = (event: MediaQueryListEvent) => setCoarse(event.matches)
+    pointer.addEventListener('change', onPointer)
+    return () => {
+      watch.disconnect()
+      pointer.removeEventListener('change', onPointer)
+    }
+  }, [])
+  const targetRadius = coarse
+    ? Math.max(5.5 * k, 22 / (pxPerUnit * scale))
+    : 5.5 * k
+
   return (
-    <div className={cn('relative', className)}>
+    <div ref={frame} className={cn('relative', className)}>
+      {/* A group, not an image: the dots inside are links, and an image
+          would hide them from anyone reading the page by ear. */}
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        role="img"
+        role="group"
         aria-label="Where the meetups are, on a map of the world"
         className="block h-auto w-full overflow-hidden"
       >
         <g
-          className="[transition:transform_600ms_cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+          className="[transition:transform_450ms_cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
           style={{
             transform: `scale(${scale}) translate(${-box.x}px, ${-box.y}px)`,
             transformOrigin: '0 0',
@@ -192,7 +222,7 @@ export function MeetupMap({
                 key={pin.id}
                 href={pin.url}
                 className={cn(
-                  'cursor-pointer outline-none',
+                  'cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   arrival === 'playing' &&
                     orderOf.has(pin.id) &&
                     'meetup-pin-in',
@@ -223,9 +253,14 @@ export function MeetupMap({
                   stroke="var(--color-bg)"
                   strokeWidth={1.2 * k}
                 />
-                {/* Room to land on around the dot, but not so much that
-                    the next city's dot is under it. */}
-                <circle cx={pin.x} cy={pin.y} r={5.5 * k} fill="transparent" />
+                {/* Room to land on around the dot: a finger's worth on a
+                    touch screen, a city's worth under a pointer. */}
+                <circle
+                  cx={pin.x}
+                  cy={pin.y}
+                  r={targetRadius}
+                  fill="transparent"
+                />
               </a>
             )
           })}
