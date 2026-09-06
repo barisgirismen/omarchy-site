@@ -436,7 +436,13 @@ async function meetupsFromApi(key) {
   const events = []
   let cursor = null
   for (;;) {
-    const url = new URL('https://public-api.luma.com/v1/calendar/list-events')
+    const url = new URL('https://public-api.luma.com/v1/calendars/events/list')
+    // Community meetups are often listed here but managed by their hosts.
+    // Luma otherwise returns only events managed by this calendar itself.
+    url.searchParams.append('access', 'manage')
+    url.searchParams.append('access', 'view')
+    url.searchParams.append('platforms', 'luma')
+    url.searchParams.append('platforms', 'external')
     url.searchParams.set('after', MEETUPS_SINCE.toISOString())
     url.searchParams.set('pagination_limit', '100')
     url.searchParams.set('sort_column', 'start_at')
@@ -449,7 +455,7 @@ async function meetupsFromApi(key) {
       const ev = entry.event ?? entry
       const geo = ev.geo_address_json ?? {}
       events.push({
-        id: ev.api_id ?? entry.api_id,
+        id: ev.id ?? ev.api_id ?? entry.api_id,
         title: noEmDash(ev.name ?? ''),
         url: ev.url ?? `https://luma.com/${ev.api_id}`,
         start: ev.start_at ?? null,
