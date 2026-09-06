@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import {
   BrushIcon,
   ChevronLeftIcon,
@@ -120,7 +121,12 @@ export function ThemePicker() {
       close()
       return
     }
-    switchTheme(next.id, () => close())
+    // The picker has a name in the wipe (see theme-transition.css), so it
+    // has to be gone before the browser takes its second snapshot: a named
+    // element that disappears mid-transition makes the browser drop the
+    // whole wipe. Hence the flush, rather than letting React close it on
+    // its own schedule a frame later.
+    switchTheme(next.id, () => flushSync(() => close()), { frosted: true })
   }, [close])
 
   // The entry point is T. Omarchy's own chord still works for anyone not on
@@ -334,6 +340,10 @@ export function ThemePicker() {
       // the page underneath as well, which shifted it sideways on phones
       // and could cancel the picker's own pointer events midway.
       className="fixed inset-0 z-(--z-modal) flex touch-none flex-col items-center justify-center outline-none"
+      // Its own layer in the theme wipe (see theme-transition.css): kept out
+      // of the page's snapshot so the page can be frosted as it is on
+      // screen while the cards stay sharp, and both open along the slit.
+      style={{ viewTransitionName: 'theme-picker' }}
     >
       {/* Dimmer, not a curtain: the page behind stays on the theme you
           arrived with until you take one. It wears the same blur and fade
@@ -377,7 +387,7 @@ export function ThemePicker() {
             <div
               key={theme.id}
               aria-hidden={offset !== 0}
-              className="absolute w-[min(68vw,46rem)] sm:w-[min(72vw,46rem)] transition-transform duration-300 ease-out"
+              className="absolute w-[min(68vw,46rem)] sm:w-[min(72vw,46rem)]"
               style={{
                 transform: `translateX(${shift}%) scale(${depth === 0 ? 1 : 0.88})`,
                 zIndex: 10 - depth,
@@ -432,7 +442,7 @@ export function ThemePicker() {
                           img.src = `${previewSrc(theme.id)}?retry`
                         }, 1000)
                       }}
-                      className="w-full select-none object-cover transition-[filter] duration-300 ease-out"
+                      className="w-full select-none object-cover"
                       style={{
                         aspectRatio: portrait ? '4 / 5' : '1800 / 1012',
                         // The dim lives on the screenshot alone so the frame
@@ -477,15 +487,19 @@ export function ThemePicker() {
           'relative mt-1.5 cursor-pointer px-4 py-3.5 text-center transition-[filter] duration-150 ease-out hover:brightness-125',
         )}
       >
+        {/* The name wears the inks of the theme it names, not the page's:
+            the page keeps its theme while the deck is walked, so the
+            label carries its theme's tokens itself, the way the whole page
+            did when every step re-themed it. The raw theme tokens, since
+            the mapped colours are fixed at the root and would not follow. */}
         <span
+          data-theme={SITE_THEMES[index].id}
           className="block font-sans text-2xl font-semibold tracking-tight"
           style={{
-            color: SITE_THEMES[index].light
-              ? 'var(--color-bg)'
-              : 'var(--color-text)',
+            color: SITE_THEMES[index].light ? 'var(--t-bg)' : 'var(--t-text)',
             WebkitTextStroke: SITE_THEMES[index].light
-              ? '2px var(--color-text)'
-              : '2px var(--color-bg)',
+              ? '2px var(--t-text)'
+              : '2px var(--t-bg)',
             paintOrder: 'stroke fill',
           }}
         >

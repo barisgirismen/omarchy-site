@@ -1,19 +1,20 @@
 /**
  * Frosted split-wipe used when the site changes theme.
  *
- * The live page frosts for 80ms, then a 10-degree parallelogram slit
- * opens over 200ms through the View Transitions API, the same transition
- * omarchy-www uses. Browsers without that API, and anyone who asked for
- * less motion, swap in one frame.
+ * A 10-degree parallelogram slit opens over 200ms through the View
+ * Transitions API, the same transition omarchy-www uses. The old page is
+ * frosted as a whole in the snapshot the browser keeps of it (see
+ * theme-transition.css), so the slit is what clears the frost, edge by
+ * edge. Nothing is blurred on the live page first: the picker's own
+ * backdrop blur is not carried into that snapshot by every browser, and
+ * a live frost layer was not either, which left a sharp frame between
+ * the two. Browsers without the API, and anyone who asked for less
+ * motion, swap in one frame.
  */
 
 export type ThemeTransitionDocument = {
   startViewTransition?: (update: () => void) => unknown
 }
-
-export const THEME_FROST_CLASS = 'theme-frost-layer'
-export const THEME_FROST_ON_CLASS = 'theme-frost-layer-on'
-export const THEME_FROST_MS = 80
 
 export function prefersReducedMotion(
   media: Pick<MediaQueryList, 'matches'> = matchReducedMotion(),
@@ -28,59 +29,46 @@ export function shouldAnimateThemeTransition(
   return typeof doc.startViewTransition === 'function' && !reducedMotion
 }
 
+/** Set on the root for the length of a wipe that starts from the picker,
+ *  so the page's snapshot is frosted only then (see theme-transition.css):
+ *  under the picker the page already wears that blur, and the wipe keeps
+ *  it until the slit clears it; from anywhere else the page is sharp and
+ *  stays sharp. */
+export const THEME_WIPE_FROSTED_CLASS = 'theme-wipe-frosted'
+
 export function runThemeViewTransition(
   update: () => void,
   doc: ThemeTransitionDocument = globalDocument(),
   reducedMotion = prefersReducedMotion(),
+  frosted = false,
 ): void {
   if (!shouldAnimateThemeTransition(doc, reducedMotion)) {
     update()
     return
   }
 
-  if (canFrostLiveDocument(doc)) {
-    void frostThenWipe(update, doc)
-    return
-  }
-
-  startWipe(update, doc)
+  const root = typeof document !== 'undefined' ? document.documentElement : null
+  if (frosted) root?.classList.add(THEME_WIPE_FROSTED_CLASS)
+  const done = () => root?.classList.remove(THEME_WIPE_FROSTED_CLASS)
+  startWipe(update, doc, frosted ? done : undefined)
 }
 
-function canFrostLiveDocument(doc: ThemeTransitionDocument): boolean {
-  return (
-    typeof document !== 'undefined' &&
-    doc === document &&
-    Boolean(document.body)
-  )
-}
-
-async function frostThenWipe(
+function startWipe(
   update: () => void,
   doc: ThemeTransitionDocument,
-): Promise<void> {
-  const layer = document.createElement('div')
-  layer.className = THEME_FROST_CLASS
-  document.body.append(layer)
-  void layer.offsetWidth
-  layer.classList.add(THEME_FROST_ON_CLASS)
-  await waitForFrost()
-  startWipe(() => {
-    layer.remove()
-    update()
-  }, doc)
-}
-
-function waitForFrost(): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, THEME_FROST_MS)
-  })
-}
-
-function startWipe(update: () => void, doc: ThemeTransitionDocument): void {
+  done?: () => void,
+): void {
   try {
-    doc.startViewTransition?.(update)
+    const transition = doc.startViewTransition?.(update) as
+      { finished?: Promise<unknown> } | undefined
+    if (done) {
+      const finished = transition?.finished
+      if (finished) void finished.then(done, done)
+      else done()
+    }
   } catch {
     update()
+    done?.()
   }
 }
 

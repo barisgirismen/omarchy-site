@@ -284,9 +284,18 @@ export function applyTheme(id: string) {
  * Apply a theme through the split-wipe view transition used on omarchy-www.
  * Reduced motion and browsers without View Transitions skip the animation.
  */
-export function switchTheme(id: string, after?: () => void) {
-  runThemeViewTransition(() => {
-    applyTheme(id)
-    after?.()
-  })
+export function switchTheme(
+  id: string,
+  after?: () => void,
+  options: { frosted?: boolean } = {},
+) {
+  runThemeViewTransition(
+    () => {
+      applyTheme(id)
+      after?.()
+    },
+    undefined,
+    undefined,
+    options.frosted,
+  )
 }
