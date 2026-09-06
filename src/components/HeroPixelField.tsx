@@ -798,9 +798,9 @@ export function HeroPixelField({
       let spriteGoal = 0
       if (isHero && !reducedMotion) {
         const ts = time / 1000
-        const wobble = 0.05 * Math.sin(ts * 1.9 + 0.6)
-        sprite.x = width * (0.5 + (0.44 + wobble) * Math.sin(ts * 0.52))
-        sprite.y = height * (0.48 + (0.38 - wobble) * Math.sin(ts * 0.31 + 1.1))
+        const wobble = 0.05 * Math.sin(ts * 2.2 + 0.6)
+        sprite.x = width * (0.5 + (0.44 + wobble) * Math.sin(ts * 0.65))
+        sprite.y = height * (0.48 + (0.38 - wobble) * Math.sin(ts * 0.39 + 1.1))
         const box = host.getBoundingClientRect()
         spriteGoal =
           strengthAt(box.left + sprite.x / dpr, box.top + sprite.y / dpr) *
