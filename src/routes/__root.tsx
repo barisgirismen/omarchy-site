@@ -1,4 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import { watchOutbound } from '@/lib/outbound'
 import {
   HeadContent,
   Link,
@@ -111,6 +113,12 @@ function RootError({ error }: { error: unknown }) {
   )
 }
 
+/** Sends links to other sites to a new tab, for as long as the page lives. */
+function OutboundLinks() {
+  useEffect(() => watchOutbound(), [])
+  return null
+}
+
 function DevTools() {
   const [tools, setTools] = useState<ReactNode>(null)
   useEffect(() => {
@@ -155,6 +163,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <SearchPalette />
         <MusicControl />
         <PixelSnap />
+        <OutboundLinks />
         {import.meta.env.DEV ? <DevTools /> : null}
         <Scripts />
       </body>
