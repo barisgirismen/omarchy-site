@@ -32,7 +32,7 @@ function VoicesEmbedded() {
     return () => script.remove()
   }, [])
   return (
-    <div className="mt-10 sm:columns-2 lg:columns-3">
+    <div className="mt-6 lg:mt-10 sm:columns-2 lg:columns-3">
       {voices.map((post) => (
         <blockquote
           key={post.url}
@@ -87,13 +87,16 @@ export function Voices() {
       <div
         ref={wall}
         onTransitionEnd={(event) => {
-          if (event.target === wall.current && event.propertyName === 'max-height')
+          if (
+            event.target === wall.current &&
+            event.propertyName === 'max-height'
+          )
             settled()
         }}
         className={cn('voices', open && 'voices-open')}
         style={{ '--voices-fold': `${FOLD_REM}rem` } as React.CSSProperties}
       >
-        <CardRail className="mt-10 sm:block sm:columns-2 lg:columns-3">
+        <CardRail className="mt-6 lg:mt-10 sm:block sm:columns-2 lg:columns-3">
           {voices.map((post) => (
             <VoiceCard key={post.url} post={post} />
           ))}

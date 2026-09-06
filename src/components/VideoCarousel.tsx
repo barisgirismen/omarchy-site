@@ -404,7 +404,7 @@ export function VideoCarousel({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClickCapture={onClickCapture}
-        className="rail-bare rail-column mt-10 flex cursor-grab snap-x snap-mandatory gap-4 overflow-x-auto select-none active:cursor-grabbing motion-reduce:scroll-auto"
+        className="rail-bare rail-column mt-6 lg:mt-10 flex cursor-grab snap-x snap-mandatory gap-4 overflow-x-auto select-none active:cursor-grabbing motion-reduce:scroll-auto"
         aria-roledescription="carousel"
         aria-label={title}
       >

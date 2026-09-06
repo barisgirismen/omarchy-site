@@ -46,7 +46,7 @@ export function TeamClusters() {
       // and pulled together with a transform, and a transform does not
       // shrink the box, so without this the widest row could reach past the
       // edge of a narrow phone and let the whole page scroll sideways.
-      className="mt-10 grid items-start gap-x-6 gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]"
+      className="mt-6 lg:mt-10 grid items-start gap-x-6 gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]"
     >
       {teams.map((team) => {
         const isOpen = open === team.id

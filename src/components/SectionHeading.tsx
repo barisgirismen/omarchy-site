@@ -48,5 +48,5 @@ export function SectionHeading({
  * layout. Only one of the two is ever shown.
  */
 export function SectionActions({ children }: { children: ReactNode }) {
-  return <div className="mt-10 flex flex-wrap gap-2 sm:hidden">{children}</div>
+  return <div className="mt-6 flex flex-wrap gap-2 sm:hidden">{children}</div>
 }

@@ -131,14 +131,14 @@ function Card({
         (live ? ' figure-live' : '')
       }
     >
-      {icon}
+      <div className="hidden md:block">{icon}</div>
       {children}
     </div>
   )
 }
 
 const number =
-  'mt-4 block font-sans text-3xl font-semibold tracking-tight text-text tabular-nums'
+  'flex items-center gap-3 font-sans text-3xl font-semibold tracking-tight text-text tabular-nums md:mt-4'
 const label = 'mt-1 block text-sm text-text-secondary'
 const meta = 'mt-3 font-mono text-xs text-text-muted'
 // Underlined in nothing until hovered, the way the news titles and the
@@ -243,7 +243,7 @@ export function Figures() {
   const repo = useInView()
 
   return (
-    <div className="mt-10 grid gap-4 md:grid-cols-3">
+    <div className="mt-6 lg:mt-10 grid gap-4 md:grid-cols-3">
       <Card
         icon={<BankIcon className="size-5 text-brand" />}
         live={funding.inView}
@@ -255,6 +255,7 @@ export function Figures() {
             live={funding.inView}
             prefix="$"
           />
+          <BankIcon className="size-5 shrink-0 text-brand md:hidden" />
         </span>
         <span className={label}>pledged to the Omacom Foundation</span>
         {/* One bar per announcement, each a link to the post it quotes, the
@@ -296,6 +297,7 @@ export function Figures() {
       >
         <span className={number}>
           <Count value={downloads.total} live={isos.inView} />
+          <DownloadIcon className="size-5 shrink-0 text-brand md:hidden" />
         </span>
         <span className={label}>ISO downloads in year one</span>
         <div className="flex flex-1 items-center pt-4">
@@ -330,6 +332,7 @@ export function Figures() {
       >
         <span className={number}>
           <Count value={github.stars} live={repo.inView} />
+          <GithubIcon className="size-5 shrink-0 text-brand md:hidden" />
         </span>
         <span className={label}>stars on GitHub</span>
         {/* One column per week, the last 52, scaled to the busiest week.

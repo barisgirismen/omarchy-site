@@ -5,6 +5,7 @@ import {
   ArrowRightIcon,
   XIcon,
   ArrowUpRightIcon,
+  BankIcon,
   CalendarFilledIcon,
   DiscordIcon,
   DisplayIcon,
@@ -171,16 +172,16 @@ const communityCards = [
     cta: 'Find a meetup',
   },
   {
-    icon: DisplayIcon,
-    title: 'Workstations',
-    body: 'Show off your Omarchy setup and see where other Omarchs make things happen.',
-    splat: 'workstations',
-    cta: 'Show off your setup',
+    icon: BankIcon,
+    title: 'Donate',
+    body: 'Help fund the people and projects making Omarchy better for everyone.',
+    href: 'https://donate.omarchy.org',
+    cta: 'Become a patron',
   },
   {
     icon: FashionIcon,
     title: 'Merch',
-    body: 'Wear the wordmark. Official Omarchy gear from the 37signals supply store.',
+    body: 'Wear the word. Official Omarchy gear from the 37signals supply store.',
     href: 'https://supply.37signals.com/collections/omarchy',
     cta: 'Browse the store',
   },
@@ -382,7 +383,7 @@ function Home() {
               Beautiful, fun &amp; agentic Linux by{' '}
               <a
                 href="https://dhh.dk"
-                className="underline decoration-border-strong underline-offset-[6px] transition-colors duration-150 ease-out hover:decoration-brand"
+                className="underline decoration-transparent underline-offset-[6px] transition-colors duration-150 ease-out hover:decoration-brand"
               >
                 DHH
               </a>
@@ -457,11 +458,11 @@ function Home() {
           idea here and lets the manual do the explaining. The install is
           deliberately thin here too: this is a landing page. */}
       <section>
-        <div className="mx-auto max-w-6xl px-4 py-28 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-28">
           {/* The words on the left, the quote across from them: with the
               column of pillars gone, a single column left the right half of
               the page empty. */}
-          <div className="grid gap-14 lg:grid-cols-[1.35fr_1fr] lg:gap-20">
+          <div className="grid gap-8 lg:grid-cols-[1.35fr_1fr] lg:gap-20">
             <div>
               {/* Unattributed on purpose: this is the site's own voice, not
                   a quotation set apart from it. */}
@@ -503,9 +504,7 @@ function Home() {
                   rule the rest of the page does not use. */}
             </div>
 
-            {/* Sat under the words before, so it keeps a top margin for
-                that; beside them it has none, and it holds the page's right
-                edge rather than floating in the middle of the column. */}
+            {/* The grid sets the gap below the words on smaller screens. */}
             <div className="lg:justify-self-end lg:self-center lg:[&>figure]:-mt-[3px]">
               <DhhQuote />
             </div>
@@ -518,7 +517,7 @@ function Home() {
         <div
           id="watch"
           data-ground
-          className="border-y border-border-subtle bg-bg-deep py-24"
+          className="border-y border-border-subtle bg-bg-deep py-12 lg:py-24"
         >
           <VideoCarousel
             level={3}
@@ -528,7 +527,10 @@ function Home() {
           />
         </div>
 
-        <div id="install" className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <div
+          id="install"
+          className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6"
+        >
           <SectionHeading
             level={3}
             title="Install Omarchy"
@@ -551,7 +553,7 @@ function Home() {
               note under the download says how long it takes, and where the
               checksum is, rather than the size and architecture, which nobody
               would remember to keep current. */}
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
+          <div className="mt-6 lg:mt-10 grid gap-4 md:grid-cols-2">
             <div className="@container ring-elevation flex min-w-0 flex-col bg-surface p-6">
               <div className="flex items-center gap-2.5">
                 <UsbIcon className="size-5 text-brand" />
@@ -626,7 +628,9 @@ function Home() {
                 </div>
                 <p className="mt-2.5 text-[13px] text-text-muted">
                   Apple Silicon Macs, Windows 10 and 11.
-                  <span className="block">On Linux, the ISO is the way in.</span>
+                  <span className="block">
+                    On Linux, the ISO is the way in.
+                  </span>
                 </p>
               </div>
             </div>
@@ -651,13 +655,13 @@ function Home() {
 
       {/* plugins */}
       <section className="border-t border-border-subtle bg-bg-deep">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
-            title="A marketplace built into the OS"
+            title="A plugin for every dream, every desire"
             description={`${total.toLocaleString('en-US')} community plugins for the Quattro shell: bars, widgets, overlays, and services, each one a single command away.`}
             action={allPlugins}
           />
-          <CardRail className="mt-10 sm:grid-cols-2 lg:grid-cols-3">
+          <CardRail className="mt-6 lg:mt-10 sm:grid-cols-2 lg:grid-cols-3">
             {top.map((plugin) => (
               <PluginCard key={plugin.id} plugin={plugin} />
             ))}
@@ -671,7 +675,7 @@ function Home() {
           the picker does behind T, so the keystroke can be tried by hand.
           The extra themes the community made get their link at the end. */}
       <section className="border-t border-border-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Pick a theme, change everything"
             description={
@@ -700,12 +704,12 @@ function Home() {
           they have the section after this one now, so each can be read on
           its own. */}
       <section className="border-t border-border-subtle bg-bg-deep">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-          <SectionHeading title="Latest from the project" action={allNews} />
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
+          <SectionHeading title="What's been happening lately" action={allNews} />
           {/* Two columns of three: six posts down one wide column read as a
               thin list. Each item draws its own line, so the rules meet
               across the gap where a divide-y would stagger. */}
-          <ul className="mt-8 grid border-t border-border-subtle sm:grid-cols-2 sm:gap-x-10">
+          <ul className="mt-6 lg:mt-8 grid border-t border-border-subtle sm:grid-cols-2 sm:gap-x-10">
             {/* Six on a wide screen, three on a phone: one column of six
                 posts is a page of scrolling before the numbers, and the
                 button under the list leads to the rest. */}
@@ -755,10 +759,10 @@ function Home() {
           arrive. On the light ground, so the page keeps trading dark and
           light section by section. */}
       <section id="figures" className="border-t border-border-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
-            title="The project in numbers"
-            description="What the foundation has announced, what the download post counted, and what the repository shows. Each card links to where its number comes from."
+            title="Momentum by the numbers"
+            description="Donations, downloads, and contributions. Momentum is based on all of it."
           />
           <Figures />
         </div>
@@ -768,9 +772,9 @@ function Home() {
           who steers it. All of them on one line as clusters of faces,
           rather than Core alone as a grid of cards. */}
       <section className="border-t border-border-subtle bg-bg-deep">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
-            title="The people steering it"
+            title="It takes a village to raise a distro"
             description="Omarchy Core sets the direction, the Security team keeps your system safe, Design shapes how it looks and feels, and the Rangers help others find their way."
             action={allTeams}
           />
@@ -783,7 +787,7 @@ function Home() {
           people who make it and the invitation to join in. Posts from X,
           quoted as written. */}
       <section id="voices" className="border-t border-border-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="People love Omarchy"
             description="What people posted on X after installing it."
@@ -796,12 +800,12 @@ function Home() {
 
       {/* community */}
       <section className="border-t border-border-subtle bg-bg-deep">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-24 sm:px-6">
           <SectionHeading
             title="Get involved with Omarchy"
             description="Command your agent, and hang out with the people doing the same."
           />
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 lg:mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {communityCards.map((card) => {
               const inner = (
                 <>
@@ -853,7 +857,7 @@ const DHH_QUOTE_URL = 'https://youtu.be/NYFGCESmikA?t=7104'
 
 function DhhQuote() {
   return (
-    <figure className="group relative mt-12 max-w-md border border-border-subtle bg-surface p-7 transition-colors duration-150 ease-out hover:border-border-strong has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring">
+    <figure className="group relative max-w-md border border-border-subtle bg-surface p-5 transition-colors duration-150 ease-out hover:border-border-strong lg:p-7 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring">
       <div
         aria-hidden="true"
         className="h-10 font-sans text-6xl leading-none font-bold text-brand"
