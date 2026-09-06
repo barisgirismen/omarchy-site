@@ -1,13 +1,13 @@
 /**
- * Links to other sites open in a new tab, everywhere. Decided at the click
- * rather than written on each link, since links come from many places -
+ * Links to other sites open in a new tab, except author links. Decided at
+ * the click rather than written on each link, since links come from many places -
  * components, the manual and news pages ported from HTML, the plugin
  * directory - and one rule keeps them all the same. Done at the click and
  * not by marking the page up front, because marking the server's HTML
  * before React has taken it over made every link a hydration mismatch.
  * Anything on another host over http(s) counts; same-site links, mail
- * links and anchors stay as they are, and a link that already says where
- * to open is left alone. The browser still does the rest: a middle click
+ * links, author links and anchors stay as they are. A link that already
+ * says where to open is left alone. The browser still does the rest: a middle click
  * or a modifier click keeps its own meaning.
  */
 export function watchOutbound() {
@@ -15,7 +15,7 @@ export function watchOutbound() {
     if (event.defaultPrevented) return
     const el = event.target instanceof Element ? event.target : null
     const a = el?.closest<HTMLAnchorElement>('a[href]')
-    if (!a || a.target) return
+    if (!a || a.target || a.relList.contains('author')) return
     let url: URL
     try {
       url = new URL(a.href, location.href)
