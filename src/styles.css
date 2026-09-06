@@ -2200,3 +2200,42 @@ h6 {
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ voices */
+
+/* The wall of posts, folded to a height on a wide screen, the foot fading
+   out. The fade is a mask on the wall itself, not something painted over
+   it: the wall's own pixels go to nothing over the last band, so the row
+   the clip cuts through cannot show, in any theme or at any zoom. The
+   band is a registered length so it can move: 260px folded, none open, on
+   the same 400ms ease-in-out clock as the wall's height, a thing already
+   on screen changing size. A phone gets the rail instead and none of
+   this. */
+@property --voices-band {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 260px;
+}
+@media (min-width: 640px) {
+  .voices {
+    --voices-band: 260px;
+    overflow: hidden;
+    max-height: var(--voices-fold);
+    mask-image: linear-gradient(
+      to bottom,
+      #000 calc(100% - var(--voices-band)),
+      transparent
+    );
+    transition:
+      max-height 400ms ease-in-out,
+      --voices-band 400ms ease-in-out;
+  }
+  .voices-open {
+    --voices-band: 0px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .voices {
+      transition: none;
+    }
+  }
+}

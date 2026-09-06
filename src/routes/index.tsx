@@ -2,6 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import {
   ArrowRightIcon,
+  XIcon,
   ArrowUpRightIcon,
   BrushIcon,
   CalendarIcon,
@@ -32,7 +33,7 @@ import { cn } from '@/lib/utils'
 import { getNewsIndex } from '@/lib/content'
 import { getPluginHighlights } from '@/lib/plugins'
 import themes from '@/data/themes.json'
-import banner from '@/data/banner.json'
+import bannerData from '@/data/banner.json'
 import release from '@/data/version.json'
 import { SITE_DESCRIPTION, seo } from '@/lib/seo'
 
@@ -136,6 +137,10 @@ const communityCards = [
     cta: 'Browse the store',
   },
 ]
+
+/** The site's callout, or null when index.html carries none; the JSON's
+ *  type only ever sees one of the two. */
+const banner = bannerData as typeof bannerData | null
 
 const NEWS_PATH = /^\/news\/(\d{4})\/(\d{2})\/([^/]+)\/?$/
 
@@ -260,7 +265,7 @@ function Home() {
         />
       }
     >
-      More on X
+      More on <XIcon className="size-5" aria-label="X" />
       <ArrowUpRightIcon data-icon="inline-end" />
     </Button>
   )
@@ -728,10 +733,10 @@ function Home() {
       {/* voices: what the people who installed it said about it, between the
           people who make it and the invitation to join in. Posts from X,
           quoted as written. */}
-      <section id="voices" className="border-t border-border-subtle bg-bg-deep">
+      <section id="voices" className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
-            title="Heard on the timeline"
+            title="People love Omarchy"
             description="What people posted on X after installing it."
             action={moreOnX}
           />
@@ -741,7 +746,7 @@ function Home() {
       </section>
 
       {/* community */}
-      <section className="border-t border-border-subtle">
+      <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
             title="Be the Omarch"

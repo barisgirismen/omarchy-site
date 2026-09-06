@@ -8,36 +8,20 @@
     "text": "If you use AI, you need to switch to Omarchy immediately\n\nIt is an AI first, open source operating system by @dhh and it has skyrocketed my productivity\n\nIn this video I cover how to use it, how to install it, and why I'm having more fun using computers than I ever have before:"
   },
   {
-    "handle": "ChShersh",
-    "name": "Dmitrii Kovanikov",
-    "date": "2026-08-30",
-    "url": "https://x.com/ChShersh/status/2094099987281986006",
-    "avatar": "/assets/images/voices/chshersh.webp",
-    "text": "Just finished @lexfridman interview with @DHH. Absolute hopecore. Truly a cure for AI psychosis.\n\nI'm excited about how a single person can actually compete with Apple, Google and Microsoft in the OS space with the help of agents. AI is an incredible amplifier. And I actually love the idea. I don't want to live in this Cyberpunk 2077 world where we only have these 5 corporations that exist forever, and that's it.\n\nEven if I don't agree with DHH on everything (although I still agree on many things), he's the person I can easily listen to for 5 hours.\n\nI just have to install Omarchy after this, don't I? You'll never guess which feature finally motivated me to get over the struggle of *checks notes* a 1-minute installation."
-  },
-  {
-    "handle": "oldstackjournal",
-    "name": "Lars Jansen",
-    "date": "2026-09-01",
-    "url": "https://x.com/oldstackjournal/status/2094728212064723139",
-    "avatar": "/assets/images/voices/oldstackjournal.webp",
-    "text": "I finally looked into Omarchy and I can see why dev twitter is suddenly obsessed with it.\n\nIt\u2019s basically Arch with somebody else making all the hard/endless decisions for you.\n\nHyprland. Terminal first. Keyboard driven. Neovim. Plain config files. Very little \u201cclick through six settings panels and hope for the best\u201d\n\nThis style of OS makes a lot of sense now with ai. An agent can read the config, edit the config, install the package , restart he service, inspect the logs and change the workflow.\n\nWhich is weird because the future of ai computing might end up looking a lot like the old way of using computers: files, terminals, scripts, text and a machine you can actually understand."
+    "handle": "OjisanKaichou",
+    "name": "Ojisan Kaichou",
+    "date": "2026-08-28",
+    "url": "https://x.com/OjisanKaichou/status/2093398890066137123",
+    "avatar": "/assets/images/voices/ojisankaichou.webp",
+    "text": "After 3 days I am confident in saying that Omarchy Quattro is the absolute best operating system I have ever used, hands down. Better than MacOS. Better than Ubuntu. Way better than Windows. \n\nI never knew how much I wanted a tiling window manager until now. I never knew how slow everything else is until now. I didn't know that computing could be as easy and enjoyable today as it was back in the Commodore 64 era. \n\nIt strikes the perfect balance between \"it just works\" and \"it works if you put in the effort.\" MacOS is the former, other Linux distros are the latter. The AI integration with Omarchy makes it easy to customize and fix any problems along the way with minimum friction and frustration. Doing everything with keyboard commands takes me back to the Windows 3 era when Windows was fun and not an evil overlord.\n\nBut I do know that I have only scratched the surface of what Omarchy has to offer. The future looks bright!"
   },
   {
     "handle": "SimonHoiberg",
-    "name": "Simon H\u00f8iberg",
+    "name": "Simon Høiberg",
     "date": "2026-09-01",
     "url": "https://x.com/SimonHoiberg/status/2094771648377348264",
     "avatar": "/assets/images/voices/simonhoiberg.webp",
-    "text": "I'm officially installing Omarchy everywhere. This OS is just so good and it just doesn't stop growing on me \ud83e\udd0c\n\nPlease create Omarchy Android, @dhh. I want to go all-in!"
-  },
-  {
-    "handle": "etroll",
-    "name": "Karl L\u00f8land",
-    "date": "2026-09-01",
-    "url": "https://x.com/etroll/status/2094860150960013634",
-    "avatar": "/assets/images/voices/etroll.webp",
-    "text": "Using Omarchy for a week now, and needed the ability to mirror my screen to and AppleTV at the office (and home) for some presentation. Within ~30 mins, a plugin that can mirror screen and windows from Omarchy was created. The malleable computer from @dhh is the future happening in front of our eyes.\n\nhttps://github.com/ETroll/omarchy-airplay"
+    "text": "I'm officially installing Omarchy everywhere. This OS is just so good and it just doesn't stop growing on me 🤌\n\nPlease create Omarchy Android, @dhh. I want to go all-in!"
   },
   {
     "handle": "gmgauthier1967",
@@ -46,5 +30,109 @@
     "url": "https://x.com/gmgauthier1967/status/2094121529042710854",
     "avatar": "/assets/images/voices/gmgauthier1967.webp",
     "text": "I will say this much about Omarchy: \n\nI haven't seen this kind of popular energy around an OPERATING SYSTEM, since Windows 95. \n\nThis definitely has that \"Where Do You Want To Go, Today?\" feel to it. \n\nhttps://www.youtube.com/watch?v=wRdl1BjTG7c"
+  },
+  {
+    "handle": "IroncladDev",
+    "name": "IroncladDev",
+    "date": "2026-09-04",
+    "url": "https://x.com/IroncladDev/status/2095890742547775752",
+    "avatar": "/assets/images/voices/ironcladdev.webp",
+    "text": "Omarchy unintentionally gave birth to a new design system that doesn't just follow the standardized UI patterns on mainstream operating systems, and it's beautiful"
+  },
+  {
+    "handle": "typecraft_dev",
+    "name": "typecraft",
+    "date": "2026-08-29",
+    "url": "https://x.com/typecraft_dev/status/2093756974819098946",
+    "avatar": "/assets/images/voices/typecraft_dev.webp",
+    "text": "FWIW no one paid me to make a video about omarchy. I actually love it"
+  },
+  {
+    "handle": "oldstackjournal",
+    "name": "Lars Jansen",
+    "date": "2026-09-01",
+    "url": "https://x.com/oldstackjournal/status/2094728212064723139",
+    "avatar": "/assets/images/voices/oldstackjournal.webp",
+    "text": "I finally looked into Omarchy and I can see why dev twitter is suddenly obsessed with it.\n\nIt’s basically Arch with somebody else making all the hard/endless decisions for you.\n\nHyprland. Terminal first. Keyboard driven. Neovim. Plain config files. Very little “click through six settings panels and hope for the best”\n\nThis style of OS makes a lot of sense now with ai. An agent can read the config, edit the config, install the package , restart he service, inspect the logs and change the workflow.\n\nWhich is weird because the future of ai computing might end up looking a lot like the old way of using computers: files, terminals, scripts, text and a machine you can actually understand."
+  },
+  {
+    "handle": "etroll",
+    "name": "Karl Løland",
+    "date": "2026-09-01",
+    "url": "https://x.com/etroll/status/2094860150960013634",
+    "avatar": "/assets/images/voices/etroll.webp",
+    "text": "Using Omarchy for a week now, and needed the ability to mirror my screen to and AppleTV at the office (and home) for some presentation. Within ~30 mins, a plugin that can mirror screen and windows from Omarchy was created. The malleable computer from @dhh is the future happening in front of our eyes.\n\nhttps://github.com/ETroll/omarchy-airplay"
+  },
+  {
+    "handle": "AlexFinn",
+    "name": "Alex Finn",
+    "date": "2026-08-24",
+    "url": "https://x.com/AlexFinn/status/2091938648610816478",
+    "avatar": "/assets/images/voices/alexfinn.webp",
+    "text": "I'm officially Linux pilled\n\nOver the weekend I installed Omarchy on my old gaming computer\n\nSince then I've absolutely fallen in love with using computers again\n\nRough notes on why using it is so great, and why I think you need to give it a try:\n\n• SUPER performant. Runs incredibly well on an old Dell Alienware computer from years ago that was just sitting in my closet collecting dust\n\n• No floating windows just makes sense. By default, all windows in Omarchy auto tile rather than float. Every time you open an app, it splits the screen further automatically. I find it impossible to go back to floating windows on Mac now. Feels archaic and sluggish to manage\n\n• No bloatware. Windows for me has become completely unusable the last few years. Copilot, ads, and all the extras that manufacturers include with it has made it the most unpleasant experience in computers. Omarchy comes with none of that.\n\n• Feels built for AI. Basically every harness including Codex and Grok Bot have native apps for Omarchy.\n\n• Built for productivity. Switching workspaces and using the keyboard for basically everything just feels snappy and quick\n\n• Makes computing fun again. Something about the whole experience is just FUN. Learning all the new key bindings, making my set up personal and my own. I got home every night this weekend just looking forward to getting back to my computer.\n\nHIGHLY HIGHLY HIGHLY recommend trying Omarchy out for yourself.\n\nYou don't need to buy a new computer for this. It can run on really old hardware. Just grab a laptop or desktop from your closet and set it up. Ask your agent how to flash a thumb drive so you can install it.\n\nCodex basically did the entire setup and installation for me\n\nThe learning curve is really small. As long as you have an agent up and ask it questions any time you're confused, it should be able to help you out.\n\nAnd if you install tailscale and connect it to your private network, your agents can even control it from other computers.\n\nAltho it's not necessary, I'm going to pick up a Framework laptop to use this. Need to take this on the go.\n\nExcellent work @dhh"
+  },
+  {
+    "handle": "AnushElangovan",
+    "name": "Anush Elangovan",
+    "date": "2026-09-05",
+    "url": "https://x.com/AnushElangovan/status/2096066455494435010",
+    "avatar": "/assets/images/voices/anushelangovan.webp",
+    "text": "35s Omarchy install on my Halo laptop. Great work @dhh . This is now my daily driver. Still getting used to the short cuts but the best Linux desktop to date (close to my custom Gentoo build that ofcourse took a few weeks to dial in😝)"
+  },
+  {
+    "handle": "bias_micah",
+    "name": "Micah Bias",
+    "date": "2026-08-30",
+    "url": "https://x.com/bias_micah/status/2094034865670783032",
+    "avatar": "/assets/images/voices/bias_micah.webp",
+    "text": "Installed Omarchy. I don’t think I’m going back to windows for my personal daily driver. About an hour getting used to the tile navigation, and I’m hooked. So far, everything I’ve needed to install has been a few keystrokes away, and it all just works. This is wonderful."
+  },
+  {
+    "handle": "fredimachado",
+    "name": "Fredi Machado",
+    "date": "2026-09-06",
+    "url": "https://x.com/fredimachado/status/2096526392012009955",
+    "avatar": "/assets/images/voices/fredimachado.webp",
+    "text": "I'm having so much fun with Omarchy. I'm having that sense of childlike wonder with this thing. I love it! I even built a dead-simple IRC client (Omairc) for it, because why not? Thanks @dhh !! #omarchy"
+  },
+  {
+    "handle": "ChShersh",
+    "name": "Dmitrii Kovanikov",
+    "date": "2026-08-30",
+    "url": "https://x.com/ChShersh/status/2094099987281986006",
+    "avatar": "/assets/images/voices/chshersh.webp",
+    "text": "Just finished @lexfridman interview with @DHH. Absolute hopecore. Truly a cure for AI psychosis.\n\nI'm excited about how a single person can actually compete with Apple, Google and Microsoft in the OS space with the help of agents. AI is an incredible amplifier. And I actually love the idea. I don't want to live in this Cyberpunk 2077 world where we only have these 5 corporations that exist forever, and that's it.\n\nEven if I don't agree with DHH on everything (although I still agree on many things), he's the person I can easily listen to for 5 hours.\n\nI just have to install Omarchy after this, don't I? You'll never guess which feature finally motivated me to get over the struggle of *checks notes* a 1-minute installation."
+  },
+  {
+    "handle": "ravivasavan",
+    "name": "Ravi Vasavan",
+    "date": "2026-09-06",
+    "url": "https://x.com/ravivasavan/status/2096516934561079528",
+    "avatar": "/assets/images/voices/ravivasavan.webp",
+    "text": "Installed Omarchy on my PC, went as far as wiping any traces of Windows from it. It truly is opinionated and I love that agents are considered native, setting it up has been fun and plugging in all of my go-to's were super easy. Hats off to @dhh and all involved."
+  },
+  {
+    "handle": "predkelis",
+    "name": "Elvinas Predkelis",
+    "date": "2025-07-02",
+    "url": "https://x.com/predkelis/status/1940338942232170504",
+    "avatar": "/assets/images/voices/predkelis.webp",
+    "text": "All right, Omarchy is quite something. \n\nIt's been a while back since I've last used Linux as a daily driver. But Omarchy is a breeze - snappy, intuitive and a joy to use.\n\nSome personal tweaks here and there, adding Ghostty and it's a dream machine. \n\nThank you @dhh 🙏"
+  },
+  {
+    "handle": "l0gicgate",
+    "name": "l0gicgate",
+    "date": "2026-08-30",
+    "url": "https://x.com/l0gicgate/status/2094207064033935449",
+    "avatar": "/assets/images/voices/l0gicgate.webp",
+    "text": "I was using Manjaro and almost everything was broken in the distro. \n\nOmarchy just works out of the box and is more polished than other distros out there. \n\nAlso wanted hyprland already setup for me. Been mainlining it for 425 days now. Love it."
+  },
+  {
+    "handle": "D_av_id_",
+    "name": "David",
+    "date": "2026-08-31",
+    "url": "https://x.com/D_av_id_/status/2094217296541598004",
+    "avatar": "/assets/images/voices/d_av_id_.webp",
+    "text": "Posting this from Omarchy Quattro on my 2012 Mac Mini\n\n1. I love it\n2. Omarchy runs circles around macOS itself on this machine, which had become entirely unusable"
   }
 ]
