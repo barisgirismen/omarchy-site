@@ -3,16 +3,18 @@ import mapData from '@/data/meetup-map.json'
 import { cn } from '@/lib/utils'
 
 /**
- * The world as a grid of squares, in the field's own language, with one
- * lit for every meetup you can still go to and a faint one for every
- * meetup there has been. The grid and each pin's place on it are computed
- * at build time (scripts/meetup-map.mjs), so this is one path and a few
- * squares: no map library, no country shapes, the theme's inks throughout.
+ * The world's countries, with a dot lit for every meetup you can still go
+ * to and a faint one for every meetup there has been. The shapes and each
+ * pin's place on them are computed at build time (scripts/meetup-map.mjs)
+ * from Natural Earth, so this is a hundred and seventy paths and a few
+ * circles: no map library, the theme's inks throughout.
  *
  * The map moves with the page: pick a region and it glides in on that
- * region; rest on a dot and a card names the meetup; rest on a card below
- * and its dot answers; press a dot and the page goes to its card. Lit dots
- * arrive one after another when the page opens, and then stand still.
+ * region, its countries lit; pick a country here or in the list and it
+ * comes closer still. Rest on a dot and a card names the meetup; rest on a
+ * card below and its dot answers; press a dot and the page goes to its
+ * card. Lit dots arrive one after another when the page opens, then stand
+ * still.
  */
 export type MapPin = {
   id: string
@@ -28,7 +30,7 @@ export type MapPin = {
   approximate: boolean
 }
 
-/** A box on the grid, in its units, to glide the map onto. */
+/** A box on the map, in its units, to glide onto. */
 export type MapBox = { x: number; y: number; width: number; height: number }
 
 const { width: W, height: H } = mapData
@@ -36,20 +38,19 @@ const { width: W, height: H } = mapData
 /** The box that shows everything. */
 export const WHOLE_MAP: MapBox = { x: 0, y: 0, width: W, height: H }
 
-/** The box around a set of pins, with room to breathe and never so small
- *  that the dots would be huge. */
+/** The box around a set of points, with room to breathe and never so
+ *  small that a dot would be huge. */
 export function boxAround(points: { x: number; y: number }[]): MapBox {
   if (points.length === 0) return WHOLE_MAP
   const xs = points.map((p) => p.x)
   const ys = points.map((p) => p.y)
-  const pad = 6
+  const pad = 40
   let x0 = Math.min(...xs) - pad
   let x1 = Math.max(...xs) + pad
   let y0 = Math.min(...ys) - pad
   let y1 = Math.max(...ys) + pad
-  // No closer than a third of the map, and in the map's own proportions.
-  const minW = W / 3
-  const minH = H / 3
+  const minW = W / 4
+  const minH = H / 4
   if (x1 - x0 < minW) {
     const c = (x0 + x1) / 2
     x0 = c - minW / 2
@@ -75,12 +76,19 @@ export function boxAround(points: { x: number; y: number }[]): MapBox {
   return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 }
 }
 
-/** Where the pins are on the grid, by meetup. */
+/** Where the pins are on the map, by meetup. */
 export const PIN_AT = new Map(mapData.pins.map((p) => [p.id, p]))
+
+/** The countries the map draws, by code. */
+export const COUNTRIES_DRAWN = new Set(mapData.countries.map((c) => c.id))
 
 export function MeetupMap({
   pins,
   box,
+  lit,
+  chosen,
+  pickable,
+  onPickCountry,
   active,
   onActive,
   onPress,
@@ -89,6 +97,13 @@ export function MeetupMap({
   pins: MapPin[]
   /** The part of the map to show. */
   box: MapBox
+  /** Country codes to light: the region being looked at. */
+  lit: Set<string>
+  /** The one country chosen, if any. */
+  chosen: string | null
+  /** Country codes with a meetup coming up, which a press can choose. */
+  pickable: Set<string>
+  onPickCountry: (code: string | null) => void
   /** The meetup the reader is on, on the map or in the list. */
   active: string | null
   onActive: (id: string | null) => void
@@ -100,26 +115,34 @@ export function MeetupMap({
     const at = PIN_AT.get(pin.id)
     return at ? [{ ...pin, x: at.x, y: at.y }] : []
   })
-  // Shown pins over past ones, and the active one on top of all.
+  // Shown pins over past ones. The order never changes after that: a dot
+  // moved in the tree would restart its arrival and blink. The dot the
+  // reader is on is drawn again on top instead, further down.
   placed.sort(
     (a, b) =>
-      Number(a.past) - Number(b.past) ||
-      Number(a.shown) - Number(b.shown) ||
-      Number(a.id === active) - Number(b.id === active),
+      Number(a.past) - Number(b.past) || Number(a.shown) - Number(b.shown),
   )
   const scale = W / box.width
+  const k = 1 / Math.sqrt(scale)
   const hovered = active ? placed.find((p) => p.id === active) : undefined
 
   // The arrival: the lit dots come in one after another once the page is
-  // live, not in the built page, where they simply stand.
-  const [arrived, setArrived] = useState(false)
-  useEffect(() => setArrived(true), [])
-  let order = 0
+  // live, not in the built page, where they simply stand. Once they have
+  // all come in, the animation is taken off them for good, so nothing
+  // that happens later, a hover, a filter, can play it again.
+  const [arrival, setArrival] = useState<'still' | 'playing' | 'done'>('still')
+  useEffect(() => {
+    setArrival('playing')
+    const done = window.setTimeout(() => setArrival('done'), 3000)
+    return () => window.clearTimeout(done)
+  }, [])
+  const litPins = placed.filter((p) => p.shown && !p.past)
+  const orderOf = new Map(litPins.map((p, i) => [p.id, i]))
 
   return (
     <div className={cn('relative', className)}>
       <svg
-        viewBox={`-1 -1 ${W + 2} ${H + 2}`}
+        viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Where the meetups are, on a map of the world"
         className="block h-auto w-full overflow-hidden"
@@ -131,29 +154,55 @@ export function MeetupMap({
             transformOrigin: '0 0',
           }}
         >
-          <path
-            d={mapData.dots}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={0.5 / Math.sqrt(scale)}
-            strokeLinecap="square"
-            className="text-text-muted/45"
-          />
+          {mapData.countries.map((country) => {
+            const canPick = pickable.has(country.id)
+            const isChosen = chosen === country.id
+            return (
+              <path
+                key={country.id}
+                d={country.d}
+                onClick={
+                  canPick
+                    ? () => onPickCountry(isChosen ? null : country.id)
+                    : undefined
+                }
+                className={cn(
+                  'transition-[fill] duration-300 ease-out',
+                  // The chosen country, then the region's countries with a
+                  // meetup, then the rest of the region only just, so a
+                  // wide country with none does not flood the view.
+                  isChosen
+                    ? 'fill-brand/40'
+                    : lit.has(country.id) && canPick
+                      ? 'fill-brand/20'
+                      : lit.has(country.id)
+                        ? 'fill-brand/8'
+                        : 'fill-surface-2',
+                  canPick && 'cursor-pointer hover:fill-brand/30',
+                )}
+                stroke="var(--color-bg)"
+                strokeWidth={0.7 * k}
+                strokeLinejoin="round"
+              />
+            )
+          })}
           {placed.map((pin) => {
-            const on = pin.id === active
-            const delay = pin.shown && !pin.past ? order++ * 35 : 0
-            // A lit dot fills its cell of the grid; the others stay
-            // smaller. Under the zoom they grow less than the map does.
-            const r =
-              (pin.past ? 0.28 : pin.shown ? 0.5 : 0.36) / Math.sqrt(scale)
+            const delay = (orderOf.get(pin.id) ?? 0) * 35
+            const r = (pin.past ? 2.2 : pin.shown ? 4 : 2.8) * k
             return (
               <g
                 key={pin.id}
                 className={cn(
                   'cursor-pointer outline-none',
-                  pin.shown && !pin.past && arrived && 'meetup-pin-in',
+                  arrival === 'playing' &&
+                    orderOf.has(pin.id) &&
+                    'meetup-pin-in',
                 )}
-                style={{ animationDelay: `${delay}ms` }}
+                style={
+                  arrival === 'playing'
+                    ? { animationDelay: `${delay}ms` }
+                    : undefined
+                }
                 tabIndex={0}
                 role="button"
                 aria-label={`${pin.title}, ${pin.when}`}
@@ -169,33 +218,37 @@ export function MeetupMap({
                   }
                 }}
               >
-                <rect
-                  x={pin.x - r}
-                  y={pin.y - r}
-                  width={r * 2}
-                  height={r * 2}
+                <circle
+                  cx={pin.x}
+                  cy={pin.y}
+                  r={r}
                   className={cn(
-                    'transition-[fill,opacity] duration-150 ease-out',
+                    'transition-[fill] duration-150 ease-out',
                     pin.past
-                      ? 'fill-text-muted/60'
+                      ? 'fill-text-muted/55'
                       : pin.shown
                         ? 'fill-brand'
                         : 'fill-text-muted',
-                    on && 'opacity-70',
                   )}
+                  stroke="var(--color-bg)"
+                  strokeWidth={1.2 * k}
                 />
-                {/* The cell is the target: exactly one unit of the grid, so a
-                    neighbour a cell away is still its own dot. */}
-                <rect
-                  x={pin.x - 0.5}
-                  y={pin.y - 0.5}
-                  width={1}
-                  height={1}
-                  fill="transparent"
-                />
+                {/* Room to land on around the dot, but not so much that
+                    the next city's dot is under it. */}
+                <circle cx={pin.x} cy={pin.y} r={5.5 * k} fill="transparent" />
               </g>
             )
           })}
+          {hovered ? (
+            <circle
+              cx={hovered.x}
+              cy={hovered.y}
+              r={(hovered.past ? 3 : 5) * k}
+              className="pointer-events-none fill-brand"
+              stroke="var(--color-text)"
+              strokeWidth={1.2 * k}
+            />
+          ) : null}
         </g>
       </svg>
 
@@ -208,10 +261,10 @@ export function MeetupMap({
           className={cn(
             'pointer-events-none absolute z-10 flex w-64 max-w-[70vw] gap-3 bg-surface p-3 shadow-lg ring-1 ring-border-strong',
             (hovered.x - box.x) / box.width > 0.55
-              ? '-translate-x-full -ml-3'
+              ? '-ml-3 -translate-x-full'
               : 'ml-3',
             (hovered.y - box.y) / box.height > 0.6
-              ? '-translate-y-full -mt-2'
+              ? '-mt-2 -translate-y-full'
               : 'mt-2',
           )}
           style={{

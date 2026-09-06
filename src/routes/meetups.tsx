@@ -6,7 +6,7 @@ import { SectionActions } from '@/components/SectionHeading'
 import { ArrowRightIcon } from '@/components/icons'
 import meetups from '@/data/meetups.json'
 import { getPortedPage } from '@/lib/content'
-import { REGIONS, regionOf } from '@/lib/regions'
+import { COUNTRIES_OF, REGIONS, regionOf } from '@/lib/regions'
 import type { Region } from '@/lib/regions'
 import { seo } from '@/lib/seo'
 import { cn } from '@/lib/utils'
@@ -274,6 +274,21 @@ function MeetupsPage() {
       <MeetupMap
         pins={pins}
         box={box}
+        lit={
+          country
+            ? new Set([country])
+            : region
+              ? COUNTRIES_OF(region)
+              : new Set<string>()
+        }
+        chosen={country}
+        pickable={
+          new Set(allUpcoming.flatMap((e) => (e.country ? [e.country] : [])))
+        }
+        onPickCountry={(code) => {
+          if (code) setRegion(regionOf(code))
+          setCountry(code)
+        }}
         active={active}
         onActive={setActive}
         onPress={goTo}

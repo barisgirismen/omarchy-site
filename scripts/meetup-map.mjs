@@ -1,53 +1,78 @@
 #!/usr/bin/env node
 /**
- * The world as a grid of squares, with one lit for every meetup that has
- * a place, for the meetups page. Built here, at build time, from
- * src/data/meetups.json, and written to src/data/meetup-map.json as one
- * path of dots and the pins' grid positions, so the page draws it as a
- * small inline SVG in the theme's own inks and the browser never loads a
- * map library or the country shapes. The poles are left off: nothing
- * happens there, and the band that is left is wider than it is tall.
+ * The world's countries as SVG paths, and a place on them for every meetup,
+ * for the meetups page. Built here, at build time, from Natural Earth's
+ * country shapes (the world-atlas package) and src/data/meetups.json, into
+ * src/data/meetup-map.json: one path per country, by its two-letter code,
+ * and each pin's position, so the page draws it as an inline SVG in the
+ * theme's own inks and the browser never loads a map library. Equal Earth,
+ * so no country is drawn at a size it does not have.
  *
  * Run: node scripts/meetup-map.mjs   (part of npm run port)
  */
 import { readFile, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import DottedMap from 'dotted-map'
+import { geoEqualEarth, geoPath } from 'd3-geo'
+import { feature } from 'topojson-client'
 
+const require = createRequire(import.meta.url)
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DATA = path.join(ROOT, 'src/data')
 
-/** Rows of dots. Sixty gives the continents their shape at the width the
- *  page has, and keeps the path small. */
-const HEIGHT = 60
-/** The band of the world that is kept: Antarctica and the far Arctic go,
- *  where nothing happens, and only sparse islands stand at the edge. */
-const REGION = { lat: { min: -56, max: 78 }, lng: { min: -180, max: 180 } }
+/** The drawing's size, in its own units. */
+const WIDTH = 1000
 
+const atlas = require('world-atlas/countries-110m.json')
+const countries = require('world-countries')
 const meetups = JSON.parse(
   await readFile(path.join(DATA, 'meetups.json'), 'utf8'),
 )
 
-const map = new DottedMap({ height: HEIGHT, grid: 'vertical', region: REGION })
-const { width, height } = map.image
-const round = (n) => Math.round(n * 100) / 100
-const land = map.getPoints().length
-const dots = map
-  .getPoints()
-  .map((p) => `M${round(p.x)} ${round(p.y)}h0`)
-  .join('')
+// Natural Earth names countries by their numeric code; the site by their
+// two-letter one.
+const alpha2 = new Map(countries.map((c) => [c.ccn3, c.cca2]))
+const land = feature(atlas, atlas.objects.countries)
+// Antarctica stands out of the picture: nothing happens there, and it
+// would take a fifth of the height.
+land.features = land.features.filter((f) => f.id !== '010')
 
-// Each pin snaps to the nearest dot of the grid, which is where it is drawn.
+const projection = geoEqualEarth().fitWidth(WIDTH, land)
+const [[, top], [, bottom]] = geoPath(projection).bounds(land)
+const HEIGHT = Math.ceil(bottom - top)
+projection.translate([
+  projection.translate()[0],
+  projection.translate()[1] - top,
+])
+const draw = geoPath(projection, null)
+const round = (d) =>
+  d.replace(/-?\d+\.\d+/g, (n) => String(Math.round(Number(n) * 10) / 10))
+
+const shapes = []
+for (const f of land.features) {
+  const code = alpha2.get(f.id)
+  const d = draw(f)
+  if (!code || !d) continue
+  shapes.push({ id: code, d: round(d) })
+}
+
 const pins = []
 for (const event of meetups.events) {
   if (!event.geo) continue
-  const pin = map.addPin({ lat: event.geo.lat, lng: event.geo.lon })
-  pins.push({ id: event.id, x: round(pin.x), y: round(pin.y) })
+  const at = projection([event.geo.lon, event.geo.lat])
+  if (!at) continue
+  pins.push({
+    id: event.id,
+    x: Math.round(at[0] * 10) / 10,
+    y: Math.round(at[1] * 10) / 10,
+  })
 }
 
 await writeFile(
   path.join(DATA, 'meetup-map.json'),
-  JSON.stringify({ width, height, dots, pins }),
+  JSON.stringify({ width: WIDTH, height: HEIGHT, countries: shapes, pins }),
 )
-console.log(`meetup-map.json: ${land} dots, ${pins.length} pins`)
+console.log(
+  `meetup-map.json: ${shapes.length} countries, ${pins.length} pins, ${WIDTH}x${HEIGHT}`,
+)
