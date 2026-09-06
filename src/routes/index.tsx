@@ -25,7 +25,7 @@ import { TypewriterTail } from '@/components/TypewriterTail'
 import { PluginCard } from '@/components/PluginCard'
 import { SectionActions, SectionHeading } from '@/components/SectionHeading'
 import { TeamClusters } from '@/components/TeamClusters'
-import { ThemeCard } from '@/components/ThemeCard'
+import { ThemeShowcase } from '@/components/ThemeShowcase'
 import { VideoCarousel } from '@/components/VideoCarousel'
 import { Voices } from '@/components/Voices'
 import { Button } from '@/components/ui/button'
@@ -33,7 +33,6 @@ import { useHashLink } from '@/lib/hash-scroll'
 import { cn } from '@/lib/utils'
 import { getNewsIndex } from '@/lib/content'
 import { getPluginHighlights } from '@/lib/plugins'
-import themes from '@/data/themes.json'
 import bannerData from '@/data/banner.json'
 import release from '@/data/version.json'
 import { SITE_DESCRIPTION, seo } from '@/lib/seo'
@@ -270,13 +269,13 @@ function Home() {
       <ArrowRightIcon data-icon="inline-end" />
     </Button>
   )
-  const allThemes = (
+  const extraThemes = (
     <Button
       variant="outline"
       nativeButton={false}
       render={<Link to="/themes/" />}
     >
-      All themes
+      Extra themes
       <ArrowRightIcon data-icon="inline-end" />
     </Button>
   )
@@ -557,8 +556,8 @@ function Home() {
                 <span className="block">
                   Omarchy installs as a complete operating system:
                 </span>
-                From a USB stick to a full, encrypted desktop in under a
-                minute. Not ready to give it a drive? Try it as an app first.
+                From a USB stick to a full, encrypted desktop in under a minute.
+                Not ready to give it a drive? Try it as an app first.
               </>
             }
             action={installGuide}
@@ -656,8 +655,14 @@ function Home() {
               button above, so it is not repeated here. */}
           <p className="mt-6 text-[13px] leading-relaxed text-text-muted [text-wrap:pretty]">
             The manual also covers{' '}
-            <ManualLink slug="dual-boot-install">dual booting beside Windows</ManualLink>{' '}
-            and <ManualLink slug="unattended-installs">unattended installs</ManualLink>.
+            <ManualLink slug="dual-boot-install">
+              dual booting beside Windows
+            </ManualLink>{' '}
+            and{' '}
+            <ManualLink slug="unattended-installs">
+              unattended installs
+            </ManualLink>
+            .
           </p>
           <SectionActions>{installGuide}</SectionActions>
         </div>
@@ -680,43 +685,32 @@ function Home() {
         </div>
       </section>
 
-      {/* themes: the same grid as the plugins above, since a theme and a
-          plugin are the same kind of thing to go browsing through */}
+      {/* themes: the ones Omarchy ships with, shown the way the picker
+          shows them. Pressing one dresses this site in it, the same trick
+          the picker does behind T, so the keystroke can be tried by hand.
+          The extra themes the community made get their link at the end. */}
       <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
-            title="Change everything with one keystroke"
+            title="Pick a theme, change everything"
             description={
               <>
                 A theme restyles the whole system at once: terminal, bar,
-                notifications, wallpaper.
-                {/* The site answers the same key Omarchy does, so the section
-                    about changing everything with one keystroke can be tried
-                    with one. Only where there is a keyboard to try it on -
-                    and what that key offers is the themes Omarchy ships
-                    with, all of which are here. Named rather than called the
-                    built-in ones, which contrasted with nothing once the
-                    sentence about community themes came out - and with no
-                    count in it, since that is the sort of number that goes
-                    quietly stale. */}
+                notifications, wallpaper. Pick one and this site wears it too.
                 <span className="hidden sm:inline">
                   {' '}
-                  Press{' '}
+                  Or press{' '}
                   <kbd className="border border-border-strong px-1.5 py-0.5 font-mono text-[11px] text-text-secondary">
                     T
                   </kbd>{' '}
-                  to try the ones Omarchy ships with.
+                  to flip through them.
                 </span>
               </>
             }
-            action={allThemes}
+            action={extraThemes}
           />
-          <CardRail className="mt-10 sm:grid-cols-2 lg:grid-cols-3">
-            {themes.slice(0, 6).map((theme) => (
-              <ThemeCard key={theme.name} theme={theme} />
-            ))}
-          </CardRail>
-          <SectionActions>{allThemes}</SectionActions>
+          <ThemeShowcase />
+          <SectionActions>{extraThemes}</SectionActions>
         </div>
       </section>
 
