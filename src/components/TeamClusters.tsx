@@ -57,8 +57,12 @@ export function TeamClusters({
       // and pulled together with a transform, and a transform does not
       // shrink the box, so without this the widest row could reach past the
       // edge of a narrow phone and let the whole page scroll sideways.
+      // The clip runs at the padding edge, so the grid carries six pixels
+      // of padding either side and takes them back with its margin: a face
+      // at the start or the end grows past its box when lifted, ring
+      // included, and the clip was taking that slice off.
       className={cn(
-        'mt-6 lg:mt-10 grid items-start gap-x-6 gap-y-2 lg:gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]',
+        'mt-6 lg:mt-10 -mx-1.5 grid items-start gap-x-6 gap-y-2 px-1.5 lg:gap-y-8 overflow-x-clip sm:grid-cols-2 lg:grid-cols-[repeat(4,auto)]',
         className,
       )}
     >
