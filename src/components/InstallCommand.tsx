@@ -22,14 +22,33 @@ export function InstallCommand({
   const reducedMotion = useReducedMotion()
 
   async function copy() {
-    try {
-      await navigator.clipboard.writeText(command)
+    const landed = () => {
       setCopied(true)
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => setCopied(false), 1500)
-    } catch {
-      // Clipboard unavailable (permissions, http): leave the text selectable.
     }
+
+    try {
+      await navigator.clipboard.writeText(command)
+      landed()
+      return
+    } catch {
+      /* fall through to a selectable field */
+    }
+
+    const field = document.createElement('textarea')
+    field.value = command
+    field.setAttribute('readonly', '')
+    field.style.position = 'fixed'
+    field.style.left = '-9999px'
+    document.body.appendChild(field)
+    field.select()
+    try {
+      if (document.execCommand('copy')) landed()
+    } catch {
+      // Leave the command selectable in the <code> beside the button.
+    }
+    field.remove()
   }
 
   return (
@@ -55,6 +74,7 @@ export function InstallCommand({
         type="button"
         onClick={copy}
         aria-label={copied ? 'Copied' : 'Copy install command'}
+        aria-live="polite"
         className="relative flex size-8 shrink-0 items-center justify-center rounded-md text-text-secondary transition-[background-color,color,scale] duration-150 ease-out before:absolute before:-inset-2 hover:bg-surface-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.96]"
       >
         <AnimatePresence mode="popLayout" initial={false}>
