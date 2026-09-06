@@ -46,7 +46,8 @@
     "href": "https://x.com/kwilczynski",
     "avatar": "/assets/images/team/krzysztof-wilczynski.webp"
    }
-  ]
+  ],
+  "note": null
  },
  {
   "id": "security",
@@ -61,7 +62,7 @@
    },
    {
     "name": "Mehmet \u0130nce",
-    "meta": "UK",
+    "meta": "UK/T\u00fcrkiye",
     "href": "https://x.com/mdisec",
     "avatar": "/assets/images/team/mehmet-ince.webp"
    },
@@ -82,20 +83,45 @@
     "meta": "Germany",
     "href": "https://x.com/bastidotnet",
     "avatar": "/assets/images/team/sebastian-stange.webp"
-   },
-   {
-    "name": "Ryan Hughes",
-    "meta": "USA",
-    "href": "https://x.com/ryanrhughes",
-    "avatar": "/assets/images/team/ryan-hughes.webp"
-   },
-   {
-    "name": "DHH",
-    "meta": "USA/Denmark",
-    "href": "https://dhh.dk",
-    "avatar": "/assets/images/team/dhh.webp"
    }
-  ]
+  ],
+  "note": {
+   "text": "Report a security issue",
+   "href": "/security/",
+   "linkText": "Report a security issue"
+  }
+ },
+ {
+  "id": "design",
+  "name": "Omarchy Design",
+  "description": "Shaping how it looks and feels",
+  "members": [
+   {
+    "name": "Bar\u0131\u015f Giri\u015fmen",
+    "meta": "T\u00fcrkiye",
+    "href": "https://x.com/BarisGirismen",
+    "avatar": "/assets/images/team/baris-girismen.webp"
+   },
+   {
+    "name": "Christoffer Hallas",
+    "meta": "USA",
+    "href": "https://x.com/hicsfh",
+    "avatar": "/assets/images/team/christoffer-hallas.webp"
+   },
+   {
+    "name": "Daniel Schmier",
+    "meta": "Germany",
+    "href": "https://x.com/captainscorch",
+    "avatar": "/assets/images/team/daniel-schmier.webp"
+   },
+   {
+    "name": "Andr\u00e9s Villagr\u00e1n",
+    "meta": "Chile",
+    "href": "https://x.com/avillagran",
+    "avatar": "/assets/images/team/andres-villagran.webp"
+   }
+  ],
+  "note": null
  },
  {
   "id": "rangers",
@@ -120,6 +146,11 @@
     "href": "https://x.com/niraletter",
     "avatar": "/assets/images/team/nira.webp"
    }
-  ]
+  ],
+  "note": {
+   "text": "Want to help? Apply to rangers@omarchy.org",
+   "href": "mailto:rangers@omarchy.org",
+   "linkText": "rangers@omarchy.org"
+  }
  }
 ]

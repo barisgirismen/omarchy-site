@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import {
   ArrowRightIcon,
   ArrowUpRightIcon,
@@ -12,23 +12,26 @@ import {
   PlayIcon,
   StoreIcon,
 } from '@/components/icons'
-import { OmarchyWordmark } from '@/components/Brand'
+import { OmarchyWordmark, WORDMARK_BANDS } from '@/components/Brand'
 import { HeroNavGhost } from '@/components/SiteHeader'
 import { HeroShader } from '@/components/HeroShader'
 import { InstallWalkthrough } from '@/components/InstallWalkthrough'
+import { EtchPicker } from '@/components/EtchPicker'
 import { CardRail } from '@/components/CardRail'
 import { Figures } from '@/components/Figures'
 import { TypewriterTail } from '@/components/TypewriterTail'
 import { PluginCard } from '@/components/PluginCard'
 import { SectionActions, SectionHeading } from '@/components/SectionHeading'
+import { TeamClusters } from '@/components/TeamClusters'
 import { ThemeCard } from '@/components/ThemeCard'
 import { VideoCarousel } from '@/components/VideoCarousel'
 import { Button } from '@/components/ui/button'
 import { useHashLink } from '@/lib/hash-scroll'
+import { cn } from '@/lib/utils'
 import { getNewsIndex } from '@/lib/content'
 import { getPluginHighlights } from '@/lib/plugins'
-import teams from '@/data/teams.json'
 import themes from '@/data/themes.json'
+import banner from '@/data/banner.json'
 import release from '@/data/version.json'
 import { SITE_DESCRIPTION, seo } from '@/lib/seo'
 
@@ -172,11 +175,6 @@ const videos = [
   },
 ]
 
-/** Core is the team the home page shows; the rest are one click away. The copy
- *  deliberately counts nobody: the roster changes, and a headcount in prose is
- *  the kind of number that quietly goes wrong between content refreshes. */
-const core = teams.find((t) => t.id === 'core') ?? teams[0]
-
 const communityCards = [
   {
     icon: DiscordIcon,
@@ -208,6 +206,42 @@ const communityCards = [
   },
 ]
 
+const NEWS_PATH = /^\/news\/(\d{4})\/(\d{2})\/([^/]+)\/?$/
+
+/** The callout pill. A news address is a router link, so the music keeps
+ *  playing across the visit; anything else is a plain link. */
+function HeroCallout({ href, html }: { href: string; html: string }) {
+  const className =
+    'group inline-flex max-w-full items-center gap-2 border border-brand/40 bg-bg/60 px-3.5 py-1.5 text-left font-mono text-[13px] leading-snug text-brand transition-colors duration-150 ease-out hover:border-brand hover:bg-brand hover:text-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
+  const inner = (
+    <>
+      {/* Wraps on a narrow screen rather than cutting the news short; the
+          <s> the old numbers wear when a figure is updated stays legible. */}
+      <span
+        className="min-w-0 [&_s]:text-current/60"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+      <ArrowRightIcon className="size-4 shrink-0 transition-transform duration-150 ease-out group-hover:translate-x-0.5" />
+    </>
+  )
+  const news = NEWS_PATH.exec(href)
+  if (news)
+    return (
+      <Link
+        to="/news/$year/$month/$slug/"
+        params={{ year: news[1], month: news[2], slug: news[3] }}
+        className={className}
+      >
+        {inner}
+      </Link>
+    )
+  return (
+    <a href={href} className={className}>
+      {inner}
+    </a>
+  )
+}
+
 function Home() {
   const { top, total, news } = Route.useLoaderData()
   const device = useTryDevice()
@@ -215,6 +249,23 @@ function Home() {
   const installLink = useHashLink('install')
   const watchLink = useHashLink('watch')
   const [painted, setPainted] = useState(false)
+  const [etchAsked, setEtchAsked] = useState(false)
+  useEffect(() => {
+    setEtchAsked(new URLSearchParams(window.location.search).has('etch'))
+  }, [])
+  // The canvas cuts the word in as an entrance, so when it is going to, the
+  // server-rendered word steps aside at once rather than showing whole and
+  // then vanishing to be redrawn. Reduced motion keeps the plain handover.
+  useEffect(() => {
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      setPainted(true)
+  }, [])
+  // The class from the head kept the word hidden until now. It can only go
+  // once the word's own hidden class is in the DOM, before the next paint,
+  // or the word shows for a frame in between.
+  useLayoutEffect(() => {
+    if (painted) document.documentElement.classList.remove('etch-pending')
+  }, [painted])
 
   // Intro stagger plays once per session; returning within the session
   // renders the resting state immediately.
@@ -271,7 +322,7 @@ function Home() {
     <Button
       variant="outline"
       nativeButton={false}
-      render={<Link to="/$/" params={{ _splat: 'teams' }} />}
+      render={<Link to="/teams/" />}
     >
       All teams
       <ArrowRightIcon data-icon="inline-end" />
@@ -294,32 +345,54 @@ function Home() {
         style={{ background: 'var(--t-field-bg)' }}
       >
         <HeroShader onPainted={() => setPainted(true)} />
+        {/* The effect panel, only for an address that asks (?etch=...), so
+            the dev server shows the same page as the live one. */}
+        {etchAsked ? <EtchPicker /> : null}
 
         {/* The bar's labels, blended against the canvas. They have to live in
             here to reach it: the real header is sticky, and a sticky element
             isolates everything inside it from the page behind. */}
         <HeroNavGhost />
 
+        {/* The wordmark, the tagline and the buttons are one block, with
+            the same space above it, under the bar, as below it, at the foot
+            of the screen. Before, the word sat a third of the way down and
+            the copy at the very bottom, and the eye had to read the foot of
+            the screen. */}
         <div className="pointer-events-none relative flex flex-1 flex-col items-center px-6">
-          {/* 2.1 : 1 puts the wordmark's center about 5.7% above the
-              viewport's, the classic optical center. Dead center would read
-              as sitting low and crowd the copy below. */}
-          <div className="flex-[2.1]" />
+          <div className="flex-1" />
+          {/* The callout, when there is one: the line the site keeps in its
+              index.html for the news of the moment, read at build time. A
+              pill over the word, first thing read top down, five cells
+              above it as the copy is five below. The field stands clear of
+              it like it does of the copy. Nothing shifts when there is
+              none; the block is simply shorter. */}
+          {banner ? (
+            <div
+              data-hero-quiet
+              className="pointer-events-auto mb-12 flex w-full justify-center lg:mb-[calc(var(--pxr)*5)]"
+            >
+              <HeroCallout href={banner.href} html={banner.html} />
+            </div>
+          ) : null}
           {/* The slot the field measures its cell size from. Server-rendered
               as the SVG so the wordmark is there before any script runs, then
               handed over to the canvas once it has painted the same pixels. */}
+          {/* In the same bands the field paints the word at rest, so the
+              handover to the canvas changes no pixel. */}
           <OmarchyWordmark
             data-hero-wordmark
             className={
               'w-[88%] max-w-4xl text-[color:var(--t-field-lit)]' +
               (painted ? ' invisible' : '')
             }
+            background={WORDMARK_BANDS}
           />
-          <div className="flex-1" />
-
+          {/* Straight under the word, five cells of the lattice down, on
+              every screen. */}
           <div
             data-hero-quiet
-            className="pointer-events-auto flex w-full max-w-2xl flex-col items-center pb-24 text-center"
+            className="pointer-events-auto mt-12 flex w-full max-w-2xl flex-col items-center text-center lg:mt-[calc(var(--pxr)*5)]"
           >
             <h1
               data-hero-stagger
@@ -360,12 +433,17 @@ function Home() {
               {/* Both stay fully opaque, hover included: the default hover
                   drops the fill to 80% and the outline variant is a tinted
                   translucent panel, which lets the field show through the
-                  one place on the site with a moving background. Height
-                  still tracks the lattice; width follows the label so the
-                  padding is not eaten by a cell count. */}
+                  one place on the site with a moving background. Both are
+                  40px tall, the pill above the word 32px: two heights on
+                  one 8px grid, and the pill stays a line, not a third
+                  button. Width follows the label. The padding is set by
+                  eye: 16px on the text side, 12px on the icon side, since
+                  the glyphs leave white space inside their own box and the
+                  eye adds it to the padding. The play triangle also moves a
+                  pixel toward its point. */}
               <Button
                 size="lg"
-                className="lg:h-[calc(var(--pxr)*4)]"
+                className="h-10 pr-4 has-data-[icon=inline-start]:pl-3"
                 nativeButton={false}
                 onClick={installLink}
                 render={<Link to="/" hash="install" />}
@@ -376,16 +454,20 @@ function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="lg:h-[calc(var(--pxr)*4)]"
+                className="h-10 pr-4 has-data-[icon=inline-start]:pl-3"
                 nativeButton={false}
                 onClick={watchLink}
                 render={<Link to="/" hash="watch" />}
               >
-                <PlayIcon data-icon="inline-start" />
+                {/* Filled, and its point is its right edge, so it gets two
+                    pixels more room before the label than the outlined
+                    download glyph needs. */}
+                <PlayIcon data-icon="inline-start" className="mr-0.5" />
                 See it in action
               </Button>
             </div>
           </div>
+          <div className="flex-1" />
         </div>
       </section>
 
@@ -663,100 +745,92 @@ function Home() {
         </div>
       </section>
 
-      {/* news + foundation */}
+      {/* news: what the project said lately, full width. The figures used to
+          sit beside it and made one screen answer four questions at once;
+          they have the section after this one now, so each can be read on
+          its own. */}
       <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-          <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
-            <div>
-              <SectionHeading
-                title="Latest from the project"
-                action={allNews}
-              />
-              <ul className="mt-8 divide-y divide-border-subtle">
-                {news.slice(0, 6).map((post) => (
-                  <li key={post.slug}>
-                    <Link
-                      to="/news/$year/$month/$slug/"
-                      params={{
-                        year: post.year,
-                        month: post.month,
-                        slug: post.slug,
-                      }}
-                      className="group flex flex-col gap-1 py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                    >
-                      <time
-                        dateTime={post.date}
-                        className="font-mono text-xs text-text-muted"
-                      >
-                        {post.dateStr}
-                      </time>
-                      <span className="font-sans text-[15px] font-medium text-text transition-colors duration-150 ease-out group-hover:text-brand">
-                        {post.title}
-                      </span>
-                      <span className="text-sm text-text-secondary [text-wrap:pretty]">
-                        {post.excerpt}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <SectionActions>{allNews}</SectionActions>
-            </div>
+          <SectionHeading title="Latest from the project" action={allNews} />
+          {/* Two columns of three: six posts down one wide column read as a
+              thin list. Each item draws its own line, so the rules meet
+              across the gap where a divide-y would stagger. */}
+          <ul className="mt-8 grid border-t border-border-subtle sm:grid-cols-2 sm:gap-x-10">
+            {/* Six on a wide screen, three on a phone: one column of six
+                posts is a page of scrolling before the numbers, and the
+                button under the list leads to the rest. */}
+            {news.slice(0, 6).map((post, i) => (
+              <li
+                key={post.slug}
+                className={cn(
+                  'border-b border-border-subtle',
+                  i >= 3 && 'hidden sm:block',
+                )}
+              >
+                <Link
+                  to="/news/$year/$month/$slug/"
+                  params={{
+                    year: post.year,
+                    month: post.month,
+                    slug: post.slug,
+                  }}
+                  className="group flex h-full flex-col gap-1.5 py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  <time
+                    dateTime={post.date}
+                    className="font-mono text-xs text-text-muted"
+                  >
+                    {post.dateStr}
+                  </time>
+                  <span className="font-sans text-base font-medium text-text transition-colors duration-150 ease-out group-hover:text-brand">
+                    {post.title}
+                  </span>
+                  {/* Two lines of the post, enough to tell what it is about;
+                      the whole first paragraph made six posts read as one
+                      wall of text, and the title carried less weight than
+                      the excerpt under it. */}
+                  <span className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary [text-wrap:pretty]">
+                    {post.excerpt}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <SectionActions>{allNews}</SectionActions>
+        </div>
+      </section>
 
-            {/* The project in numbers, beside the news the numbers come
-                from. Three cards, each counting up once as it arrives. */}
-            <Figures />
-          </div>
+      {/* the figures, on their own: the foundation's funding, the ISO
+          downloads and the repository, one card each, counting up as they
+          arrive. On the light ground, so the page keeps trading dark and
+          light section by section. */}
+      <section id="figures" className="border-t border-border-subtle">
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+          <SectionHeading
+            title="The project in numbers"
+            description="What the foundation has announced, what the download post counted, and what the repository shows. Each card links to where its number comes from."
+          />
+          <Figures />
         </div>
       </section>
 
       {/* the teams, between the project and the people around it: this is
-          who steers it. Core is the one shown; the other two are a click
-          away rather than sixteen more faces on a landing page. */}
-      <section className="border-t border-border-subtle">
+          who steers it. All of them on one line as clusters of faces,
+          rather than Core alone as a grid of cards. */}
+      <section className="border-t border-border-subtle bg-bg-deep">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
             title="The people steering it"
-            description="Omarchy Core sets the direction, the Security team keeps your system safe, and the Rangers help others find their way."
+            description="Omarchy Core sets the direction, the Security team keeps your system safe, Design shapes how it looks and feels, and the Rangers help others find their way."
             action={allTeams}
           />
-          <ul className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {core.members.map((member) => (
-              <li key={member.name}>
-                <a
-                  href={member.href || undefined}
-                  className="group block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  {member.avatar ? (
-                    <img
-                      src={member.avatar}
-                      alt=""
-                      width={240}
-                      height={240}
-                      loading="lazy"
-                      decoding="async"
-                      className="img-outlined aspect-square w-full object-cover"
-                    />
-                  ) : null}
-                  {/* Underlined from the start in nothing, so the hover is a
-                      colour arriving rather than a line, and the whole card
-                      carries it - the same as on the teams page. */}
-                  <span className="mt-2.5 block font-sans text-sm font-medium text-text underline decoration-transparent underline-offset-[3px] transition-colors duration-150 ease-out group-hover:decoration-brand">
-                    {member.name}
-                  </span>
-                  <span className="block font-mono text-xs text-text-muted">
-                    {member.meta}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <TeamClusters />
           <SectionActions>{allTeams}</SectionActions>
         </div>
       </section>
 
       {/* community */}
-      <section className="border-t border-border-subtle bg-bg-deep">
+      <section className="border-t border-border-subtle">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <SectionHeading
             title="Be the Omarch"

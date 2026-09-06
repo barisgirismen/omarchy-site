@@ -55,9 +55,20 @@ export function OmarchyMarkDrawn({ className }: { className?: string }) {
   )
 }
 
+/**
+ * The bands the hero field paints the word in at rest: five rows of crest,
+ * two of hover, four of lit, three of mid, five of dim, over the nineteen
+ * rows of the mask. Anywhere the wordmark stands on its own it wears these,
+ * so it is the same mark as the one the canvas draws.
+ */
+export const WORDMARK_BANDS =
+  'linear-gradient(to bottom, var(--t-field-crest) 0 26.316%, var(--t-field-hover) 26.316% 36.842%, var(--t-field-lit) 36.842% 57.895%, var(--t-field-mid) 57.895% 73.684%, var(--t-field-dim) 73.684% 100%)'
+
 type WordmarkProps = {
   className?: string
   label?: string
+  /** A CSS background-image to wear instead of the flat currentColor. */
+  background?: string
   'data-hero-wordmark'?: boolean
 }
 
@@ -66,7 +77,12 @@ type WordmarkProps = {
  * keeps one source of truth for the 211 rects while letting the fill be a
  * theme token.
  */
-export function OmarchyWordmark({ className, label, ...rest }: WordmarkProps) {
+export function OmarchyWordmark({
+  className,
+  label,
+  background,
+  ...rest
+}: WordmarkProps) {
   return (
     <div
       role={label ? 'img' : undefined}
@@ -76,6 +92,7 @@ export function OmarchyWordmark({ className, label, ...rest }: WordmarkProps) {
       style={{
         aspectRatio: '4131 / 950',
         backgroundColor: 'currentColor',
+        backgroundImage: background,
         maskImage: 'url(/brand/omarchy-wordmark.svg)',
         maskRepeat: 'no-repeat',
         maskSize: '100% 100%',

@@ -8,6 +8,7 @@ repository this script lives in) and writes:
                             dateStr, excerpt, html}, from the pages
                             bin/build-news renders
   src/data/pages.json       standalone pages keyed by path {title, html}
+  src/data/banner.json      the homepage callout {href, html}, or null
   src/data/teams.json       the teams page, parsed into teams and members
   src/data/themes.json      the theme gallery {repo, image, name}, from
                             themes/index.html - the file a theme pull
@@ -136,11 +137,24 @@ def parse_teams(html: str) -> list[dict]:
                 'href': person.group(1),
                 'avatar': avatar.group(1) if avatar else None,
             })
+        # The line under a team's members, when it has one: a sentence with
+        # at most one link in it (the security page, the rangers' address).
+        note = None
+        note_m = re.search(r'<p class="team__note">(.*?)</p>', body, re.S)
+        if note_m:
+            raw = note_m.group(1)
+            link = re.search(r'<a href="([^"]+)">([^<]*)</a>', raw)
+            note = {
+                'text': html_mod.unescape(re.sub(r'<[^>]+>', '', raw).strip()),
+                'href': link.group(1) if link else None,
+                'linkText': html_mod.unescape(link.group(2).strip()) if link else None,
+            }
         teams.append({
             'id': team_id,
             'name': html_mod.unescape(name.group(1).strip()) if name else team_id,
             'description': html_mod.unescape(desc.group(1).strip()) if desc else '',
             'members': members,
+            'note': note,
         })
     return teams
 
@@ -241,6 +255,28 @@ def main() -> None:
         }
     (OUT / 'pages.json').write_text(json.dumps(pages))
     print(f'pages.json: {len(pages)} pages')
+
+    # ---------------------------------------------------------------- banner
+    # The homepage's callout: one line in index.html, edited by hand whenever
+    # there is news worth a banner, and absent when there is not. Read from
+    # there so the same edit keeps working; the hero shows it as a pill.
+    home = (repo / 'index.html').read_text()
+    found = re.search(
+        r'<div class="notification">\s*<a href="([^"]+)">(.*?)</a>\s*</div>',
+        home,
+        re.S,
+    )
+    banner = None
+    if found:
+        # The same link rules as the pages, so a news address gets its
+        # trailing slash and an omarchy.org link becomes a local one.
+        link = clean(f'<a href="{found.group(1)}">x</a>')
+        banner = {
+            'href': re.search(r'href="([^"]+)"', link).group(1),
+            'html': clean(found.group(2).strip()),
+        }
+    (OUT / 'banner.json').write_text(json.dumps(banner))
+    print(f"banner.json: {banner['html'] if banner else 'none'}")
 
     # ----------------------------------------------------------------- teams
     # ---------------------------------------------------------------- themes
