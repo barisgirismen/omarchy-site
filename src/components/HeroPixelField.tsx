@@ -74,8 +74,8 @@ const CURSOR_CELLS = 12
  * from the bottom that column's dither thickens. Nothing is drawn on top
  * of the field; the same cells, the same dither, a different reason to
  * light. The ramp still keeps the middle clear for the word and the copy.
- * Beats push the cursor's glow out for a moment. The logo stamp stays a
- * press's, and the wander's below. */
+ * Beats push the glows out for a moment. The logo stamp stays a press's,
+ * and the sprite's below. */
 /** How much of the field's height the loudest band may climb. */
 const SPECTRUM_REACH = 0.92
 /** How dense a column gets, and how much of it wears the main ink. */
@@ -83,33 +83,30 @@ const SPECTRUM_DENSITY = 0.7
 const SPECTRUM_HEAT = 0.5
 /** Below this a band is resting and its column shows nothing extra. */
 const SPECTRUM_FLOOR = 0.08
-/* The glow on its own. After the pointer has been still for a while, or
- * has left the page, or on a screen with no pointer at all, the glow
- * wanders the field by itself along a slow looping path, so the hero is
- * never sitting still. It fades in over a second or so, and the real
- * pointer takes it back the instant it moves. The wandering glow is a
- * little quieter than a real cursor, and still hushes near the copy. */
-/** Ms without a pointer move before the glow sets off on its own. */
-const IDLE_MS = 1500
-/** How bright the wandering glow is, against a real cursor's. */
-const WANDER_STRENGTH = 0.7
-/* The wander stamps too. Left to itself the glow charges a logo where it
- * is, the way a held press does, lets it go, and flies on, so the stamp
- * is seen by people who never think to click the field. Each stamp is
- * charged a different amount, so they come in different sizes, and the
- * pause between them varies so they never fall into a beat. */
-/** Seconds the wander flies before its first stamp, and between stamps.
- * The first comes sooner, since the idle wait and the glow's own fade in
- * have already passed before the wander has the field. */
-const WANDER_FIRST_STAMP_WAIT = [0.8, 1.6] as const
-const WANDER_STAMP_WAIT = [4, 8] as const
-/** How much of the wandering glow stays while it charges a stamp. A press
- * hushes the glow outright, but there the pointer is still on screen; the
- * wander has nothing but its glow, so it dims rather than vanishes. */
-const WANDER_CHARGE_GLOW = 0.4
-/** How far the wander charges a stamp, as a share of a full hold: from
+/* The sprite. A second glow flies the field by itself the whole time,
+ * along a slow looping path, whatever the pointer is doing, so the hero
+ * is never sitting still and nobody has to find the field's tricks by
+ * hand. It is a little quieter than the pointer's glow, still hushes
+ * near the copy, and fades in over the first moment. The pointer keeps a
+ * glow of its own; where the two overlap, the brighter wins. */
+/** How bright the sprite's glow is, against the pointer's. */
+const SPRITE_STRENGTH = 0.7
+/* The sprite stamps too. As it flies it charges a logo where it is, the
+ * way a held press does, lets it go, and flies on, so the stamp is seen
+ * by people who never think to click the field. Each stamp is charged a
+ * different amount, so they come in different sizes, and the pause
+ * between them varies so they never fall into a beat. */
+/** Seconds the sprite flies before its first stamp, and between stamps. */
+const SPRITE_FIRST_STAMP_WAIT = [1.5, 2.5] as const
+const SPRITE_STAMP_WAIT = [4, 8] as const
+/** How much of the sprite's glow stays while it charges a stamp. A press
+ * hushes the pointer's glow outright, but there the pointer is still on
+ * screen; the sprite has nothing but its glow, so it dims rather than
+ * vanishes. */
+const SPRITE_CHARGE_GLOW = 0.4
+/** How far the sprite charges a stamp, as a share of a full hold: from
  * a bare tap to the biggest bloom a hold can make, any of it. */
-const WANDER_STAMP_CHARGE = [0, 1] as const
+const SPRITE_STAMP_CHARGE = [0, 1] as const
 /**
  * Whether the head script kept the server-rendered word out of sight for
  * an effect to make it. Read from the mark the script leaves, not from the
@@ -580,26 +577,22 @@ export function HeroPixelField({
     // the pointer cursor belongs to while it is over the word.
     const sectionEl = host.closest<HTMLElement>('section, main')
     const pointer = { x: -1e4, y: -1e4 }
-    /** Where the glow actually is this frame: the pointer, the wander, or
-     *  part way between while one hands over to the other. */
-    const glow = { x: -1e4, y: -1e4 }
-    let lastMoveAt = -Infinity
-    /** 0 while the pointer has the glow, 1 while the wander does. */
-    let wanderBlend = 0
+    /** The sprite: where it is and how brightly it glows this frame. */
+    const sprite = { x: -1e4, y: -1e4, strength: 0 }
     let visible = true
     let strength = 0
     let targetStrength = 0
     let pings: Ping[] = []
     let holding: { x: number; y: number; start: number } | null = null
-    /** A stamp the wander is charging: where, since when, and how far. */
-    let wanderHold: {
+    /** A stamp the sprite is charging: where, since when, and how far. */
+    let spriteHold: {
       x: number
       y: number
       start: number
       charge: number
     } | null = null
-    /** When the wander next starts charging a stamp. */
-    let wanderStampAt = Infinity
+    /** When the sprite next starts charging a stamp. */
+    let spriteStampAt = Infinity
     // The wordmark is a button: the pointer turns to a hand over it, and a
     // click plays the word in again with another effect rather than firing
     // a stamp. The word keeps its bands under the pointer; only the cursor
@@ -798,83 +791,56 @@ export function HeroPixelField({
     const draw = (time: number) => {
       const t = reducedMotion ? 0 : time / 1000
 
-      // The wander: on once the pointer has been still long enough, or
-      // never came, and off the moment it moves. It eases in slowly and
-      // hands back quickly. Its path is a slow swing over the top of the
-      // field and down either side, an arc that stays clear of the copy
-      // below, where the glow would only be hushed, and wobbles so it
-      // never quite repeats.
-      const idle =
-        isHero &&
-        !reducedMotion &&
-        !holding &&
-        !pickerOpen &&
-        (!finePointer || time - lastMoveAt > IDLE_MS)
-      wanderBlend += ((idle ? 1 : 0) - wanderBlend) * (idle ? 0.025 : 0.2)
-      if (wanderBlend < 0.001) wanderBlend = 0
-      let wanderStrength = 0
-      if (wanderBlend > 0) {
+      // The sprite flies whatever the pointer does. Its path is a slow
+      // swing over the top of the field and down either side, an arc that
+      // stays clear of the copy below, where the glow would only be
+      // hushed, and wobbles so it never quite repeats.
+      let spriteGoal = 0
+      if (isHero && !reducedMotion) {
         const ts = time / 1000
         const angle = -Math.PI / 2 + 1.45 * Math.sin(ts * 0.12)
         const wobble = 1 + 0.07 * Math.sin(ts * 0.29 + 1.7)
-        const wx = width * (0.5 + 0.44 * wobble * Math.cos(angle))
-        const wy = height * (0.46 + 0.36 * wobble * Math.sin(angle))
+        sprite.x = width * (0.5 + 0.44 * wobble * Math.cos(angle))
+        sprite.y = height * (0.46 + 0.36 * wobble * Math.sin(angle))
         const box = host.getBoundingClientRect()
-        wanderStrength =
-          strengthAt(box.left + wx / dpr, box.top + wy / dpr) * WANDER_STRENGTH
+        spriteGoal =
+          strengthAt(box.left + sprite.x / dpr, box.top + sprite.y / dpr) *
+          SPRITE_STRENGTH
 
-        // Eased blend, so the handover is a glide rather than a slide.
-        const k = wanderBlend * wanderBlend * (3 - 2 * wanderBlend)
-        const fromX = pointer.x < -1e3 ? wx : pointer.x
-        const fromY = pointer.y < -1e3 ? wy : pointer.y
-        glow.x = fromX + (wx - fromX) * k
-        glow.y = fromY + (wy - fromY) * k
-
-        // Once the wander owns the glow it starts stamping: it charges a
-        // logo under the glow, as a held press would, and lets go at its
-        // chosen charge. The charge rides with the glow, so the stamp is
-        // always where the glow is when it fires; the glow only dims while
-        // charging so the growing glyph reads clean.
-        if (wanderBlend > 0.9) {
-          if (wanderStampAt === Infinity)
-            wanderStampAt = time + between(WANDER_FIRST_STAMP_WAIT) * 1000
-          if (!wanderHold && time >= wanderStampAt) {
-            wanderHold = {
-              x: glow.x,
-              y: glow.y,
-              start: time,
-              charge: between(WANDER_STAMP_CHARGE),
-            }
-          }
-          if (wanderHold) {
-            wanderHold.x = glow.x
-            wanderHold.y = glow.y
-            wanderStrength *= WANDER_CHARGE_GLOW
-            if (chargeOf(time, wanderHold.start) >= wanderHold.charge) {
-              launch(wanderHold.x, wanderHold.y, wanderHold.charge, time)
-              wanderHold = null
-              wanderStampAt = time + between(WANDER_STAMP_WAIT) * 1000
-            }
+        // As it flies it stamps: it charges a logo under itself, as a held
+        // press would, and lets go at its chosen charge. The charge rides
+        // with the sprite, so the stamp is always where the sprite is when
+        // it fires; the sprite only dims while charging so the growing
+        // glyph reads clean.
+        if (spriteStampAt === Infinity)
+          spriteStampAt = time + between(SPRITE_FIRST_STAMP_WAIT) * 1000
+        if (!spriteHold && time >= spriteStampAt) {
+          spriteHold = {
+            x: sprite.x,
+            y: sprite.y,
+            start: time,
+            charge: between(SPRITE_STAMP_CHARGE),
           }
         }
-      } else {
-        glow.x = pointer.x
-        glow.y = pointer.y
+        if (spriteHold) {
+          spriteHold.x = sprite.x
+          spriteHold.y = sprite.y
+          spriteGoal *= SPRITE_CHARGE_GLOW
+          if (chargeOf(time, spriteHold.start) >= spriteHold.charge) {
+            launch(spriteHold.x, spriteHold.y, spriteHold.charge, time)
+            spriteHold = null
+            spriteStampAt = time + between(SPRITE_STAMP_WAIT) * 1000
+          }
+        }
       }
-      // The pointer taking the glow back drops any stamp mid-charge and
-      // the clock with it: the next idle spell starts its own wait.
-      if (!idle && (wanderHold || wanderStampAt !== Infinity)) {
-        wanderHold = null
-        wanderStampAt = Infinity
-      }
+      // The sprite's glow eases slower than the pointer's, so it arrives
+      // as a glide and its dimming while charging reads as breath.
+      sprite.strength += (spriteGoal - sprite.strength) * 0.08
 
       // The pointer itself is never smoothed: the cells under the cursor are
       // the cells that light. Only the fade in and out of the field's
-      // response is eased. While the wander has the glow, its own strength
-      // is the goal instead.
-      const strengthGoal =
-        targetStrength + (wanderStrength - targetStrength) * wanderBlend
-      strength += (strengthGoal - strength) * 0.3
+      // response is eased.
+      strength += (targetStrength - strength) * 0.3
 
       ctx.fillStyle = palette.bg
       ctx.fillRect(0, 0, width, height)
@@ -897,11 +863,28 @@ export function HeroPixelField({
 
       // The reach follows the strength, so a quiet response is a smaller
       // patch as well as a fainter one. A beat pushes it out.
-      const reach =
+      const reachOf = (level: number) =>
         CURSOR_CELLS *
         wmCW *
-        (0.45 + 0.55 * strength) *
+        (0.45 + 0.55 * level) *
         (1 + BEAT_REACH * beatPulse)
+      /** The glows alive this frame: the pointer's and the sprite's. */
+      const glows: { x: number; y: number; strength: number; reach: number }[] =
+        []
+      if (strength > 0.01)
+        glows.push({
+          x: pointer.x,
+          y: pointer.y,
+          strength,
+          reach: reachOf(strength),
+        })
+      if (sprite.strength > 0.01)
+        glows.push({
+          x: sprite.x,
+          y: sprite.y,
+          strength: sprite.strength,
+          reach: reachOf(sprite.strength),
+        })
 
       // Resolve each live click stamp once per frame, not once per cell.
       const stamps: {
@@ -926,8 +909,8 @@ export function HeroPixelField({
       }
       // A held press renders as a steady stamp growing under the pointer,
       // so you can watch what you are charging before you let it go.
-      const charging = holding ?? wanderHold
-      if (charging) {
+      for (const charging of [holding, spriteHold]) {
+        if (!charging) continue
         stamps.push({
           x: charging.x,
           y: charging.y,
@@ -1006,19 +989,20 @@ export function HeroPixelField({
           const cx = xLeft + wmCW / 2
 
           let glowAmount = 0
-          if (strength > 0.01) {
+          for (const glow of glows) {
             const dx = cx - glow.x
             const dy = cy - glow.y
             const dist = Math.sqrt(dx * dx + dy * dy)
-            if (dist < reach) {
+            if (dist < glow.reach) {
               // Squared falloff: the reach is wide but only the middle of it
               // lights densely, so a bigger area responds without the
               // pointer dragging a solid blob of pixels around.
-              const falloff = 1 - dist / reach
-              glowAmount = falloff * falloff * strength
-              lum += glowAmount * 0.6
+              const falloff = 1 - dist / glow.reach
+              const amount = falloff * falloff * glow.strength
+              if (amount > glowAmount) glowAmount = amount
             }
           }
+          lum += glowAmount * 0.6
 
           let waveAmount = 0
           if (stamps.length > 0) {
@@ -1079,13 +1063,16 @@ export function HeroPixelField({
       // dissolves. What touches it is the pointer passing over it and a
       // click ripple washing across: both recolor the pixels they reach and
       // leave them exactly where they were. Sharing a grid allows that.
-      const cursorOnWordmark =
-        isHero &&
-        strength > 0.01 &&
-        glow.x > wmX - reach &&
-        glow.x < wmX + glyph.width * wmCW + reach &&
-        glow.y > wmY - reach &&
-        glow.y < wmY + glyph.height * wmCH + reach
+      const glowsOnWordmark = isHero
+        ? glows.filter(
+            (glow) =>
+              glow.x > wmX - glow.reach &&
+              glow.x < wmX + glyph.width * wmCW + glow.reach &&
+              glow.y > wmY - glow.reach &&
+              glow.y < wmY + glyph.height * wmCH + glow.reach,
+          )
+        : []
+      const cursorOnWordmark = glowsOnWordmark.length > 0
 
       /**
        * The ink a wordmark cell takes at a device-px centre: lit at rest,
@@ -1097,13 +1084,13 @@ export function HeroPixelField({
       const wordmarkInk = (cx: number, cy: number) => {
         let crest = stamps.length > 0 ? stampAt(cx, cy) : 0
 
-        if (cursorOnWordmark) {
+        for (const glow of glowsOnWordmark) {
           const dx = cx - glow.x
           const dy = cy - glow.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < reach) {
-            const falloff = 1 - dist / reach
-            const hit = falloff * falloff * strength
+          if (dist < glow.reach) {
+            const falloff = 1 - dist / glow.reach
+            const hit = falloff * falloff * glow.strength
             if (hit > crest) crest = hit
           }
         }
@@ -1318,7 +1305,6 @@ export function HeroPixelField({
 
     const onPointerMove = (event: PointerEvent) => {
       if (!visible) return
-      lastMoveAt = performance.now()
       const { inside, strength: level, x, y } = locate(event)
       // While a press is held or the picker is up, the glow stays muted no
       // matter where the cursor wanders; only a move after both are done
