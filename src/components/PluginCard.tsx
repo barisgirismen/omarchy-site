@@ -20,7 +20,7 @@ export function PluginCard({ plugin }: { plugin: CatalogueEntry }) {
         {plugin.thumb ? (
           <img
             src={plugin.thumb}
-            alt=""
+            alt={plugin.name}
             loading="lazy"
             decoding="async"
             width={plugin.thumbW ?? 720}
