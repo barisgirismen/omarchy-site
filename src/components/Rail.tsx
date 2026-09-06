@@ -122,7 +122,9 @@ export function useRail<T extends HTMLElement = HTMLDivElement>({
       : first.clientWidth
     const gap = Math.max(0, step - first.clientWidth)
     const room = el.clientWidth - first.offsetLeft * 2 + gap
-    return Math.max(1, Math.floor(room / Math.max(1, step)))
+    // A hair of tolerance, so four cards sized to fill the column exactly
+    // never round down to three.
+    return Math.max(1, Math.floor(room / Math.max(1, step) + 0.05))
   }, [])
 
   const stopGlide = () => {

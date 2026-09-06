@@ -83,7 +83,12 @@ export function MeetupShowcase({ action }: { action?: ReactNode }) {
           <li
             key={event.id}
             data-slide={i}
-            className="w-[42.5%] max-w-[15rem] shrink-0 snap-start"
+            // Sized so a whole number of cards fills the content column,
+            // three on a tablet and four on a desktop, with the next one
+            // peeking in from the bleed the way the videos do. The rail's
+            // padding is the column's margins, so 100% here is the column
+            // itself; the gaps come out before dividing.
+            className="w-[42.5%] shrink-0 snap-start sm:w-[calc((100%_-_3rem)/3)] lg:w-[calc((100%_-_4.5rem)/4)]"
           >
             <a
               href={event.url}
