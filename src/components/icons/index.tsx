@@ -252,14 +252,17 @@ export function PauseIcon(props: IconProps) {
 }
 
 /** IconUsb from the square outlined set. */
+/** A USB stick, solid. */
 export function UsbIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
+      <path d="M10.75 8V5H9.25V8H10.75Z" fill="currentColor" />
+      <path d="M14.75 5V8H13.25V5H14.75Z" fill="currentColor" />
       <path
-        d="M10 5.75V7.25M14 5.75V7.25M3.75 10.25H20.25V21.25H3.75V10.25ZM5.75 2.75H18.25V10.25H5.75V2.75Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="square"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M19 2H5V9.5H3V22H21V9.5H19V2ZM17.5 9.5V3.5H6.5V9.5H17.5Z"
+        fill="currentColor"
       />
     </svg>
   )
@@ -599,6 +602,34 @@ export function DisplayIcon(props: IconProps) {
     <svg {...base(props)}>
       <rect x="9" y="17" width="6" height="4" fill="currentColor" />
       <rect x="2" y="3" width="20" height="13" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** An open laptop, solid. */
+export function LaptopIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M24 18.25C24 19.7688 22.7688 21 21.25 21H2.75C1.23122 21 0 19.7688 0 18.25V18H24V18.25Z"
+        fill="currentColor"
+      />
+      <path
+        d="M22 16.5H2V4.75C2 3.7835 2.7835 3 3.75 3H20.25C21.2165 3 22 3.7835 22 4.75V16.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/** The NVIDIA eye mark, solid. */
+export function NvidiaIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        d="M9.212 8.97602V7.62002C9.339 7.61002 9.468 7.60302 9.6 7.59902C13.196 7.48202 15.557 10.783 15.557 10.783C15.557 10.783 13.009 14.43 10.275 14.43C9.91336 14.4317 9.55402 14.3725 9.212 14.255V10.146C10.612 10.32 10.893 10.958 11.735 12.404L13.608 10.777C13.1661 10.2223 12.6092 9.76999 11.9756 9.4513C11.342 9.1326 10.6468 8.9551 9.938 8.93102C9.69437 8.93221 9.451 8.9469 9.209 8.97502M9.209 4.49902V6.52402C9.339 6.51402 9.468 6.50502 9.597 6.50002C14.599 6.32602 17.858 10.726 17.858 10.726C17.858 10.726 14.115 15.416 10.215 15.416C9.877 15.416 9.54 15.385 9.208 15.324V16.574C9.486 16.612 9.766 16.631 10.046 16.631C13.675 16.631 16.299 14.721 18.84 12.462C19.261 12.809 20.986 13.655 21.341 14.026C18.925 16.109 13.293 17.789 10.101 17.789C9.793 17.789 9.498 17.769 9.207 17.741V19.5H23V4.50002H9.21L9.209 4.49902ZM9.209 14.255V15.323C5.853 14.707 4.922 11.113 4.922 11.113C6.06376 9.93013 7.57721 9.17535 9.209 8.97502V10.147H9.204C8.7252 10.1425 8.25155 10.246 7.81834 10.45C7.38513 10.654 7.00354 10.9531 6.702 11.325C6.702 11.325 7.317 13.6 9.209 14.255ZM3.248 10.956C4.684 9.02102 6.852 7.80802 9.209 7.62002V6.52302C4.81 6.88702 1 10.723 1 10.723C1 10.723 3.158 17.15 9.21 17.738V16.572C4.77 16 3.25 10.958 3.25 10.958H3.248V10.956Z"
+        fill="currentColor"
+      />
     </svg>
   )
 }

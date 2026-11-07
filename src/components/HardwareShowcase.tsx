@@ -4,6 +4,8 @@ import {
   AppleIcon,
   ArrowRightIcon,
   DisplayIcon,
+  LaptopIcon,
+  NvidiaIcon,
   WindowsIcon,
 } from '@/components/icons'
 
@@ -13,7 +15,7 @@ const examples = [
     description: t(
       'Ready for something new? Laptops like the latest Dell XPS make amazing Omarchy machines, with our core team helping the newest hardware work properly.',
     ),
-    icon: DisplayIcon,
+    icon: LaptopIcon,
     href: '/news/2026/09/the-omarchy-core-team/',
     link: t('Meet the team behind it'),
   },
@@ -31,7 +33,7 @@ const examples = [
     description: t(
       "Omarchy's first ARM release brings preliminary support for NVIDIA's ARM machines, from the DGX Spark desktop to N1X laptops like the Dell XPS 16 Creator Edition.",
     ),
-    icon: DisplayIcon,
+    icon: NvidiaIcon,
     href: '/news/2026/11/omarchy-4-5/',
     link: t('Read about Omarchy 4.5'),
   },
