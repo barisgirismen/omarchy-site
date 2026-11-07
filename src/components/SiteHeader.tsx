@@ -23,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useHashLink } from '@/lib/hash-scroll'
+import { useHashLink, useTopLink } from '@/lib/hash-scroll'
 import { OPEN_PICKER_EVENT, THEME_EVENT, groundOf } from '@/lib/theme'
 import { OPEN_SEARCH_EVENT } from '@/lib/search'
 import { cn } from '@/lib/utils'
@@ -453,6 +453,7 @@ export function SiteHeader({ path = '/' }: { path?: string }) {
   const heroInView = useHeroInView(pathname === '/')
   const [menuOpen, setMenuOpen] = useState(false)
   const installLink = useHashLink('install')
+  const homeLink = useTopLink()
   const transparent = heroInView
 
   useEffect(() => setMenuOpen(false), [pathname])
@@ -477,27 +478,30 @@ export function SiteHeader({ path = '/' }: { path?: string }) {
   const glyph = (
     <Link
       to="/"
-      aria-label={t('Search Omarchy')}
-      onClick={(event) => {
-        // A plain click opens the menu, whose first row is Home. A modified or
-        // middle click is still a link home, as the browser expects of one.
-        if (
-          event.defaultPrevented ||
-          event.button !== 0 ||
-          event.metaKey ||
-          event.ctrlKey ||
-          event.shiftKey ||
-          event.altKey
-        )
-          return
-        event.preventDefault()
-        window.dispatchEvent(new CustomEvent(OPEN_SEARCH_EVENT))
-      }}
+      aria-label={t('Omarchy home')}
+      // Home, or the top of it when already there - what a mark in this
+      // corner is expected to do. Search has its own place in the bar.
+      onClick={homeLink}
       className="mark-draw-trigger relative flex items-center"
     >
       <OmarchyMarkDrawn className="size-[22px] shrink-0 transition-opacity duration-150 ease-out max-md:group-data-[nav-past-hero]/bar:opacity-0 lg:size-[calc(var(--pxc)*2)]" />
       <OmarchyWordmark className="absolute top-1/2 left-0 w-28 -translate-y-1/2 text-brand opacity-0 transition-opacity duration-150 ease-out group-data-[nav-past-hero]/bar:opacity-100 md:hidden" />
     </Link>
+  )
+
+  // The logo is the way home, so search has its own button at the start of
+  // the icon row. It opens the same menu as Cmd/Ctrl+K and the slash key.
+  const search = (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={t('Search Omarchy')}
+      data-nav-glyph
+      className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
+      onClick={() => window.dispatchEvent(new CustomEvent(OPEN_SEARCH_EVENT))}
+    >
+      <SearchIcon className="size-5" />
+    </Button>
   )
 
   const theme = (
@@ -579,6 +583,9 @@ export function SiteHeader({ path = '/' }: { path?: string }) {
           <div className="ml-auto flex items-center gap-2.5">
             <div className="hidden items-center gap-1 md:flex">
               <TooltipProvider delay={300}>
+                <NavTooltip label={t('Search Omarchy')} shortcut="⌘K / Ctrl+K">
+                  {search}
+                </NavTooltip>
                 <NavTooltip label={t('Change website theme')} shortcut="T">
                   {theme}
                 </NavTooltip>
@@ -773,6 +780,9 @@ export function HeroNavGhost() {
             className="hidden items-center gap-1 md:flex"
             style={{ color: 'var(--t-hdr-text-2)' }}
           >
+            <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
+              <SearchIcon className="size-5" />
+            </span>
             <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
               <PaletteIcon className="size-5" />
             </span>
