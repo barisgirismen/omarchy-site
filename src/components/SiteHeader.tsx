@@ -209,7 +209,9 @@ function useHeroInView(seed: boolean) {
 /** Write surface opacity to CSS while scrolling; measure section geometry once per layout. */
 function useNavSurface(
   sheetOpen: boolean,
-  /** The blended ghost is up behind the bar, so the real labels stand aside. */
+  /** React's view of whether the hero is under the bar. The swap itself is
+   *  decided on every scroll in paint(); this only holds the real labels
+   *  while the menu toggle finishes closing over the hero. */
   blended: boolean,
   bar: RefObject<HTMLElement | null>,
   /** Re-surveyed on arrival at a new page, whose sections are its own. */
@@ -353,9 +355,17 @@ function useNavSurface(
         'data-nav-past-hero',
         !heroUp || (phone.matches ? y + height : y) >= heroBottom,
       )
-      // The ghost holds the labels for as long as it is up, and hovering hands
-      // them over early: it sits under the bar and cannot answer a pointer.
-      solid(sheetOpen || !blended || hovering)
+      // The ghost holds the labels for as long as the hero is under the bar,
+      // and hovering hands them over early: it sits under the bar and cannot
+      // answer a pointer. "Under the bar" is the observer's question in
+      // useHeroInView - is the hero's bottom edge below the bar's - answered
+      // here from the scroll that moved it. The observer's answer reaches the
+      // bar through React a few frames later (Firefox, on a fast wheel, over
+      // 100ms), and until it did the bar stayed blended over the next section,
+      // where the ghost's colours, matched to the hero's field, all but vanish:
+      // the links and icons went blank, then came back.
+      const overHero = heroUp && heroBottom - y > height
+      solid(sheetOpen || !overHero || hovering)
     }
 
     const hold = holding
