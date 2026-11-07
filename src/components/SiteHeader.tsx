@@ -216,7 +216,13 @@ function useNavSurface(
   pathname: string,
 ) {
   const wasOpen = useRef(sheetOpen)
-  useEffect(() => {
+  // Before paint, like the hero hook above: React flips data-nav-blend on the
+  // bar in its commit, and this effect moves the ghost to match. Run after
+  // paint, the two land a frame apart, and that frame shows the real labels
+  // hidden with the ghost not yet up (nothing in the bar), or both at once
+  // (the ghost's difference blend cancels the labels to near black) - a
+  // blink every time the hero edge crosses the bar.
+  useBeforePaint(() => {
     const el = bar.current
     if (!el) return
     const justClosed = wasOpen.current && !sheetOpen
