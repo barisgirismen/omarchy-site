@@ -446,8 +446,8 @@
   --t-text: #575279;
   --t-text-secondary: #5e587d;
   --t-text-muted: #676284;
-  --t-brand: #56949f;
-  --t-brand-soft: #56949f1f;
+  --t-brand: #3b7984;
+  --t-brand-soft: #3b79841f;
   --t-brand-ink: #ffffff;
   --t-elevation:
     0 0 0 1px oklch(0 0 0 / 0.06), 0 1px 3px oklch(0 0 0 / 0.05),
@@ -483,8 +483,8 @@
   --t-text: #4c4f69;
   --t-text-secondary: #53556f;
   --t-text-muted: #5c5f77;
-  --t-brand: #1e66f5;
-  --t-brand-soft: #1e66f51f;
+  --t-brand: #1b63f2;
+  --t-brand-soft: #1b63f21f;
   --t-brand-ink: #ffffff;
   --t-elevation:
     0 0 0 1px oklch(0 0 0 / 0.06), 0 1px 3px oklch(0 0 0 / 0.05),
@@ -556,7 +556,7 @@
   --t-border-strong: #475258;
   --t-text: #d3c6aa;
   --t-text-secondary: #d3c6aa;
-  --t-text-muted: #918f84;
+  --t-text-muted: #a4a296;
   --t-brand: #7fbbb3;
   --t-brand-soft: #7fbbb31f;
   --t-brand-ink: #0c0e10;
@@ -692,7 +692,7 @@
   --t-bg: #0c0b0c;
   --t-surface: #0c0b0c;
   --t-surface-2: #0c0b0c;
-  --t-border-subtle: #0c0b0c;
+  --t-border-subtle: #232123;
   --t-border-strong: #584e51;
   --t-text: #fafcfb;
   --t-text-secondary: #e2dddc;
@@ -803,9 +803,9 @@
   --t-border-strong: #666666;
   --t-text: #c2c2b0;
   --t-text-secondary: #c2c2b0;
-  --t-text-muted: #8c8c82;
-  --t-brand: #78824b;
-  --t-brand-soft: #78824b1f;
+  --t-text-muted: #8e8e83;
+  --t-brand: #88935b;
+  --t-brand-soft: #88935b1f;
   --t-brand-ink: #0c0e10;
   --t-elevation: 0 0 0 1px oklch(1 0 0 / 0.07);
   --t-elevation-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
@@ -837,8 +837,8 @@
   --t-text: #d8dee9;
   --t-text-secondary: #d8dee9;
   --t-text-muted: #9fa7b4;
-  --t-brand: #81a1c1;
-  --t-brand-soft: #81a1c11f;
+  --t-brand: #87a8c8;
+  --t-brand-soft: #87a8c81f;
   --t-brand-ink: #0c0e10;
   --t-elevation: 0 0 0 1px oklch(1 0 0 / 0.07);
   --t-elevation-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
@@ -870,8 +870,8 @@
   --t-text: #f7e8b2;
   --t-text-secondary: #c1c497;
   --t-text-muted: #969978;
-  --t-brand: #509475;
-  --t-brand-soft: #5094751f;
+  --t-brand: #569a7a;
+  --t-brand-soft: #569a7a1f;
   --t-brand-ink: #0c0e10;
   --t-elevation: 0 0 0 1px oklch(1 0 0 / 0.07);
   --t-elevation-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
@@ -964,7 +964,7 @@
   --t-bg: #101315;
   --t-surface: #101315;
   --t-surface-2: #101315;
-  --t-border-subtle: #101315;
+  --t-border-subtle: #26292b;
   --t-border-strong: #4b4e55;
   --t-text: #cacccc;
   --t-text-secondary: #a5aeb4;
