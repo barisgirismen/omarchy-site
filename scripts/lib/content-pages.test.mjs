@@ -1,8 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { renderPage, collectContentPages } from './content-pages.mjs'
 import { collectSources } from '../translation-sources.mjs'
 
@@ -83,4 +90,16 @@ test('heading anchors use text tokens and cannot contain HTML attribute syntax',
     assert.ok(match, page.html)
     assert.equal(match[1], match[2])
   }
+})
+
+test('the committed pages.json keeps every content page', () => {
+  // `npm run dev` serves src/data/pages.json as committed. Regenerating it with
+  // port_content.py alone drops the content pages, and their routes 404 locally.
+  const root = new URL('../../', import.meta.url)
+  const pages = JSON.parse(
+    readFileSync(new URL('src/data/pages.json', root), 'utf8'),
+  )
+  const content = collectContentPages(fileURLToPath(new URL('content/', root)))
+  const missing = Object.keys(content).filter((slug) => !pages[slug])
+  assert.deepEqual(missing, [], 'run `npm run port` and commit pages.json')
 })
