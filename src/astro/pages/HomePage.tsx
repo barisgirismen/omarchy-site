@@ -48,6 +48,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useHashLink } from '@/lib/hash-scroll'
+import { HERO_INTRO_SEEN } from '@/lib/hero-intro'
 import { cn } from '@/lib/utils'
 import { isoArch, isoLinks, type ArchHints, type IsoArch } from '@/lib/iso-arch'
 import bannerData from '@/data/banner.json'
@@ -346,7 +347,6 @@ function HeroCallout({ href, html }: { href: string; html: string }) {
 export function HomePage({ data }: { data: HomeData }) {
   const { top, news } = data
   const isos = useIsos()
-  const [intro, setIntro] = useState(false)
   const installLink = useHashLink('install')
   const watchLink = useHashLink('watch')
   const [painted, setPainted] = useState(false)
@@ -368,13 +368,12 @@ export function HomePage({ data }: { data: HomeData }) {
     if (painted) document.documentElement.classList.remove('etch-pending')
   }, [painted])
 
-  // Intro stagger plays once per session; returning within the session
-  // renders the resting state immediately.
+  // The intro is decided in the head (heroIntroInitScript) and plays once
+  // per session; returning within the session renders the resting state.
   useEffect(() => {
-    if (!sessionStorage.getItem('omarchy-intro-seen')) {
-      sessionStorage.setItem('omarchy-intro-seen', 'true')
-      setIntro(true)
-    }
+    try {
+      sessionStorage.setItem(HERO_INTRO_SEEN, 'true')
+    } catch {}
   }, [])
 
   const allPlugins = (
@@ -440,10 +439,7 @@ export function HomePage({ data }: { data: HomeData }) {
       <section
         id="home"
         data-hero-sentinel
-        className={
-          'pixel-container relative -mt-(--nav-h) flex min-h-svh flex-col overflow-hidden border-b border-border-subtle pt-(--nav-h) select-none [-webkit-touch-callout:none]' +
-          (intro ? ' hero-intro' : '')
-        }
+        className="pixel-container relative -mt-(--nav-h) flex min-h-svh flex-col overflow-hidden border-b border-border-subtle pt-(--nav-h) select-none [-webkit-touch-callout:none]"
         style={{ background: 'var(--t-field-bg)' }}
       >
         <HeroShader onPainted={() => setPainted(true)} />
