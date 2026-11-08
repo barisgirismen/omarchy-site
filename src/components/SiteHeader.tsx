@@ -252,10 +252,17 @@ function useNavSurface(
       grounds = nodes
         .filter((node) => !node.hasAttribute('data-hero-sentinel'))
         .map((node) => {
+          // A ground's own border is not its fill. Counted as inside, the bar
+          // was "wholly inside" #watch with that section's bottom border in
+          // its last pixel row, and painted the fill over it: at /#install
+          // the line under the bar vanished or showed by a fraction of a
+          // pixel of scroll.
           const box = node.getBoundingClientRect()
+          const style = getComputedStyle(node)
           return {
-            top: box.top + window.scrollY,
-            bottom: box.bottom + window.scrollY,
+            top: box.top + window.scrollY + parseFloat(style.borderTopWidth),
+            bottom:
+              box.bottom + window.scrollY - parseFloat(style.borderBottomWidth),
             colour: groundOf(node) ?? 'var(--color-bg)',
           }
         })
