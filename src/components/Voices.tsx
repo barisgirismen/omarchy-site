@@ -84,6 +84,18 @@ export function Voices() {
           )
             settled()
         }}
+        // Tabbing to a card under the fade opens the fold, so focus is never
+        // on a card the reader cannot see.
+        onFocus={(event) => {
+          const el = wall.current
+          // Only while folded: on a phone the wall is a rail, not a fold.
+          if (open || !el || el.scrollHeight <= el.clientHeight) return
+          const band = parseFloat(
+            getComputedStyle(el).getPropertyValue('--voices-band'),
+          )
+          const bottom = event.target.getBoundingClientRect().bottom
+          if (bottom > el.getBoundingClientRect().bottom - band) toggle()
+        }}
         className={cn('voices', open && 'voices-open')}
         style={{ '--voices-fold': `${FOLD_REM}rem` } as React.CSSProperties}
       >

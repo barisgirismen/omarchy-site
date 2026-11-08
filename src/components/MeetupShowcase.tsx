@@ -38,6 +38,7 @@ export function MeetupShowcase({ action }: { action?: ReactNode }) {
         size="icon"
         aria-label={t('Previous meetups')}
         disabled={rail.atStart}
+        focusableWhenDisabled
         onClick={() => turn(-1)}
       >
         <ChevronLeftIcon className="size-5" />
@@ -47,6 +48,7 @@ export function MeetupShowcase({ action }: { action?: ReactNode }) {
         size="icon"
         aria-label={t('Next meetups')}
         disabled={rail.atEnd}
+        focusableWhenDisabled
         onClick={() => turn(1)}
       >
         <ChevronRightIcon className="size-5" />

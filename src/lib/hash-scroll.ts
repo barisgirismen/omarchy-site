@@ -31,10 +31,24 @@ export function useHashLink(hash: string) {
     // Honours the scroll-margin-top that holds the section clear of the bar.
     claimNextHashScroll()
     scrollToAnchor(target, true)
+    // Focus goes where the page went, so the next Tab continues from the
+    // section rather than from the button left behind off screen.
+    focusAnchor(target)
     // Replaced, not pushed: pressing the same button three times should not
     // put three entries in the reader's history.
     void navigate({ to: '/', hash, replace: true, resetScroll: false })
   }
+}
+
+/** Hands focus to an anchor without a second scroll. A section is not
+ *  focusable by itself, so it is made reachable by script only, and marked so
+ *  the stylesheet leaves it without a ring around the whole section. */
+function focusAnchor(target: HTMLElement) {
+  if (!target.matches('a[href], button, input, select, textarea, [tabindex]')) {
+    target.setAttribute('tabindex', '-1')
+    target.setAttribute('data-anchor-focus', '')
+  }
+  target.focus({ preventScroll: true })
 }
 
 /** Scroll to the homepage top even when already on that route. */

@@ -1069,6 +1069,12 @@ html {
   }
 }
 
+/* A section that took focus from an in-page link: the scroll already shows
+   where the reader is, and a ring round the whole section is noise. */
+[data-anchor-focus]:focus-visible {
+  outline: none;
+}
+
 /* Inset focus outlines to avoid clipping inside scroll containers. */
 .rail-bare :focus-visible {
   outline-offset: -2px;
@@ -2438,7 +2444,9 @@ h6 {
 @media (min-width: 640px) {
   .voices {
     --voices-band: 260px;
-    overflow: hidden;
+    /* clip, not hidden: a hidden box can still be scrolled, and tabbing
+       to a card below the fold scrolled the wall inside it and left it there. */
+    overflow: clip;
     /* The clip would take the cards' rings and shadows at the two sides,
        where the first and last columns meet the edge; a few pixels of room
        inside the clip, pulled back so the columns do not move. */

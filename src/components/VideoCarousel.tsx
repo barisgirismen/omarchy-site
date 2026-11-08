@@ -1,5 +1,5 @@
 import { t } from '@/i18n/site'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon, PlayIcon } from '@/components/icons'
 import { OmarchyMark } from '@/components/Brand'
 import { Button } from '@/components/ui/button'
@@ -35,6 +35,18 @@ export function VideoCarousel({
   const [playing, setPlaying] = useState<string | null>(null)
 
   const goTo = (i: number) => glideTo((i + videos.length) % videos.length)
+
+  // The play button is replaced by the player. When the button had focus,
+  // focus follows into the player rather than dropping to the page, where a
+  // screen reader goes quiet and the next Tab starts from the top.
+  const focusPlayer = useRef(false)
+  useEffect(() => {
+    if (!playing || !focusPlayer.current) return
+    focusPlayer.current = false
+    document
+      .querySelector<HTMLIFrameElement>(`iframe[data-player="${playing}"]`)
+      ?.focus()
+  }, [playing])
 
   // Leaving a slide silences it, however you left.
   useEffect(() => {
@@ -105,13 +117,19 @@ export function VideoCarousel({
                 title={`${video.title} by ${video.channel}`}
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
+                data-player={video.id}
                 loading="lazy"
                 className="img-outlined aspect-video w-full"
               />
             ) : (
               <button
                 type="button"
-                onClick={() => (i === index ? setPlaying(video.id) : goTo(i))}
+                onClick={(event) => {
+                  if (i !== index) return goTo(i)
+                  focusPlayer.current =
+                    document.activeElement === event.currentTarget
+                  setPlaying(video.id)
+                }}
                 className="group relative block w-full cursor-grab text-left active:cursor-grabbing"
                 aria-label={
                   i === index
