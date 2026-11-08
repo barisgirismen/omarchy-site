@@ -251,7 +251,6 @@ export function PauseIcon(props: IconProps) {
   )
 }
 
-/** IconUsb from the square outlined set. */
 /** A USB stick, solid. */
 export function UsbIcon(props: IconProps) {
   return (
