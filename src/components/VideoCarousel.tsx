@@ -43,6 +43,26 @@ export function VideoCarousel({
     )
   }, [index, videos])
 
+  // On a phone the slide in view is a real player, so one tap plays it: a
+  // tap on a thumbnail can't start a YouTube player on iOS. Only that slide,
+  // and only once the carousel is close. A player on every slide from page
+  // load cost a phone about 7.6 MB from YouTube before anyone scrolled down.
+  const [near, setNear] = useState(false)
+  useEffect(() => {
+    const el = rail.scroller.current
+    if (!narrow || !el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return
+        setNear(true)
+        io.disconnect()
+      },
+      { rootMargin: '600px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [narrow, rail.scroller])
+
   const arrows = (
     <div className="flex items-center gap-2">
       <Button
@@ -94,7 +114,7 @@ export function VideoCarousel({
             aria-roledescription="slide"
             aria-label={`${i + 1} of ${videos.length}: ${video.title}`}
           >
-            {narrow || playing === video.id ? (
+            {playing === video.id || (narrow && near && i === index) ? (
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${video.id}?${new URLSearchParams(
                   {
