@@ -1474,6 +1474,21 @@
       "cover": null
     },
     {
+      "id": "evt-n3vWFaK0KP8ejG6",
+      "title": "Omarchy Hangzhou Meetup · 项目分享、装机与 Demo",
+      "url": "https://luma.com/omarchyhangzhou",
+      "start": "2026-11-15T06:00:00.000Z",
+      "end": "2026-11-15T10:00:00.000Z",
+      "timezone": null,
+      "address": "杭州崇文未来学校，甘王路3号",
+      "city": null,
+      "country": "杭州崇文未来学校，甘王路3号",
+      "online": null,
+      "geo": null,
+      "hosts": ["OpenClaw Asia", "M Q"],
+      "cover": null
+    },
+    {
       "id": "evt-deNAAL5V3VjulA1",
       "title": "OMARCHY WARSAW #2",
       "url": "https://luma.com/0tsjjf2d",
@@ -1489,6 +1504,21 @@
       "cover": null
     },
     {
+      "id": "evt-R1T3FoigSaT4BA6",
+      "title": "Omarchy London Meetup 002",
+      "url": "https://luma.com/fyb1dq1k",
+      "start": "2026-11-18T18:00:00.000Z",
+      "end": "2026-11-18T20:00:00.000Z",
+      "timezone": null,
+      "address": "Wise, 65 Clifton St, London EC2A 4JE, UK",
+      "city": null,
+      "country": "UK",
+      "online": null,
+      "geo": { "lat": 51.5223258, "lon": -0.0834298 },
+      "hosts": ["Itunu Abidoye", "Zoe Ezeh"],
+      "cover": null
+    },
+    {
       "id": "evt-JBHHKJZRXrbLNGX",
       "title": "Omarchy Singapore",
       "url": "https://luma.com/w2adh2et",
@@ -1501,21 +1531,6 @@
       "online": null,
       "geo": { "lat": 1.2979872440179592, "lon": 103.83962067974433 },
       "hosts": ["Vivian Hu"],
-      "cover": null
-    },
-    {
-      "id": "evt-R1T3FoigSaT4BA6",
-      "title": "Omarchy London Meetup 002",
-      "url": "https://luma.com/fyb1dq1k",
-      "start": "2026-11-19T18:00:00.000Z",
-      "end": "2026-11-19T20:00:00.000Z",
-      "timezone": null,
-      "address": "Wise, 65 Clifton St, London EC2A 4JE, UK",
-      "city": null,
-      "country": "UK",
-      "online": null,
-      "geo": { "lat": 51.5223258, "lon": -0.0834298 },
-      "hosts": ["Itunu Abidoye", "Zoe Ezeh"],
       "cover": null
     },
     {
