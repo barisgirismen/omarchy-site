@@ -1,7 +1,7 @@
 {
   "source": "luma-feed",
   "calendar": "https://luma.com/omarchy",
-  "refreshed": "2026-11-10",
+  "refreshed": "2026-11-11",
   "events": [
     {
       "id": "evt-YDyCEwwpiMzSFDB",
@@ -1456,21 +1456,6 @@
       "online": null,
       "geo": { "lat": 24.585445, "lon": 73.712479 },
       "hosts": ["Team arroWebs", "GR", "Srijan Ramachandran"],
-      "cover": null
-    },
-    {
-      "id": "calev-hpyAeRNiBjQJqEM",
-      "title": "Omarchy Meetup Hangzhou",
-      "url": "https://luma.com/omarchy",
-      "start": "2026-11-15T01:30:00.000Z",
-      "end": "2026-11-15T08:30:00.000Z",
-      "timezone": null,
-      "address": null,
-      "city": "杭州市",
-      "country": "CN",
-      "online": null,
-      "geo": { "lat": 30.2489634, "lon": 120.2052342, "approximate": true },
-      "hosts": [],
       "cover": null
     },
     {
