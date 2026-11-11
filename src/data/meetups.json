@@ -312,9 +312,9 @@
       "timezone": null,
       "address": null,
       "city": null,
-      "country": "MX",
+      "country": null,
       "online": null,
-      "geo": { "lat": 23.6585116, "lon": -102.0077097, "approximate": true },
+      "geo": null,
       "hosts": ["Gabriel Cerdio"],
       "cover": null
     },
