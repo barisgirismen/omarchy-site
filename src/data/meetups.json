@@ -1,7 +1,7 @@
 {
   "source": "luma-feed",
   "calendar": "https://luma.com/omarchy",
-  "refreshed": "2026-11-11",
+  "refreshed": "2026-11-12",
   "events": [
     {
       "id": "evt-YDyCEwwpiMzSFDB",
@@ -312,9 +312,9 @@
       "timezone": null,
       "address": null,
       "city": null,
-      "country": null,
+      "country": "MX",
       "online": null,
-      "geo": null,
+      "geo": { "lat": 23.6585116, "lon": -102.0077097, "approximate": true },
       "hosts": ["Gabriel Cerdio"],
       "cover": null
     },
