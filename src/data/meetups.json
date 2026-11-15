@@ -1609,6 +1609,21 @@
       "cover": null
     },
     {
+      "id": "evt-isTAXBiog8Wsv6o",
+      "title": "Omarchy Buenos Aires Meetup 003",
+      "url": "https://luma.com/zh7ya002",
+      "start": "2026-12-16T22:00:00.000Z",
+      "end": "2026-12-17T00:30:00.000Z",
+      "timezone": null,
+      "address": "Buenos Aires, Argentina",
+      "city": null,
+      "country": "Argentina",
+      "online": null,
+      "geo": { "lat": -34.6036739, "lon": -58.3821215 },
+      "hosts": ["Adrián Mugnolo"],
+      "cover": null
+    },
+    {
       "id": "evt-Go579QoFlyA9E5r",
       "title": "Omarchy Ghana",
       "url": "https://luma.com/fzp8rdnm",
