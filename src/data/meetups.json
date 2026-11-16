@@ -1594,6 +1594,21 @@
       "cover": null
     },
     {
+      "id": "evt-wCxQUZRXp6kPJyK",
+      "title": "Omarchy Aotearoa ep2",
+      "url": "https://luma.com/7bj5q2rs",
+      "start": "2026-12-11T22:00:00.000Z",
+      "end": "2026-12-12T00:00:00.000Z",
+      "timezone": null,
+      "address": "Patch Cafe - Lorne St, 36 Lorne Street, Auckland CBD, Auckland 1010, New Zealand",
+      "city": null,
+      "country": "New Zealand",
+      "online": null,
+      "geo": { "lat": -36.8507499, "lon": 174.7655605 },
+      "hosts": ["Sinan NAR", "Scott A"],
+      "cover": null
+    },
+    {
       "id": "evt-U925QBQtzBf2iX3",
       "title": "Omarchy DFW 002: What's New, Deep Dive, and Show & Tell",
       "url": "https://luma.com/7lpv9pv6",
