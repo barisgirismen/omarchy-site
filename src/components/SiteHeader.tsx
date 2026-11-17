@@ -60,6 +60,29 @@ const navLinks = [
   { to: '/themes/', label: t('Themes') },
 ] as const
 
+/** The link icons at the end of the bar. HeroNavGhost draws its copy from the
+ *  same list, so the blended layer over the hero always holds every icon. */
+const glyphLinks = [
+  {
+    href: '/news/rss.xml',
+    icon: RssIcon,
+    tooltip: t('Subscribe via RSS'),
+    label: t('Omarchy RSS feed'),
+  },
+  {
+    href: 'https://github.com/omacom/omarchy',
+    icon: GithubIcon,
+    tooltip: t('View Omarchy on GitHub'),
+    label: t('Omarchy on GitHub'),
+  },
+  {
+    href: 'https://x.com/omarchy',
+    icon: XIcon,
+    tooltip: t('Follow Omarchy on X'),
+    label: t('Omarchy on X'),
+  },
+] as const
+
 /** Observe the live hero sentinel; the header and blended labels share this state. */
 /** Choose the visible label layer before paint to prevent a navigation flash. */
 const useBeforePaint =
@@ -544,45 +567,21 @@ export function SiteHeader({ path = '/' }: { path?: string }) {
                   {theme}
                 </NavTooltip>
                 <LanguageSwitcher path={pathname} />
-                <NavTooltip label={t('Subscribe via RSS')}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t('Omarchy RSS feed')}
-                    data-nav-glyph
-                    className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
-                    nativeButton={false}
-                    render={<a href="/news/rss.xml" />}
-                  >
-                    <RssIcon className="size-5" />
-                  </Button>
-                </NavTooltip>
-                <NavTooltip label={t('View Omarchy on GitHub')}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t('Omarchy on GitHub')}
-                    data-nav-glyph
-                    className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
-                    nativeButton={false}
-                    render={<a href="https://github.com/omacom/omarchy" />}
-                  >
-                    <GithubIcon className="size-5" />
-                  </Button>
-                </NavTooltip>
-                <NavTooltip label={t('Follow Omarchy on X')}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t('Omarchy on X')}
-                    data-nav-glyph
-                    className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
-                    nativeButton={false}
-                    render={<a href="https://x.com/omarchy" />}
-                  >
-                    <XIcon className="size-5" />
-                  </Button>
-                </NavTooltip>
+                {glyphLinks.map(({ href, icon: Icon, tooltip, label }) => (
+                  <NavTooltip key={href} label={tooltip}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={label}
+                      data-nav-glyph
+                      className="relative h-8 w-8 text-text-secondary transition-[background-color,transform] hover:text-text before:absolute before:-inset-1 lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
+                      nativeButton={false}
+                      render={<a href={href} />}
+                    >
+                      <Icon className="size-5" />
+                    </Button>
+                  </NavTooltip>
+                ))}
               </TooltipProvider>
               <span className="ml-2 flex">{install}</span>
             </div>
@@ -764,12 +763,14 @@ export function HeroNavGhost() {
             <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
               <GlobeIcon className="size-5" />
             </span>
-            <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
-              <RssIcon className="size-5" />
-            </span>
-            <span className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]">
-              <GithubIcon className="size-5" />
-            </span>
+            {glyphLinks.map(({ href, icon: Icon }) => (
+              <span
+                key={href}
+                className="flex h-8 w-8 items-center justify-center lg:h-[calc(var(--pxr)*3)] lg:w-[calc(var(--pxr)*3)]"
+              >
+                <Icon className="size-5" />
+              </span>
+            ))}
             {/* Install holds its own colours, so the ghost only holds its
                 place - same box, same type metrics, nothing painted. The
                 border is part of the box: the real button wears a 1px
